@@ -7,7 +7,7 @@ branch: feature/translation-ai-engines
 status: queue
 created: 2026-03-22
 depends_on: []
-locks: ["app/services/translation.ts"]
+locks: ["app/services/translation/"]
 test_command: "npm run test:run -- translation"
 ---
 
