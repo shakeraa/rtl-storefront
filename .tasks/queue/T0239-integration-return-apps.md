@@ -1,0 +1,20 @@
+---
+id: "T0239"
+title: "Integration - Return Apps"
+priority: medium
+assigned: unassigned
+branch: feature/t0239
+status: queue
+created: 2026-03-22
+depends_on: []
+locks: []
+test_command: ""
+---
+
+## Description
+Translate return portal content
+
+## Acceptance criteria
+- [ ] Feature implemented
+- [ ] Tests passing
+- [ ] Documentation updated
