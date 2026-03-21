@@ -32,3 +32,22 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+model TranslationCache {
+  id             String   @id @default(cuid())
+  cacheKey       String   @unique
+  provider       String
+  sourceLocale   String
+  targetLocale   String
+  sourceText     String
+  translatedText String
+  context        String?
+  hits           Int      @default(0)
+  lastUsedAt     DateTime @default(now())
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([sourceLocale, targetLocale])
+  @@index([expiresAt])
+}

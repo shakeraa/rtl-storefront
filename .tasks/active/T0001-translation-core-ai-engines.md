@@ -32,11 +32,11 @@ Supported engines to implement:
 - `prisma/schema.prisma` - Add TranslationCache model
 
 ## Acceptance criteria
-- [ ] OpenAI GPT-4 provider implemented with rate limiting
-- [ ] DeepL Pro provider implemented with error handling
-- [ ] Google Translate provider implemented
-- [ ] Smart engine selection based on language pair
-- [ ] Translation result caching system
-- [ ] API quota tracking and alerts
-- [ ] Fallback chain when primary engine fails
-- [ ] Unit tests for all providers (80%+ coverage)
+- [x] OpenAI GPT-4 provider implemented with rate limiting
+- [x] DeepL Pro provider implemented with error handling
+- [x] Google Translate provider implemented
+- [x] Smart engine selection based on language pair
+- [x] Translation result caching system
+- [x] API quota tracking and alerts
+- [x] Fallback chain when primary engine fails
+- [x] Unit tests for all providers (80%+ coverage)
