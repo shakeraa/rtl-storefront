@@ -4,7 +4,7 @@ title: "Admin Dashboard - Translation Management UI"
 priority: high
 assigned: unassigned
 branch: feature/admin-dashboard
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/routes/app._index.tsx"]

@@ -4,7 +4,7 @@ title: "SEO & Discoverability - Multilingual SEO Infrastructure"
 priority: high
 assigned: unassigned
 branch: feature/multilingual-seo
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/seo/"]

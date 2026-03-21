@@ -4,7 +4,7 @@ title: "Translation Core - AI Translation Engines Integration"
 priority: high
 assigned: unassigned
 branch: feature/translation-ai-engines
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/translation/"]

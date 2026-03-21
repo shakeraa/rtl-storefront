@@ -4,7 +4,7 @@ title: "Performance - CDN, Caching & Optimization"
 priority: high
 assigned: unassigned
 branch: feature/performance
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/cache/"]

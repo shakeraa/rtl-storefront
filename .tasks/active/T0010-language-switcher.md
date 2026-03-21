@@ -4,7 +4,7 @@ title: "Language Switcher - Storefront Widget"
 priority: high
 assigned: unassigned
 branch: feature/language-switcher
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["extensions/language-switcher/"]

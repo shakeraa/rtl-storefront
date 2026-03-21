@@ -4,7 +4,7 @@ title: "RTL Specialized - Layout & Directionality Engine"
 priority: high
 assigned: unassigned
 branch: feature/rtl-layout-engine
-status: queue
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/utils/rtl.ts", "app/services/rtl-transformer.ts"]
