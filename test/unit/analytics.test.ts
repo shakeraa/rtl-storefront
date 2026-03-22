@@ -9,6 +9,7 @@ import {
   getEventsByLocale,
   getTranslationVolumeByLanguage,
   getConversionMetricsByLanguage,
+  getPopularProductsByLanguage,
   getAIConfidenceMetrics,
   clearEvents,
   getEventCount,
@@ -104,6 +105,13 @@ describe('Analytics Service - T0012', () => {
       const arEvents = getEventsByLocale('ar');
       expect(arEvents).toHaveLength(1);
     });
+
+    it('should expose the total event count', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/' });
+      trackEvent('conversion', 'shop-1', 'session-2', { value: 100 }, 'ar');
+
+      expect(getEventCount()).toBe(2);
+    });
   });
 
   describe('Translation Metrics', () => {
@@ -190,6 +198,68 @@ describe('Analytics Service - T0012', () => {
       expect(metrics.ar.count).toBe(2);
       expect(metrics.ar.totalValue).toBe(300);
       expect(metrics.ar.avgValue).toBe(150);
+    });
+
+    it('should rank popular products by language', () => {
+      trackConversion('shop-1', 'session-1', {
+        locale: 'ar',
+        productId: 'prod-1',
+        value: 120,
+        currency: 'USD',
+        referrer: 'google',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      trackConversion('shop-1', 'session-2', {
+        locale: 'ar',
+        productId: 'prod-1',
+        value: 80,
+        currency: 'USD',
+        referrer: 'direct',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      trackConversion('shop-1', 'session-3', {
+        locale: 'ar',
+        productId: 'prod-2',
+        value: 150,
+        currency: 'USD',
+        referrer: 'email',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      trackConversion('shop-1', 'session-4', {
+        locale: 'en',
+        productId: 'prod-9',
+        value: 50,
+        currency: 'USD',
+        referrer: 'search',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      const popular = getPopularProductsByLanguage();
+      expect(popular.ar).toEqual([
+        {
+          productId: 'prod-1',
+          count: 2,
+          totalValue: 200,
+          avgValue: 100,
+        },
+        {
+          productId: 'prod-2',
+          count: 1,
+          totalValue: 150,
+          avgValue: 150,
+        },
+      ]);
+      expect(popular.en).toEqual([
+        {
+          productId: 'prod-9',
+          count: 1,
+          totalValue: 50,
+          avgValue: 50,
+        },
+      ]);
     });
   });
 

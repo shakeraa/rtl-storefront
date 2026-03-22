@@ -247,6 +247,53 @@ export function getConversionMetricsByLanguage(
 }
 
 /**
+ * Get popular products by language from conversion events
+ */
+export function getPopularProductsByLanguage(
+  startDate?: Date,
+  endDate?: Date
+): Record<
+  string,
+  Array<{ productId: string; count: number; totalValue: number; avgValue: number }>
+> {
+  const conversions = getEventsByType('conversion', startDate, endDate);
+  const grouped: Record<
+    string,
+    Record<string, { count: number; totalValue: number }>
+  > = {};
+
+  for (const event of conversions) {
+    const locale = event.locale || 'unknown';
+    const productId = (event.metadata.productId as string | undefined) || 'unknown';
+    const value = (event.metadata.value as number) || 0;
+
+    if (!grouped[locale]) {
+      grouped[locale] = {};
+    }
+    if (!grouped[locale][productId]) {
+      grouped[locale][productId] = { count: 0, totalValue: 0 };
+    }
+
+    grouped[locale][productId].count++;
+    grouped[locale][productId].totalValue += value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(grouped).map(([locale, products]) => [
+      locale,
+      Object.entries(products)
+        .map(([productId, data]) => ({
+          productId,
+          count: data.count,
+          totalValue: data.totalValue,
+          avgValue: data.count > 0 ? data.totalValue / data.count : 0,
+        }))
+        .sort((a, b) => b.count - a.count || b.totalValue - a.totalValue),
+    ])
+  );
+}
+
+/**
  * Get AI confidence scoring
  */
 export function getAIConfidenceMetrics(
