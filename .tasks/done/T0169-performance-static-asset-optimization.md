@@ -1,10 +1,10 @@
 ---
-id: "T0168"
-title: "Performance - API Response Caching"
+id: "T0169"
+title: "Performance - Static Asset Optimization"
 priority: medium
 assigned: codex
-branch: feature/t0168
-status: review
+branch: feature/t0169
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Cache API responses
+Minify CSS/JS assets
 
 ## Acceptance criteria
 - [x] Feature implemented
