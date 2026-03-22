@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateDigitalDownloadAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Digital Download App Integration', () => {
+    it('should translate digital product content and preserve metadata', async () => {
+      const download = {
+        downloadId: 'download-1',
+        title: 'Pattern Bundle',
+        description: 'Download the full design pack',
+        instructions: 'Open the ZIP file after purchase',
+        assets: [
+          {
+            assetId: 'asset-1',
+            fileName: 'starter-kit.zip',
+            label: 'Main download',
+          },
+          {
+            assetId: 'asset-2',
+            fileName: 'usage-guide.pdf',
+          },
+        ],
+        metadata: {
+          provider: 'digital-download-app',
+        },
+      };
+
+      const result = await translateDigitalDownloadAppContent(download, 'ar');
+      expect(result.title).toBe('[ar] Pattern Bundle');
+      expect(result.description).toBe('[ar] Download the full design pack');
+      expect(result.instructions).toBe(
+        '[ar] Open the ZIP file after purchase'
+      );
+      expect(result.assets[0]).toEqual({
+        assetId: 'asset-1',
+        fileName: '[ar] starter-kit.zip',
+        label: '[ar] Main download',
+      });
+      expect(result.assets[1]).toEqual({
+        assetId: 'asset-2',
+        fileName: '[ar] usage-guide.pdf',
+        label: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'digital-download-app',
       });
     });
   });

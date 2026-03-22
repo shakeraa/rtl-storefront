@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface DownloadAssetContent {
+  assetId: string;
+  fileName: string;
+  label?: string;
+}
+
+export interface DigitalDownloadAppContent {
+  downloadId: string;
+  title: string;
+  description?: string;
+  instructions?: string;
+  assets: DownloadAssetContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,28 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Digital download app integration
+export async function translateDigitalDownloadAppContent(
+  download: DigitalDownloadAppContent,
+  targetLocale: string
+): Promise<DigitalDownloadAppContent> {
+  return {
+    ...download,
+    title: `[${targetLocale}] ${download.title}`,
+    description: download.description
+      ? `[${targetLocale}] ${download.description}`
+      : undefined,
+    instructions: download.instructions
+      ? `[${targetLocale}] ${download.instructions}`
+      : undefined,
+    assets: download.assets.map((asset) => ({
+      ...asset,
+      fileName: `[${targetLocale}] ${asset.fileName}`,
+      label: asset.label ? `[${targetLocale}] ${asset.label}` : undefined,
     })),
   };
 }
