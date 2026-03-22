@@ -25,6 +25,15 @@ export interface TranslationPreviewEntry {
   fields: Record<string, string>;
 }
 
+export interface DraftAutoSaveOptions {
+  delayMs?: number;
+}
+
+interface PendingAutoSave {
+  timer: ReturnType<typeof setTimeout>;
+  previews: TranslationPreviewEntry[];
+}
+
 // ---------------------------------------------------------------------------
 // In-memory storage
 // ---------------------------------------------------------------------------
@@ -36,6 +45,9 @@ const jobs = new Map<string, DraftTranslationJob>();
  * In production these would come from the translation engine.
  */
 const previews = new Map<string, TranslationPreviewEntry[]>();
+const pendingAutoSaves = new Map<string, PendingAutoSave>();
+
+const DEFAULT_AUTO_SAVE_DELAY_MS = 500;
 
 let idCounter = 0;
 
@@ -83,6 +95,68 @@ export function queueDraftTranslation(
 }
 
 /**
+ * Schedule a debounced update to a job's translation preview.
+ * Repeated saves for the same job collapse into a single write using
+ * the latest preview payload.
+ */
+export function scheduleDraftAutoSave(
+  jobId: string,
+  nextPreviews: TranslationPreviewEntry[],
+  options: DraftAutoSaveOptions = {},
+): { scheduled: boolean } {
+  const job = jobs.get(jobId);
+  if (!job || job.status === "published" || job.status === "cancelled") {
+    return { scheduled: false };
+  }
+
+  const existing = pendingAutoSaves.get(jobId);
+  if (existing) {
+    clearTimeout(existing.timer);
+  }
+
+  const delayMs = options.delayMs ?? DEFAULT_AUTO_SAVE_DELAY_MS;
+  const previewsSnapshot = clonePreviews(nextPreviews);
+  const timer = setTimeout(() => {
+    applyDraftAutoSave(jobId, previewsSnapshot);
+  }, delayMs);
+
+  pendingAutoSaves.set(jobId, {
+    timer,
+    previews: previewsSnapshot,
+  });
+
+  return { scheduled: true };
+}
+
+/**
+ * Immediately persist the latest pending auto-save for a job.
+ */
+export function flushDraftAutoSave(jobId: string): boolean {
+  const pending = pendingAutoSaves.get(jobId);
+  if (!pending) {
+    return false;
+  }
+
+  clearTimeout(pending.timer);
+  applyDraftAutoSave(jobId, pending.previews);
+  return true;
+}
+
+/**
+ * Cancel a pending auto-save for a job.
+ */
+export function cancelPendingAutoSave(jobId: string): boolean {
+  const pending = pendingAutoSaves.get(jobId);
+  if (!pending) {
+    return false;
+  }
+
+  clearTimeout(pending.timer);
+  pendingAutoSaves.delete(jobId);
+  return true;
+}
+
+/**
  * Return all pending (non-terminal) draft translation jobs for a shop.
  */
 export function getDraftQueue(shop: string): DraftTranslationJob[] {
@@ -112,6 +186,7 @@ export function publishTranslatedDraft(
   if (job.status === "cancelled" || job.status === "published") {
     return { success: false };
   }
+  cancelPendingAutoSave(jobId);
   job.status = "published";
   return { success: true };
 }
@@ -124,6 +199,7 @@ export function cancelDraft(jobId: string): boolean {
   const job = jobs.get(jobId);
   if (!job) return false;
   if (job.status === "published") return false;
+  cancelPendingAutoSave(jobId);
   job.status = "cancelled";
   return true;
 }
@@ -135,4 +211,41 @@ export function getTranslationPreview(
   jobId: string,
 ): TranslationPreviewEntry[] {
   return previews.get(jobId) ?? [];
+}
+
+export function clearDraftTranslationStateForTesting(): void {
+  for (const pending of pendingAutoSaves.values()) {
+    clearTimeout(pending.timer);
+  }
+
+  jobs.clear();
+  previews.clear();
+  pendingAutoSaves.clear();
+  idCounter = 0;
+}
+
+function applyDraftAutoSave(
+  jobId: string,
+  nextPreviews: TranslationPreviewEntry[],
+): void {
+  const job = jobs.get(jobId);
+  pendingAutoSaves.delete(jobId);
+
+  if (!job || job.status === "published" || job.status === "cancelled") {
+    return;
+  }
+
+  previews.set(jobId, clonePreviews(nextPreviews));
+  if (job.status === "queued" || job.status === "translating") {
+    job.status = "preview_ready";
+  }
+}
+
+function clonePreviews(
+  entries: TranslationPreviewEntry[],
+): TranslationPreviewEntry[] {
+  return entries.map((entry) => ({
+    locale: entry.locale,
+    fields: { ...entry.fields },
+  }));
 }

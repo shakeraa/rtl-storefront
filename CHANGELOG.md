@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
+- Add debounced draft-translation auto-save scheduling with flush and cancellation support to reduce redundant preview writes.
 - Add batched translation execution utilities with request deduplication, chunked processing, and ordered result fan-out for repeated translation inputs.
 
 ## 2025.12.11
