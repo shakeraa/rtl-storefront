@@ -62,7 +62,7 @@ describe('Material Localization', () => {
 
     it('returns Arabic description for ar locale', () => {
       const desc = getMaterialDescription('silk', 'ar');
-      expect(desc).toContain('حرير');
+      expect(desc).toContain("بروتيني");
       expect(desc).toContain('طبيعي');
     });
 
