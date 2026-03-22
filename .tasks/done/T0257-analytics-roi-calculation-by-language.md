@@ -1,10 +1,10 @@
 ---
-id: "T0259"
-title: "Analytics - Exportable Reports PDF"
+id: "T0257"
+title: "Analytics - ROI Calculation by Language"
 priority: medium
 assigned: claude-sec
-branch: feature/t0259
-status: active
+branch: feature/t0257
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Export reports as PDF
+Calculate return on translation
 
 ## Acceptance criteria
 - [ ] Feature implemented

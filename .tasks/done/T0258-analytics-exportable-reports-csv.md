@@ -1,10 +1,10 @@
 ---
-id: "T0257"
-title: "Analytics - ROI Calculation by Language"
+id: "T0258"
+title: "Analytics - Exportable Reports CSV"
 priority: medium
 assigned: claude-sec
-branch: feature/t0257
-status: active
+branch: feature/t0258
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Calculate return on translation
+Export data as CSV
 
 ## Acceptance criteria
 - [ ] Feature implemented
