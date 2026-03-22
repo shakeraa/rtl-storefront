@@ -1,6 +1,7 @@
 api_version = "2025-01"
 
 [[extensions]]
+uid = "43766e75-d389-73f7-866c-6fbced414118995e2658"
 type = "theme_app_extension"
 name = "RTL Storefront"
 handle = "rtl-language-switcher"
