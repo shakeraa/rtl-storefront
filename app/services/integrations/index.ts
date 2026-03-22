@@ -41,6 +41,15 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface WishlistAppLabels {
+  appId: string;
+  addToWishlist: string;
+  removeFromWishlist: string;
+  wishlistTitle: string;
+  emptyState: string;
+  itemCountLabel?: string;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -94,6 +103,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'swym',
+    name: 'Swym Wishlist Plus',
     category: 'other',
     status: 'available',
   },
@@ -178,6 +193,23 @@ export async function translateBundleAppContent(
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
     })),
+  };
+}
+
+// Wishlist app integration
+export async function translateWishlistAppLabels(
+  labels: WishlistAppLabels,
+  targetLocale: string
+): Promise<WishlistAppLabels> {
+  return {
+    ...labels,
+    addToWishlist: `[${targetLocale}] ${labels.addToWishlist}`,
+    removeFromWishlist: `[${targetLocale}] ${labels.removeFromWishlist}`,
+    wishlistTitle: `[${targetLocale}] ${labels.wishlistTitle}`,
+    emptyState: `[${targetLocale}] ${labels.emptyState}`,
+    itemCountLabel: labels.itemCountLabel
+      ? `[${targetLocale}] ${labels.itemCountLabel}`
+      : undefined,
   };
 }
 

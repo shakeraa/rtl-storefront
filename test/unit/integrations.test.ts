@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateWishlistAppLabels,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('swym');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,29 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Wishlist App Integration', () => {
+    it('should translate wishlist labels and preserve the app id', async () => {
+      const labels = {
+        appId: 'swym',
+        addToWishlist: 'Add to Wishlist',
+        removeFromWishlist: 'Remove from Wishlist',
+        wishlistTitle: 'My Wishlist',
+        emptyState: 'Your wishlist is empty',
+        itemCountLabel: '{{count}} saved items',
+      };
+
+      const result = await translateWishlistAppLabels(labels, 'ar');
+      expect(result).toEqual({
+        appId: 'swym',
+        addToWishlist: '[ar] Add to Wishlist',
+        removeFromWishlist: '[ar] Remove from Wishlist',
+        wishlistTitle: '[ar] My Wishlist',
+        emptyState: '[ar] Your wishlist is empty',
+        itemCountLabel: '[ar] {{count}} saved items',
       });
     });
   });

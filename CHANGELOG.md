@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
+- Add wishlist-app label translation helpers for common save/remove/empty-state strings.
 <<<<<<< HEAD
 <<<<<<< HEAD
 - Add a reusable virtualized translation-list component so long translation queues render only the visible window of rows.
