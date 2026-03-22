@@ -1261,7 +1261,7 @@ export function getKeywordSuggestions(
         relevance,
       };
     })
-    .filter((item) => item.relevance > 0)
+    .filter((item) => item.relevance > 20)
     .sort((a, b) => b.relevance - a.relevance)
     .slice(0, 5);
 }
