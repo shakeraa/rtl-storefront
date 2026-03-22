@@ -3,6 +3,18 @@
 ## Identity
 You are one of several coding agents working in parallel on this repo. Your identity is determined by the git worktree you are running in. Check your branch with `git branch --show-current` at the start of every session.
 
+## Worktree Isolation (MANDATORY)
+- Subagents MUST work in isolated git worktrees, not on the main working tree.
+- Use `isolation: "worktree"` when spawning subagents to prevent branch contamination.
+- Never commit to a branch you didn't create. Never switch branches.
+- If you're the lead architect (Claude), cherry-pick or merge from worktree branches to main.
+
+## Task Status Tracking (MANDATORY)
+- When you START working on a task, update its status to `in-progress` in the task file.
+- When you FINISH, update status to `done` only AFTER verifying the deliverables exist.
+- Do NOT bulk-move tasks to done. Each task must be individually verified.
+- A task is done ONLY when its locked paths exist and contain real code (not stubs).
+
 ## Branch Discipline
 - You work EXCLUSIVELY on the branch already checked out in your worktree.
 - NEVER switch branches. NEVER commit to `main`, `develop`, or any branch not yours.
