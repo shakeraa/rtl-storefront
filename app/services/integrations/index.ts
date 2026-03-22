@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface SeoFieldContent {
+  fieldId: string;
+  title: string;
+  description?: string;
+}
+
+export interface SeoAppContent {
+  seoId: string;
+  title: string;
+  metaTitleLabel?: string;
+  metaDescriptionLabel?: string;
+  fields: SeoFieldContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// SEO app integration
+export async function translateSeoAppContent(
+  seo: SeoAppContent,
+  targetLocale: string
+): Promise<SeoAppContent> {
+  return {
+    ...seo,
+    title: `[${targetLocale}] ${seo.title}`,
+    metaTitleLabel: seo.metaTitleLabel
+      ? `[${targetLocale}] ${seo.metaTitleLabel}`
+      : undefined,
+    metaDescriptionLabel: seo.metaDescriptionLabel
+      ? `[${targetLocale}] ${seo.metaDescriptionLabel}`
+      : undefined,
+    fields: seo.fields.map((field) => ({
+      ...field,
+      title: `[${targetLocale}] ${field.title}`,
+      description: field.description
+        ? `[${targetLocale}] ${field.description}`
+        : undefined,
     })),
   };
 }

@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateSeoAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,49 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('SEO App Integration', () => {
+    it('should translate SEO app content and preserve metadata', async () => {
+      const seo = {
+        seoId: 'seo-1',
+        title: 'SEO optimizer',
+        metaTitleLabel: 'Meta title',
+        metaDescriptionLabel: 'Meta description',
+        fields: [
+          {
+            fieldId: 'field-1',
+            title: 'Focus keyword',
+            description: 'Primary search term for this page',
+          },
+          {
+            fieldId: 'field-2',
+            title: 'Canonical URL',
+          },
+        ],
+        metadata: {
+          provider: 'seo-app',
+        },
+      };
+
+      const result = await translateSeoAppContent(seo, 'ar');
+      expect(result.title).toBe('[ar] SEO optimizer');
+      expect(result.metaTitleLabel).toBe('[ar] Meta title');
+      expect(result.metaDescriptionLabel).toBe('[ar] Meta description');
+      expect(result.fields[0]).toEqual({
+        fieldId: 'field-1',
+        title: '[ar] Focus keyword',
+        description: '[ar] Primary search term for this page',
+      });
+      expect(result.fields[1]).toEqual({
+        fieldId: 'field-2',
+        title: '[ar] Canonical URL',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'seo-app',
       });
     });
   });
