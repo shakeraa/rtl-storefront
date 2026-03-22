@@ -34,9 +34,20 @@ export interface ConversionMetrics {
   userAgent: string;
 }
 
+export interface AnalyticsRetentionSettings {
+  retentionDays: number;
+  maxEvents: number;
+}
+
 // Event storage (in production, this would be a database)
 const eventStore: AnalyticsEvent[] = [];
-const MAX_EVENTS = 10000;
+const DEFAULT_RETENTION_SETTINGS: AnalyticsRetentionSettings = {
+  retentionDays: 90,
+  maxEvents: 10000,
+};
+let retentionSettings: AnalyticsRetentionSettings = {
+  ...DEFAULT_RETENTION_SETTINGS,
+};
 
 /**
  * Track an analytics event
@@ -59,11 +70,7 @@ export function trackEvent(
   };
 
   eventStore.push(event);
-
-  // Keep only last MAX_EVENTS
-  if (eventStore.length > MAX_EVENTS) {
-    eventStore.shift();
-  }
+  pruneRetainedEvents(event.timestamp);
 
   // In production, send to analytics service
   console.log(`[Analytics] ${type}:`, event);
@@ -165,6 +172,8 @@ export function getEventsByType(
   startDate?: Date,
   endDate?: Date
 ): AnalyticsEvent[] {
+  pruneRetainedEvents(endDate);
+
   return eventStore.filter((event) => {
     if (event.type !== type) return false;
     if (startDate && event.timestamp < startDate) return false;
@@ -181,6 +190,8 @@ export function getEventsByLocale(
   startDate?: Date,
   endDate?: Date
 ): AnalyticsEvent[] {
+  pruneRetainedEvents(endDate);
+
   return eventStore.filter((event) => {
     if (event.locale !== locale) return false;
     if (startDate && event.timestamp < startDate) return false;
@@ -270,10 +281,62 @@ export function getAIConfidenceMetrics(
 }
 
 /**
+ * Configure retention settings for in-memory analytics storage.
+ */
+export function setAnalyticsRetentionSettings(
+  nextSettings: Partial<AnalyticsRetentionSettings>
+): AnalyticsRetentionSettings {
+  retentionSettings = {
+    retentionDays: nextSettings.retentionDays ?? retentionSettings.retentionDays,
+    maxEvents: nextSettings.maxEvents ?? retentionSettings.maxEvents,
+  };
+
+  pruneRetainedEvents();
+
+  return { ...retentionSettings };
+}
+
+/**
+ * Get the current analytics retention settings.
+ */
+export function getAnalyticsRetentionSettings(): AnalyticsRetentionSettings {
+  return { ...retentionSettings };
+}
+
+/**
+ * Prune retained analytics events based on age and max event count.
+ */
+export function pruneRetainedEvents(
+  referenceDate: Date = new Date()
+): { removedExpired: number; removedOverflow: number; remaining: number } {
+  const cutoff = new Date(referenceDate);
+  cutoff.setDate(cutoff.getDate() - retentionSettings.retentionDays);
+
+  let removedExpired = 0;
+  while (eventStore.length > 0 && eventStore[0].timestamp < cutoff) {
+    eventStore.shift();
+    removedExpired++;
+  }
+
+  let removedOverflow = 0;
+  while (eventStore.length > retentionSettings.maxEvents) {
+    eventStore.shift();
+    removedOverflow++;
+  }
+
+  return {
+    removedExpired,
+    removedOverflow,
+    remaining: eventStore.length,
+  };
+}
+
+/**
  * Clear all events (for testing)
  */
 export function clearEvents(): void {
   eventStore.length = 0;
+  retentionSettings = { ...DEFAULT_RETENTION_SETTINGS };
 }
 
 /**
