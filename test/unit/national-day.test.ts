@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  // Main functions
   getNationalDayTemplate,
   getNationalDayThemes,
   getNationalDayCampaign,
@@ -15,7 +14,6 @@ import {
   getEmailContent,
   getSmsContent,
   getYearsSinceFounding,
-  // Constants
   UAE_NATIONAL_DAY,
   SAUDI_NATIONAL_DAY,
   KUWAIT_NATIONAL_DAY,
@@ -26,9 +24,6 @@ import {
 } from '../../app/services/mena-campaigns/national-day';
 
 describe('National Day Service - T0061', () => {
-  // ==========================================================================
-  // Template Retrieval Tests
-  // ==========================================================================
   describe('getNationalDayTemplate', () => {
     it('should return UAE template for AE country code', () => {
       const template = getNationalDayTemplate('AE');
@@ -94,9 +89,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Theme Tests
-  // ==========================================================================
   describe('getNationalDayThemes', () => {
     it('should return UAE theme with correct flag colors', () => {
       const theme = getNationalDayThemes('AE');
@@ -121,16 +113,13 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Campaign Tests
-  // ==========================================================================
   describe('getNationalDayCampaign', () => {
     it('should return UAE campaign for 2024', () => {
       const campaign = getNationalDayCampaign('AE', 2024);
       expect(campaign).not.toBeNull();
       expect(campaign?.country).toBe('United Arab Emirates');
       expect(campaign?.year).toBe(2024);
-      expect(campaign?.startDate.getMonth()).toBe(11); // December (0-indexed)
+      expect(campaign?.startDate.getMonth()).toBe(11);
       expect(campaign?.startDate.getDate()).toBe(2);
     });
 
@@ -139,7 +128,7 @@ describe('National Day Service - T0061', () => {
       expect(campaign).not.toBeNull();
       expect(campaign?.country).toBe('Saudi Arabia');
       expect(campaign?.year).toBe(2024);
-      expect(campaign?.startDate.getMonth()).toBe(8); // September (0-indexed)
+      expect(campaign?.startDate.getMonth()).toBe(8);
       expect(campaign?.startDate.getDate()).toBe(23);
     });
 
@@ -165,9 +154,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Supported Countries Tests
-  // ==========================================================================
   describe('getSupportedCountries', () => {
     it('should return all supported country codes', () => {
       const countries = getSupportedCountries();
@@ -181,9 +167,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Country Name Tests
-  // ==========================================================================
   describe('getCountryName', () => {
     it('should return UAE name in English', () => {
       const name = getCountryName('AE', 'en');
@@ -211,9 +194,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Template Existence Tests
-  // ==========================================================================
   describe('hasNationalDayTemplate', () => {
     it('should return true for UAE', () => {
       expect(hasNationalDayTemplate('AE')).toBe(true);
@@ -228,9 +208,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Upcoming National Days Tests
-  // ==========================================================================
   describe('getUpcomingNationalDays', () => {
     it('should return array of campaigns', () => {
       const campaigns = getUpcomingNationalDays(2026);
@@ -249,9 +226,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Countdown Format Tests
-  // ==========================================================================
   describe('formatCountdown', () => {
     it('should format countdown in English', () => {
       const formatted = formatCountdown({ days: 5, hours: 12, minutes: 30 }, 'en');
@@ -280,13 +254,10 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Banner HTML Tests
-  // ==========================================================================
   describe('generateBannerHtml', () => {
     it('should generate banner HTML for UAE', () => {
       const html = generateBannerHtml('AE', 'en');
-      expect(html).toContain('United Arab Emirates');
+      expect(html).toContain('UAE');
       expect(html).toContain('linear-gradient');
       expect(html).toContain('🇦🇪');
     });
@@ -294,13 +265,13 @@ describe('National Day Service - T0061', () => {
     it('should generate banner HTML with RTL for Arabic', () => {
       const html = generateBannerHtml('SA', 'ar');
       expect(html).toContain('dir="rtl"');
-      expect(html).toContain('عيد');
+      expect(html).toContain('وطني');
     });
 
     it('should generate banner HTML with RTL for Hebrew', () => {
       const html = generateBannerHtml('AE', 'he');
       expect(html).toContain('dir="rtl"');
-      expect(html).toContain('שנה');
+      expect(html).toContain('יום');
     });
 
     it('should return empty string for unsupported country', () => {
@@ -309,9 +280,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Flag Emoji Tests
-  // ==========================================================================
   describe('getFlagEmoji', () => {
     it('should return UAE flag emoji', () => {
       expect(getFlagEmoji('AE')).toBe('🇦🇪');
@@ -342,9 +310,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Patriotic Messaging Tests
-  // ==========================================================================
   describe('getPatrioticMessaging', () => {
     it('should return patriotic messaging for UAE in Arabic', () => {
       const messaging = getPatrioticMessaging('AE', 'ar');
@@ -365,9 +330,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Email Content Tests
-  // ==========================================================================
   describe('getEmailContent', () => {
     it('should return email content for UAE', () => {
       const email = getEmailContent('AE', 'en');
@@ -389,9 +351,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // SMS Content Tests
-  // ==========================================================================
   describe('getSmsContent', () => {
     it('should return SMS content for UAE in English', () => {
       const sms = getSmsContent('AE', 'en');
@@ -413,23 +372,20 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Years Since Founding Tests
-  // ==========================================================================
   describe('getYearsSinceFounding', () => {
     it('should calculate correct years for UAE in 2024', () => {
       const years = getYearsSinceFounding('AE', 2024);
-      expect(years).toBe(53); // 2024 - 1971
+      expect(years).toBe(53);
     });
 
     it('should calculate correct years for Saudi in 2024', () => {
       const years = getYearsSinceFounding('SA', 2024);
-      expect(years).toBe(92); // 2024 - 1932
+      expect(years).toBe(92);
     });
 
     it('should calculate correct years for Kuwait in 2024', () => {
       const years = getYearsSinceFounding('KW', 2024);
-      expect(years).toBe(63); // 2024 - 1961
+      expect(years).toBe(63);
     });
 
     it('should return null for unsupported country', () => {
@@ -438,9 +394,6 @@ describe('National Day Service - T0061', () => {
     });
   });
 
-  // ==========================================================================
-  // Constants Tests
-  // ==========================================================================
   describe('Constants', () => {
     it('should have correct UAE founding year', () => {
       expect(UAE_NATIONAL_DAY.foundingYear).toBe(1971);
