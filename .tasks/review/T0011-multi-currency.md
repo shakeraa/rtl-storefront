@@ -2,9 +2,9 @@
 id: "T0011"
 title: "Commerce Localization - Multi-Currency Support"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/multi-currency
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/currency/"]
