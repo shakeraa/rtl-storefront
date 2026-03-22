@@ -232,7 +232,7 @@ export default function BillingPage() {
                 <Button
                   variant="primary"
                   fullWidth
-                  disabled={isCurrentPlan(plan) || isSubmitting}
+                  disabled={isCurrentPlan(plan) || (isSubmitting && submittingPlanId !== plan.id)}
                   onClick={() => handleSelectPlan(plan)}
                   loading={submittingPlanId === plan.id && isSubmitting}
                 >
