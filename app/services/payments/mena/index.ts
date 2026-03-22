@@ -65,6 +65,18 @@ export class MENAPaymentOrchestrator {
     if (config.telr) {
       this.gateways.set("telr", createTelrGateway(config.telr));
     }
+    if (config.payfort) {
+      this.gateways.set("payfort", createPayFortGateway(config.payfort));
+    }
+    if (config.hyperpay) {
+      this.gateways.set("hyperpay", createHyperPayGateway(config.hyperpay));
+    }
+    if (config.network_international) {
+      this.gateways.set("network_international", createNetworkInternationalGateway(config.network_international));
+    }
+    if (config.sadad) {
+      this.gateways.set("sadad", createSadadGateway(config.sadad));
+    }
   }
 
   getConfiguredProviders(): MENAPaymentProvider[] {
@@ -228,6 +240,43 @@ export function createMENAPaymentOrchestrator(env: Record<string, string | undef
           merchantId: env.TELR_STORE_ID,
           sandbox,
           webhookSecret: env.TELR_WEBHOOK_SECRET,
+        }
+      : undefined,
+    payfort: env.PAYFORT_ACCESS_CODE
+      ? {
+          provider: "payfort",
+          apiKey: env.PAYFORT_ACCESS_CODE,
+          secretKey: env.PAYFORT_SHA_REQUEST_PHRASE,
+          merchantId: env.PAYFORT_MERCHANT_IDENTIFIER,
+          sandbox,
+          webhookSecret: env.PAYFORT_SHA_RESPONSE_PHRASE,
+        }
+      : undefined,
+    hyperpay: env.HYPERPAY_API_KEY
+      ? {
+          provider: "hyperpay",
+          apiKey: env.HYPERPAY_API_KEY,
+          merchantId: env.HYPERPAY_ENTITY_ID,
+          sandbox,
+          webhookSecret: env.HYPERPAY_WEBHOOK_SECRET,
+        }
+      : undefined,
+    network_international: env.NGENIUS_API_KEY
+      ? {
+          provider: "network_international",
+          apiKey: env.NGENIUS_API_KEY,
+          merchantId: env.NGENIUS_OUTLET_REF,
+          sandbox,
+          webhookSecret: env.NGENIUS_WEBHOOK_SECRET,
+        }
+      : undefined,
+    sadad: env.SADAD_API_KEY
+      ? {
+          provider: "sadad",
+          apiKey: env.SADAD_API_KEY,
+          merchantId: env.SADAD_MERCHANT_ID,
+          sandbox,
+          webhookSecret: env.SADAD_WEBHOOK_SECRET,
         }
       : undefined,
   });
