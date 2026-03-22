@@ -4,7 +4,7 @@ title: "Public API - REST & GraphQL"
 priority: medium
 assigned: claude-sec
 branch: feature/public-api
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/routes/api.v1/"]

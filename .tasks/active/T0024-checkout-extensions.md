@@ -4,7 +4,7 @@ title: "Shopify Checkout Extensions"
 priority: high
 assigned: claude-sec
 branch: feature/checkout-extensions
-status: done
+status: active
 created: 2026-03-22
 depends_on: ["T0003"]
 locks: ["extensions/checkout/"]
