@@ -25,6 +25,13 @@ export interface QualityFlag {
   position?: { start: number; end: number };
 }
 
+export interface SpellCheckIssue {
+  word: string;
+  start: number;
+  end: number;
+  suggestions: string[];
+}
+
 export interface QualityThresholds {
   excellent: number; // >= 90
   good: number;      // >= 70
@@ -54,9 +61,14 @@ export function calculateQualityScore(
 ): QualityScore {
   const flags: QualityFlag[] = [];
   const suggestions: string[] = [];
+  const spellingIssues = checkSpelling(translatedText, targetLocale);
 
   // Calculate individual metrics
-  const grammaticalAccuracy = calculateGrammaticalAccuracy(translatedText, targetLocale);
+  const grammaticalAccuracy = calculateGrammaticalAccuracy(
+    translatedText,
+    targetLocale,
+    spellingIssues,
+  );
   const culturalAppropriateness = calculateCulturalScore(translatedText, targetLocale);
   const contextualRelevance = calculateContextualScore(sourceText, translatedText);
   const brandConsistency = calculateBrandConsistency(translatedText, options.brandTerms || []);
@@ -68,6 +80,15 @@ export function calculateQualityScore(
       type: 'warning',
       severity: 'high',
       message: 'Potential grammatical issues detected',
+    });
+  }
+
+  for (const issue of spellingIssues) {
+    flags.push({
+      type: 'warning',
+      severity: 'medium',
+      message: `Possible misspelling: ${issue.word} -> ${issue.suggestions.join(', ')}`,
+      position: { start: issue.start, end: issue.end },
     });
   }
 
@@ -102,6 +123,10 @@ export function calculateQualityScore(
     suggestions.push('Review by native speaker recommended');
   }
 
+  if (spellingIssues.length > 0) {
+    suggestions.push('Review spelling suggestions before publishing');
+  }
+
   const score: QualityScore = {
     translationId,
     overallScore,
@@ -126,7 +151,11 @@ export function calculateQualityScore(
 /**
  * Calculate grammatical accuracy (placeholder)
  */
-function calculateGrammaticalAccuracy(text: string, locale: string): number {
+function calculateGrammaticalAccuracy(
+  text: string,
+  locale: string,
+  spellingIssues: SpellCheckIssue[] = [],
+): number {
   // In production, this would use NLP libraries
   // For now, return a placeholder score
   const factors = [
@@ -136,7 +165,8 @@ function calculateGrammaticalAccuracy(text: string, locale: string): number {
   ];
   
   const passed = factors.filter(Boolean).length;
-  return Math.round((passed / factors.length) * 100);
+  const baseScore = Math.round((passed / factors.length) * 100);
+  return Math.max(0, baseScore - spellingIssues.length * 15);
 }
 
 /**
@@ -191,6 +221,41 @@ function calculateBrandConsistency(text: string, brandTerms: string[]): number {
 function calculateTerminologyScore(source: string, translation: string, locale: string): number {
   // In production, check against terminology database
   return 80;
+}
+
+export function checkSpelling(text: string, locale: string): SpellCheckIssue[] {
+  const dictionary: Record<string, Record<string, string[]>> = {
+    en: {
+      accomodate: ['accommodate'],
+      definately: ['definitely'],
+      recieve: ['receive'],
+      seperately: ['separately'],
+      teh: ['the'],
+    },
+  };
+
+  const localeDictionary = dictionary[locale] ?? {};
+  const issues: SpellCheckIssue[] = [];
+  const wordPattern = /\b[\p{L}']+\b/gu;
+
+  let match: RegExpExecArray | null;
+  while ((match = wordPattern.exec(text)) !== null) {
+    const word = match[0];
+    const suggestions = localeDictionary[word.toLowerCase()];
+
+    if (!suggestions) {
+      continue;
+    }
+
+    issues.push({
+      word,
+      start: match.index,
+      end: match.index + word.length,
+      suggestions,
+    });
+  }
+
+  return issues;
 }
 
 /**

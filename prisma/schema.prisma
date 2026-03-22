@@ -146,3 +146,48 @@ model DataRetentionPolicy {
 
   @@unique([shop, dataType])
 }
+
+model BillingPlan {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  priceInCents     Int
+  trialDays        Int      @default(14)
+  maxLanguages     Int
+  maxWordsPerMonth Int
+  features         String   @default("[]")
+  sortOrder        Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  subscriptions ShopSubscription[]
+}
+
+model ShopSubscription {
+  id                 String    @id @default(cuid())
+  shop               String    @unique
+  planId             String?
+  plan               BillingPlan? @relation(fields: [planId], references: [id])
+  status             String    @default("trial")
+  shopifyChargeId    String?   @unique
+  trialStartedAt     DateTime?
+  trialEndsAt        DateTime?
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([status])
+}
+
+model ShopUsage {
+  id          String   @id @default(cuid())
+  shop        String
+  periodStart DateTime
+  wordsUsed   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([shop, periodStart])
+  @@index([shop])
+}

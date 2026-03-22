@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateQualityScore,
+  checkSpelling,
   getQualityRating,
   needsReview,
   getQualityScore,
@@ -60,6 +61,44 @@ describe('Quality Score Service - T0051', () => {
       // Score calculation may or may not flag depending on algorithm
       expect(score.overallScore).toBeGreaterThanOrEqual(0);
       expect(score.overallScore).toBeLessThanOrEqual(100);
+    });
+
+    it('adds spelling flags and suggestions for known misspellings', () => {
+      const score = calculateQualityScore(
+        'trans-spell',
+        'Receive the product separately.',
+        'Recieve teh product seperately.',
+        'en'
+      );
+
+      expect(score.flags.some((flag) => flag.message.includes('Possible misspelling'))).toBe(true);
+      expect(score.suggestions).toContain('Review spelling suggestions before publishing');
+      expect(score.metrics.grammaticalAccuracy).toBeLessThan(100);
+    });
+  });
+
+  describe('Spell Check', () => {
+    it('detects known misspellings with correction suggestions', () => {
+      expect(checkSpelling('Recieve teh update seperately.', 'en')).toEqual([
+        {
+          word: 'Recieve',
+          start: 0,
+          end: 7,
+          suggestions: ['receive'],
+        },
+        {
+          word: 'teh',
+          start: 8,
+          end: 11,
+          suggestions: ['the'],
+        },
+        {
+          word: 'seperately',
+          start: 19,
+          end: 29,
+          suggestions: ['separately'],
+        },
+      ]);
     });
   });
 
