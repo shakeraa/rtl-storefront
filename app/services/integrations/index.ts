@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface LicenseKeyItemContent {
+  keyId: string;
+  productName: string;
+  activationLabel?: string;
+}
+
+export interface LicenseKeyAppContent {
+  licenseId: string;
+  title: string;
+  deliveryMessage?: string;
+  activationInstructions?: string;
+  keys: LicenseKeyItemContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// License key app integration
+export async function translateLicenseKeyAppContent(
+  license: LicenseKeyAppContent,
+  targetLocale: string
+): Promise<LicenseKeyAppContent> {
+  return {
+    ...license,
+    title: `[${targetLocale}] ${license.title}`,
+    deliveryMessage: license.deliveryMessage
+      ? `[${targetLocale}] ${license.deliveryMessage}`
+      : undefined,
+    activationInstructions: license.activationInstructions
+      ? `[${targetLocale}] ${license.activationInstructions}`
+      : undefined,
+    keys: license.keys.map((item) => ({
+      ...item,
+      productName: `[${targetLocale}] ${item.productName}`,
+      activationLabel: item.activationLabel
+        ? `[${targetLocale}] ${item.activationLabel}`
+        : undefined,
     })),
   };
 }

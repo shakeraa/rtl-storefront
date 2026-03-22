@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateLicenseKeyAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('License Key App Integration', () => {
+    it('should translate license key content and preserve metadata', async () => {
+      const license = {
+        licenseId: 'license-1',
+        title: 'Software Activation',
+        deliveryMessage: 'Your key is ready instantly',
+        activationInstructions: 'Paste the key into the desktop app',
+        keys: [
+          {
+            keyId: 'key-1',
+            productName: 'Pro Theme Kit',
+            activationLabel: 'Activate now',
+          },
+          {
+            keyId: 'key-2',
+            productName: 'Addon Pack',
+          },
+        ],
+        metadata: {
+          provider: 'license-key-app',
+        },
+      };
+
+      const result = await translateLicenseKeyAppContent(license, 'ar');
+      expect(result.title).toBe('[ar] Software Activation');
+      expect(result.deliveryMessage).toBe('[ar] Your key is ready instantly');
+      expect(result.activationInstructions).toBe(
+        '[ar] Paste the key into the desktop app'
+      );
+      expect(result.keys[0]).toEqual({
+        keyId: 'key-1',
+        productName: '[ar] Pro Theme Kit',
+        activationLabel: '[ar] Activate now',
+      });
+      expect(result.keys[1]).toEqual({
+        keyId: 'key-2',
+        productName: '[ar] Addon Pack',
+        activationLabel: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'license-key-app',
       });
     });
   });
