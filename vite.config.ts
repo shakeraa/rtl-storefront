@@ -2,6 +2,7 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { installGlobals } from "@remix-run/node";
 import { defineConfig, type UserConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { getStaticAssetOptimizationConfig } from "./app/services/performance/asset-optimizer";
 
 installGlobals({ nativeFetch: true });
 
@@ -21,6 +22,9 @@ const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
   .hostname;
 
 let hmrConfig;
+const assetOptimization = getStaticAssetOptimizationConfig(
+  process.env.NODE_ENV === "production" ? "production" : "development",
+);
 if (host === "localhost") {
   hmrConfig = {
     protocol: "ws",
@@ -65,7 +69,20 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   build: {
-    assetsInlineLimit: 0,
+    minify: assetOptimization.minify,
+    cssMinify: assetOptimization.cssMinify,
+    reportCompressedSize: assetOptimization.reportCompressedSize,
+    sourcemap: assetOptimization.sourcemap,
+    assetsInlineLimit: assetOptimization.assetsInlineLimit,
+    chunkSizeWarningLimit: assetOptimization.chunkSizeWarningLimit,
+    rollupOptions: {
+      output: {
+        entryFileNames: assetOptimization.rollupOutput.entryFileNames,
+        chunkFileNames: assetOptimization.rollupOutput.chunkFileNames,
+        assetFileNames: assetOptimization.rollupOutput.assetFileNames,
+        manualChunks: assetOptimization.rollupOutput.manualChunks,
+      },
+    },
   },
   optimizeDeps: {
     include: ["@shopify/app-bridge-react", "@shopify/polaris"],
