@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
+- Add a reusable virtualized translation-list component so long translation queues render only the visible window of rows.
 - Bound in-memory translation caches and cost tracking with LRU eviction and retention-based pruning to reduce long-lived memory growth.
 - Add batched translation execution utilities with request deduplication, chunked processing, and ordered result fan-out for repeated translation inputs.
 
