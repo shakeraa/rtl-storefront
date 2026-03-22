@@ -247,6 +247,56 @@ export function getConversionMetricsByLanguage(
 }
 
 /**
+ * Get category performance by language from conversion events
+ */
+export function getCategoryPerformanceByLanguage(
+  startDate?: Date,
+  endDate?: Date
+): Record<
+  string,
+  Array<{ categoryId: string; count: number; totalValue: number; avgValue: number }>
+> {
+  const conversions = getEventsByType('conversion', startDate, endDate);
+  const grouped: Record<
+    string,
+    Record<string, { count: number; totalValue: number }>
+  > = {};
+
+  for (const event of conversions) {
+    const locale = event.locale || 'unknown';
+    const categoryId =
+      (event.metadata.categoryId as string | undefined) ||
+      (event.metadata.collectionId as string | undefined) ||
+      'unknown';
+    const value = (event.metadata.value as number) || 0;
+
+    if (!grouped[locale]) {
+      grouped[locale] = {};
+    }
+    if (!grouped[locale][categoryId]) {
+      grouped[locale][categoryId] = { count: 0, totalValue: 0 };
+    }
+
+    grouped[locale][categoryId].count++;
+    grouped[locale][categoryId].totalValue += value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(grouped).map(([locale, categories]) => [
+      locale,
+      Object.entries(categories)
+        .map(([categoryId, data]) => ({
+          categoryId,
+          count: data.count,
+          totalValue: data.totalValue,
+          avgValue: data.count > 0 ? data.totalValue / data.count : 0,
+        }))
+        .sort((a, b) => b.count - a.count || b.totalValue - a.totalValue),
+    ])
+  );
+}
+
+/**
  * Get AI confidence scoring
  */
 export function getAIConfidenceMetrics(
