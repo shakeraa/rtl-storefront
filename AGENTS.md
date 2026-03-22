@@ -1,5 +1,9 @@
 # AGENTS.md - AI Coding Agent Guide
 
+> **Quick reference**: See `CLAUDE.md` for concise project instructions.
+> Agent-specific rules: `.agents/RULES.md`, `.agents/KIMI_INSTRUCTIONS.md`, `.agents/CODEX_INSTRUCTIONS.md`
+> Task format: `.agents/TASK_FORMAT.md`
+
 ## Project Overview
 
 **rtl-storefront** is a Shopify App built with the [Remix](https://remix.run) framework. It is an embedded app that runs inside the Shopify Admin, providing merchants with custom functionality to manage their store.

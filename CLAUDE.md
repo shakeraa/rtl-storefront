@@ -2,111 +2,106 @@
 
 ## Project Overview
 
-**rtl-storefront** is a Shopify embedded app built with Remix v2.16.1, TypeScript, Vite v6.2.2, Polaris v12, and Prisma/SQLite. It runs inside the Shopify Admin.
+**rtl-storefront** is a Shopify embedded app for RTL (Right-to-Left) storefront translation and MENA market localization. Built with Remix v2, TypeScript, Polaris v12, and Prisma/SQLite.
 
 ## Tech Stack
 
-- **Framework**: Remix v2 (React-based full-stack) with flat file-based routing
-- **Language**: TypeScript 5.2+ (strict mode, ES2022 target)
-- **Build**: Vite v6.2.2
-- **UI**: Shopify Polaris v12, @shopify/app-bridge-react v4.1.6
-- **Database**: SQLite via Prisma ORM v6.2.1
-- **API**: Shopify Admin GraphQL API v2025-01
-- **Package Manager**: npm
-- **Node**: >=20.19 <22 || >=22.12
+| Component | Technology |
+|-----------|------------|
+| Framework | Remix v2.16.1 (React full-stack) |
+| Language | TypeScript 5.2+ (strict mode) |
+| Build | Vite v6.2.2 |
+| UI | Shopify Polaris v12, App Bridge React v4.1.6 |
+| Database | SQLite via Prisma ORM v6.2.1 |
+| API | Shopify Admin GraphQL API v2025-01 |
+| Package Manager | npm |
+| Node | >=20.19 <22 \|\| >=22.12 |
 
 ## Commands
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start dev server (Shopify CLI) |
-| `npm run build` | Production build (Remix + Vite) |
-| `npm run setup` | Prisma generate + migrate deploy |
-| `npm run lint` | ESLint with caching |
-| `npm run graphql-codegen` | Generate GraphQL types |
-| `npm run deploy` | Deploy to Shopify |
+```bash
+npm run dev              # Start dev server (Shopify CLI)
+npm run build            # Production build
+npm run setup            # Prisma generate + migrate
+npm run lint             # ESLint
+npm run deploy           # Deploy to Shopify
+npx vitest run           # Run tests
+npx prisma migrate dev   # Run migrations
+npx tsx prisma/seed.ts   # Seed billing plans + glossary
+```
 
 ## Code Conventions
 
-### File Naming
-- Server-only modules: `*.server.ts` (e.g., `shopify.server.ts`, `db.server.ts`)
-- Route files: Remix flat routes convention
-- Components: PascalCase (e.g., `ProductCard.tsx`)
-- Utilities: camelCase (e.g., `formatPrice.ts`)
+- Server-only: `*.server.ts` (e.g., `shopify.server.ts`, `db.server.ts`)
+- Routes: Remix flat routes (`app/routes/app.*.tsx`)
+- Components: PascalCase, Services: kebab-case directories
+- Always use `authenticate.admin(request)` in loaders/actions
+- Always use `json()` from `@remix-run/node` for loader returns
+- Import Prisma as `import db from "../db.server"` (default export)
+- Use App Bridge `Link` for navigation, never `<a>` tags
 
-### Imports
-```typescript
-// Polaris CSS uses ?url suffix
-import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
-// Relative imports from app root
-import { authenticate } from "../shopify.server";
-import db from "../db.server";
+## Project Structure
+
+```
+app/
+├── routes/           # 26 Remix routes (admin pages + API)
+├── services/         # 87 service directories
+├── components/       # UI components (visual-editor, system, ui-features)
+├── utils/            # RTL utilities, translation helpers
+extensions/
+├── language-switcher/  # Theme extension (4 blocks)
+│   ├── blocks/         # language-switcher, checkout-rtl, mena-payments, rtl-inject
+│   ├── assets/         # rtl-storefront.css
+│   └── locales/        # en.default.json
+packages/
+├── hydrogen/         # Headless translation client stub
+prisma/
+├── schema.prisma     # 8 models
+├── seed.ts           # Billing plans + glossary entries
+├── migrations/       # 3 migrations applied
+test/
+├── unit/             # 109 test files
+├── integration/      # 3 integration tests
+├── e2e/              # 1 smoke test
+docs/
+├── api-reference.md  # Full API documentation
 ```
 
-### Authentication
-Always use `authenticate.admin(request)` in loaders/actions that need Shopify access:
-```typescript
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
-  return null;
-};
-```
+## Multi-Agent System
 
-### Embedded App
-- Use App Bridge for navigation — NEVER use standard `<a>` tags
-- Use Remix `Link` for internal navigation
+Three agents work in parallel. See `.agents/` for detailed instructions.
 
-## Multi-Agent Workflow
+| Agent | Role | Branch |
+|-------|------|--------|
+| **Claude** | Lead architect, reviews + merges to main | `main` |
+| **Kimi** | Feature developer | `feature/*` branches in worktrees |
+| **Codex** | Feature developer | `feature/*` branches in worktrees |
 
-This repo uses a multi-agent system. See `.agents/RULES.md` for full rules.
+### Rules
+- Agents work in isolated worktrees — NEVER on main
+- Claude reviews all submissions before merging
+- Tasks tracked in `.tasks/` (active → review → done)
+- See `.agents/RULES.md` for full workflow
 
-### Branch Discipline
-- Claude (lead architect) commits directly to `main`
-- Other agents (kimi, codex, gemini) use feature branches
-- NEVER switch branches — work on the branch checked out in your worktree
+## Key Services
 
-### Commit Messages
-- Prefix with branch name: `[agent-1/auth] add login endpoint`
-- Small, focused commits after each logical unit of work
-
-### Task System
-- Tasks live in `.tasks/` (active, review, done, queue)
-- Task format defined in `.agents/TASK_FORMAT.md`
-- File locks are exclusive — check `.tasks/active/` before starting
-
-### Review Flow
-1. Agent implements task on feature branch
-2. Agent runs tests, writes `result.md`
-3. Agent moves task to `.tasks/review/`
-4. Claude reviews, merges to main or rejects
-
-## Testing (Mandatory Before Review)
-
-- Run `test_command` from task file if specified
-- Include actual test output in `result.md` — "manually verified" is NOT accepted
-- Run route health check for any route changes: `bash scripts/check-routes.sh`
-
-### Test Quality Rules
-- NO lenient assertions: never `.toBeTruthy()` for existence — assert specific values
-- NO `|| true` patterns: `expect(x || true).toBe(true)` always passes — forbidden
-- NO early returns that skip assertions
-- NO fake inline components — import the real component
-
-### Screen Regression
-- Run screen's test spec BEFORE and AFTER changes
-- No hardcoded colors — use CSS variables
-- Guard all data access with optional chaining: `data?.length ?? 0`
+| Service | Path | Description |
+|---------|------|-------------|
+| Translation Engine | `services/translation/` | AI translation (OpenAI/DeepL/Google) |
+| Cultural AI | `services/cultural-ai/` | Dialect, sensitivity, formality |
+| MENA Payments | `services/payments/mena/` | 11 gateways (Tamara, Tabby, Mada, etc.) |
+| Translation Memory | `services/translation-memory/` | TM + glossary with fuzzy matching |
+| BiDi Preservation | `services/bidi/` | Mixed LTR/RTL text handling |
+| Coverage | `services/coverage/` | Translation coverage tracking |
+| Security | `services/security/` | CSP, XSS, CSRF, rate limiting |
+| GDPR | `services/gdpr/` | Data export, deletion, consent |
+| Analytics | `services/analytics/` | Volume, ROI, trends, reports |
+| Billing | `services/billing/` | Shopify Billing API integration |
 
 ## Security
 
-- Token rotation enabled (`expiringOfflineAccessTokens: true`)
-- Webhook HMAC validation handled by Shopify Remix package
-- Secrets via environment variables (SHOPIFY_API_KEY, SHOPIFY_API_SECRET, etc.)
-- Sessions stored in SQLite via PrismaSessionStorage
-
-## Remix Future Flags (enabled)
-- v3_fetcherPersist
-- v3_relativeSplatPath
-- v3_throwAbortReason
-- v3_lazyRouteDiscovery
-- v3_routeConfig
+- Token rotation: `expiringOfflineAccessTokens: true`
+- Webhook HMAC validation via Shopify Remix package
+- Secrets via env vars only (never hardcoded)
+- Sessions in SQLite via PrismaSessionStorage
+- CSP, XSS prevention, CSRF tokens in security service
