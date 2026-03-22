@@ -187,11 +187,22 @@ export function batchConvert(items: Array<{ value: number; fromUnit: string; toU
   return items.map((item, index) => ({ ...convertUnit(item.value, item.fromUnit, item.toUnit), id: `item-${index}` }));
 }
 
+// Map of preferred conversions for smartConvert
+const PREFERRED_CONVERSIONS: Record<string, { metric: string; imperial: string }> = {
+  length: { metric: 'cm', imperial: 'in' },
+  weight: { metric: 'kg', imperial: 'lb' },
+  volume: { metric: 'l', imperial: 'gal' },
+  area: { metric: 'sq_m', imperial: 'sq_ft' },
+};
+
 export function smartConvert(value: number, fromUnit: string, preferredSystem: 'metric' | 'imperial' = 'metric'): { value: number; unit: string; original: ConversionResult } {
   const unit = getUnit(fromUnit); if (!unit) throw new Error(`Unknown unit: ${fromUnit}`);
   if (unit.system === preferredSystem) return { value, unit: fromUnit, original: { value, fromUnit, toUnit: fromUnit, originalValue: value } };
-  const targetUnit = preferredSystem === 'metric' ? unit.baseUnit : `${unit.baseUnit}_imperial`;
-  const result = convertUnit(value, fromUnit, targetUnit); return { value: result.value, unit: targetUnit, original: result };
+  
+  // Use preferred unit for the category/system
+  const targetUnit = PREFERRED_CONVERSIONS[unit.category]?.[preferredSystem] || unit.baseUnit;
+  const result = convertUnit(value, fromUnit, targetUnit); 
+  return { value: result.value, unit: targetUnit, original: result };
 }
 
 export function getUnitsByCategory(category: UnitCategory): UnitDefinition[] { return Object.values(UNITS).filter((unit) => unit.category === category); }
@@ -201,16 +212,33 @@ export function getSupportedLocales(): Locale[] { return ['ar', 'he', 'en']; }
 export function isLocaleSupported(locale: string): locale is Locale { return getSupportedLocales().includes(locale as Locale); }
 
 export function parseMeasurement(input: string): { value: number; unit: string } | null {
-  const match = input.trim().match(/^(\d[\d٠١٢٣٤٥٦٧٨٩,.٫]*)\s*(.+)?$/); if (!match) return null;
+  const match = input.trim().match(/^([\d٠١٢٣٤٥٦٧٨٩][\d٠١٢٣٤٥٦٧٨٩,.٫]*)\s*(.+)?$/); if (!match) return null;
   let valueStr = match[1]; const unitStr = match[2]?.trim();
   if (/[٠١٢٣٤٥٦٧٨٩٫]/.test(valueStr)) valueStr = String(fromEasternArabicNumerals(valueStr));
   const value = parseFloat(valueStr.replace(/,/g, '')); if (isNaN(value)) return null;
-  let unit: string | undefined;
-  if (unitStr) {
-    unit = Object.keys(UNITS).find((u) => u.toLowerCase() === unitStr.toLowerCase());
-    if (!unit) { const unitDef = Object.values(UNITS).find((u) => u.symbol.toLowerCase() === unitStr.toLowerCase()); unit = unitDef?.code; }
+  
+  if (!unitStr) return { value, unit: 'unknown' };
+  
+  // Try to find matching unit by code
+  let unit: string | undefined = Object.keys(UNITS).find((u) => u.toLowerCase() === unitStr.toLowerCase());
+  
+  // Try symbol match
+  if (!unit) {
+    const unitDef = Object.values(UNITS).find((u) => u.symbol.toLowerCase() === unitStr.toLowerCase());
+    unit = unitDef?.code;
   }
-  return { value, unit: unit || unitStr || 'unknown' };
+  
+  // Try Arabic symbol match from translations
+  if (!unit) {
+    for (const [code, translations] of Object.entries(UNIT_TRANSLATIONS)) {
+      for (const translation of Object.values(translations)) {
+        if (translation.symbol === unitStr) { unit = code; break; }
+      }
+      if (unit) break;
+    }
+  }
+  
+  return { value, unit: unit || unitStr };
 }
 
 export function compareMeasurements(value1: number, unit1: string, value2: number, unit2: string): number {
