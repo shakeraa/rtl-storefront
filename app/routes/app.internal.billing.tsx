@@ -36,6 +36,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const id = (formData.get("id") as string) || null;
     const featuresRaw = formData.get("features") as string;
 
+    let features: FeatureKey[];
+    try {
+      const parsed = JSON.parse(featuresRaw);
+      features = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return json({ error: "Invalid features format" }, { status: 400 });
+    }
+
     await upsertPlan(id, {
       name: formData.get("name") as string,
       slug: formData.get("slug") as string,
@@ -43,7 +51,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       trialDays: parseInt(formData.get("trialDays") as string, 10),
       maxLanguages: parseInt(formData.get("maxLanguages") as string, 10),
       maxWordsPerMonth: parseInt(formData.get("maxWordsPerMonth") as string, 10),
-      features: JSON.parse(featuresRaw) as FeatureKey[],
+      features,
       sortOrder: parseInt(formData.get("sortOrder") as string, 10),
       isActive: formData.get("isActive") === "true",
     });

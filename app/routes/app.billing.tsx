@@ -42,8 +42,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const formData = await request.formData();
   const planId = formData.get("planId") as string;
-  const planName = formData.get("planName") as string;
-  const priceInCents = parseInt(formData.get("priceInCents") as string, 10);
+
+  // Look up plan from DB — never trust client-side price/name
+  const plan = await getPlanById(planId);
+  if (!plan) {
+    return json({ error: "Plan not found" }, { status: 400 });
+  }
 
   const isTest = process.env.NODE_ENV !== "production";
 
@@ -73,7 +77,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   `, {
     variables: {
-      name: planName,
+      name: plan.name,
       returnUrl,
       test: isTest,
       lineItems: [
@@ -81,7 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           plan: {
             appRecurringPricingDetails: {
               price: {
-                amount: parseFloat(formatPriceForShopify(priceInCents)),
+                amount: parseFloat(formatPriceForShopify(plan.priceInCents)),
                 currencyCode: "USD",
               },
             },
@@ -127,8 +131,6 @@ export default function BillingPage() {
   const handleSelectPlan = (plan: PlanWithFeatures) => {
     const formData = new FormData();
     formData.set("planId", plan.id);
-    formData.set("planName", plan.name);
-    formData.set("priceInCents", plan.priceInCents.toString());
     submit(formData, { method: "post" });
   };
 
