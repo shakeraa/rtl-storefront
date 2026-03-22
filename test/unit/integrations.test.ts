@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateInvoiceAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Invoice App Integration', () => {
+    it('should translate invoice content and preserve metadata', async () => {
+      const invoice = {
+        invoiceId: 'invoice-1',
+        title: 'Order invoice',
+        paymentLabel: 'Paid with credit card',
+        billingSummary: 'Subtotal, shipping, and tax breakdown',
+        lineItems: [
+          {
+            lineItemId: 'line-1',
+            title: 'Premium Jacket',
+            description: 'Size M',
+          },
+          {
+            lineItemId: 'line-2',
+            title: 'Gift box',
+          },
+        ],
+        metadata: {
+          provider: 'invoice-app',
+        },
+      };
+
+      const result = await translateInvoiceAppContent(invoice, 'ar');
+      expect(result.title).toBe('[ar] Order invoice');
+      expect(result.paymentLabel).toBe('[ar] Paid with credit card');
+      expect(result.billingSummary).toBe(
+        '[ar] Subtotal, shipping, and tax breakdown'
+      );
+      expect(result.lineItems[0]).toEqual({
+        lineItemId: 'line-1',
+        title: '[ar] Premium Jacket',
+        description: '[ar] Size M',
+      });
+      expect(result.lineItems[1]).toEqual({
+        lineItemId: 'line-2',
+        title: '[ar] Gift box',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'invoice-app',
       });
     });
   });

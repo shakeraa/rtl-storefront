@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface InvoiceLineItemContent {
+  lineItemId: string;
+  title: string;
+  description?: string;
+}
+
+export interface InvoiceAppContent {
+  invoiceId: string;
+  title: string;
+  paymentLabel?: string;
+  billingSummary?: string;
+  lineItems: InvoiceLineItemContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Invoice app integration
+export async function translateInvoiceAppContent(
+  invoice: InvoiceAppContent,
+  targetLocale: string
+): Promise<InvoiceAppContent> {
+  return {
+    ...invoice,
+    title: `[${targetLocale}] ${invoice.title}`,
+    paymentLabel: invoice.paymentLabel
+      ? `[${targetLocale}] ${invoice.paymentLabel}`
+      : undefined,
+    billingSummary: invoice.billingSummary
+      ? `[${targetLocale}] ${invoice.billingSummary}`
+      : undefined,
+    lineItems: invoice.lineItems.map((lineItem) => ({
+      ...lineItem,
+      title: `[${targetLocale}] ${lineItem.title}`,
+      description: lineItem.description
+        ? `[${targetLocale}] ${lineItem.description}`
+        : undefined,
     })),
   };
 }
