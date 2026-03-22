@@ -6,6 +6,7 @@ import {
   translatePageFlyContent,
   translateJudgeMeReview,
   translateKlaviyoTemplate,
+  translateBundleAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -15,6 +16,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.length).toBeGreaterThan(0);
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
     });
 
     it('should get integration by ID', () => {
@@ -66,6 +68,51 @@ describe('Integrations Service', () => {
       const result = await translateKlaviyoTemplate(template, 'ar');
       expect(result).toContain('[ar]');
       expect(result).toContain('{{customer.first_name}}');
+    });
+  });
+
+  describe('Bundle App Integration', () => {
+    it('should translate bundle content and preserve item metadata', async () => {
+      const bundle = {
+        bundleId: 'bundle-1',
+        title: 'Summer Set',
+        description: 'Buy the full look',
+        items: [
+          {
+            productId: 'p1',
+            title: 'Linen Shirt',
+            quantity: 1,
+            label: 'Featured item',
+          },
+          {
+            productId: 'p2',
+            title: 'Cotton Pants',
+            quantity: 2,
+          },
+        ],
+        metadata: {
+          source: 'fastbundle',
+        },
+      };
+
+      const result = await translateBundleAppContent(bundle, 'ar');
+      expect(result.title).toBe('[ar] Summer Set');
+      expect(result.description).toBe('[ar] Buy the full look');
+      expect(result.items[0]).toEqual({
+        productId: 'p1',
+        title: '[ar] Linen Shirt',
+        quantity: 1,
+        label: '[ar] Featured item',
+      });
+      expect(result.items[1]).toEqual({
+        productId: 'p2',
+        title: '[ar] Cotton Pants',
+        quantity: 2,
+        label: undefined,
+      });
+      expect(result.metadata).toEqual({
+        source: 'fastbundle',
+      });
     });
   });
 
