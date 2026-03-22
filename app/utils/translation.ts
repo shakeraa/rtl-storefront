@@ -3,8 +3,6 @@
  * Helper functions for managing translations
  */
 
-import type { Translation } from '@prisma/client';
-
 export interface TranslationEntry {
   key: string;
   value: string;

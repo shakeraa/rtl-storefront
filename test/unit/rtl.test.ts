@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
+  detectLocaleFromRequest,
+  getDirectionalityMode,
+  getDocumentDirectionContext,
+  getLocaleDirectionContext,
+  getMixedDirectionSegment,
   isRTLLanguage,
   getTextDirection,
   getDirAttribute,
@@ -68,6 +73,67 @@ describe('RTL Utilities', () => {
     });
   });
 
+  describe('locale direction context', () => {
+    it('detects locale from query string', () => {
+      const request = new Request('https://example.com/app?locale=ar-SA');
+      expect(detectLocaleFromRequest(request)).toBe('ar-SA');
+    });
+
+    it('detects locale from cookie when query string is absent', () => {
+      const request = new Request('https://example.com/app', {
+        headers: {
+          cookie: 'session=abc; locale=he-IL',
+        },
+      });
+
+      expect(detectLocaleFromRequest(request)).toBe('he-IL');
+    });
+
+    it('falls back to accept-language header', () => {
+      const request = new Request('https://example.com/app', {
+        headers: {
+          'accept-language': 'fa-IR,fa;q=0.9,en;q=0.8',
+        },
+      });
+
+      expect(detectLocaleFromRequest(request)).toBe('fa-IR');
+    });
+
+    it('builds a mixed direction context', () => {
+      const context = getLocaleDirectionContext('ar', { contentLocale: 'en' });
+
+      expect(context.direction).toBe('rtl');
+      expect(context.mode).toBe('mixed');
+      expect(context.htmlAttributes.dataDirectionality).toBe('mixed');
+    });
+
+    it('builds document direction context from request', () => {
+      const request = new Request('https://example.com/app?locale=he&contentLocale=en');
+      const context = getDocumentDirectionContext(request, { contentLocale: 'en' });
+
+      expect(context.locale).toBe('he');
+      expect(context.direction).toBe('rtl');
+      expect(context.mode).toBe('mixed');
+    });
+
+    it('returns mixed direction mode only when directions differ', () => {
+      expect(getDirectionalityMode('ar', 'en')).toBe('mixed');
+      expect(getDirectionalityMode('ar', 'he')).toBe('single');
+    });
+
+    it('creates segment attributes for embedded mixed content', () => {
+      expect(getMixedDirectionSegment('en')).toEqual({
+        locale: 'en',
+        direction: 'ltr',
+        attributes: {
+          lang: 'en',
+          dir: 'ltr',
+          className: 'segment-ltr',
+        },
+      });
+    });
+  });
+
   describe('flipCSSProperty', () => {
     it('returns original for LTR languages', () => {
       const result = flipCSSProperty('margin-left', '10px', 'en');
@@ -132,6 +198,17 @@ describe('RTL Utilities', () => {
       expect(flipCSSProperty('color', 'red', 'ar')).toEqual({
         property: 'color',
         value: 'red',
+      });
+    });
+
+    it('flips float and clear values for RTL', () => {
+      expect(flipCSSProperty('float', 'left', 'ar')).toEqual({
+        property: 'float',
+        value: 'right',
+      });
+      expect(flipCSSProperty('clear', 'right', 'ar')).toEqual({
+        property: 'clear',
+        value: 'left',
       });
     });
   });

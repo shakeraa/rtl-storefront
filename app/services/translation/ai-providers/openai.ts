@@ -29,7 +29,7 @@ export class OpenAITranslationProvider implements TranslationProvider {
   private readonly rateLimiter: FixedWindowRateLimiter;
 
   constructor(options: OpenAIOptions = {}) {
-    this.env = options.env ?? process.env;
+    this.env = (options.env ?? process.env) as TranslationServiceEnv;
     this.fetchImpl = options.fetch ?? fetch;
 
     const now = options.now ?? (() => new Date());

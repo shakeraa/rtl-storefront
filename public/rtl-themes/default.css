@@ -1,0 +1,35 @@
+html[dir="rtl"] body,
+html[dir="rtl"] .app-shell {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .rtl-slider,
+html[dir="rtl"] .rtl-carousel,
+html[dir="rtl"] [data-rtl-component="slider"],
+html[dir="rtl"] [data-rtl-component="carousel"] {
+  direction: rtl;
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .rtl-menu,
+html[dir="rtl"] .rtl-mega-menu,
+html[dir="rtl"] [data-rtl-component="menu"],
+html[dir="rtl"] [data-rtl-component="mega-menu"] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .rtl-checkout,
+html[dir="rtl"] [data-rtl-component="checkout"] {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: isolate;
+}
+
+html[data-directionality="mixed"] [dir="ltr"],
+html[data-directionality="mixed"] [lang|="en"] {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}

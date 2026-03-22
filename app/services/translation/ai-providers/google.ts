@@ -25,7 +25,7 @@ export class GoogleTranslationProvider implements TranslationProvider {
   private readonly quotaTracker: MonthlyQuotaTracker;
 
   constructor(options: GoogleOptions = {}) {
-    this.env = options.env ?? process.env;
+    this.env = (options.env ?? process.env) as TranslationServiceEnv;
     this.fetchImpl = options.fetch ?? fetch;
     this.quotaTracker = new MonthlyQuotaTracker(
       this.name,

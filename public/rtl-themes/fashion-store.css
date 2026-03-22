@@ -1,0 +1,15 @@
+html[dir="rtl"] .fashion-hero,
+html[dir="rtl"] .fashion-grid {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .fashion-gallery {
+  display: grid;
+  justify-items: end;
+}
+
+html[dir="rtl"] .fashion-size-guide {
+  direction: rtl;
+  unicode-bidi: isolate;
+}

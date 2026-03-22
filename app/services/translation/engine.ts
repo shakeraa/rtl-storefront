@@ -53,7 +53,7 @@ export class TranslationEngine {
       createPrismaTranslationCacheStore(
         options.now ?? (() => new Date()),
       );
-    this.env = options.env ?? process.env;
+    this.env = (options.env ?? process.env) as TranslationServiceEnv;
     this.now = options.now ?? (() => new Date());
   }
 

@@ -1,136 +1,244 @@
 /**
- * RTL (Right-to-Left) Utilities
- * Helper functions for handling RTL languages
+ * RTL (Right-to-Left) utilities used by the embedded app and the theme transformer.
  */
 
-// List of RTL language codes
-export const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur', 'yi', 'ji'];
+export type TextDirection = "rtl" | "ltr";
+export type DirectionalityMode = "single" | "mixed";
 
-/**
- * Check if a language is RTL
- * @param locale - Language code (e.g., 'ar', 'he')
- * @returns boolean indicating if the language is RTL
- */
+export interface LocaleDirectionContext {
+  locale: string;
+  baseLocale: string;
+  direction: TextDirection;
+  isRTL: boolean;
+  mode: DirectionalityMode;
+  htmlAttributes: {
+    lang: string;
+    dir: TextDirection;
+    className: string;
+    dataLocale: string;
+    dataDirectionality: DirectionalityMode;
+  };
+}
+
+export interface RequestLocaleOptions {
+  fallbackLocale?: string;
+  contentLocale?: string | null;
+  forceDirection?: TextDirection | null;
+}
+
+export interface MixedDirectionSegment {
+  locale: string;
+  direction: TextDirection;
+  attributes: {
+    lang: string;
+    dir: TextDirection;
+    className: string;
+  };
+}
+
+export const RTL_LANGUAGES = ["ar", "he", "fa", "ur", "yi", "ji"] as const;
+
+const RTL_LANGUAGE_SET = new Set<string>(RTL_LANGUAGES);
+
+export function normalizeLocale(locale: string): string {
+  return locale.trim().replace(/_/g, "-");
+}
+
+export function getBaseLocale(locale: string): string {
+  return normalizeLocale(locale).split("-")[0]?.toLowerCase() ?? "en";
+}
+
 export function isRTLLanguage(locale: string): boolean {
-  const normalizedLocale = locale.split('-')[0].toLowerCase();
-  return RTL_LANGUAGES.includes(normalizedLocale);
+  return RTL_LANGUAGE_SET.has(getBaseLocale(locale));
 }
 
-/**
- * Get the text direction for a locale
- * @param locale - Language code
- * @returns 'rtl' | 'ltr'
- */
-export function getTextDirection(locale: string): 'rtl' | 'ltr' {
-  return isRTLLanguage(locale) ? 'rtl' : 'ltr';
+export function getTextDirection(locale: string): TextDirection {
+  return isRTLLanguage(locale) ? "rtl" : "ltr";
 }
 
-/**
- * Get the HTML dir attribute value for a locale
- * @param locale - Language code
- * @returns 'rtl' | 'ltr'
- */
-export function getDirAttribute(locale: string): 'rtl' | 'ltr' {
+export function getDirAttribute(locale: string): TextDirection {
   return getTextDirection(locale);
 }
 
-/**
- * Flip CSS logical properties for RTL
- * @param property - CSS property name
- * @param value - CSS property value
- * @param locale - Language code
- * @returns Adjusted CSS property value
- */
+export function getOppositeDirection(dir: TextDirection): TextDirection {
+  return dir === "rtl" ? "ltr" : "rtl";
+}
+
+export function getDirectionalityMode(
+  primaryLocale: string,
+  contentLocale?: string | null,
+): DirectionalityMode {
+  if (!contentLocale) {
+    return "single";
+  }
+
+  return getTextDirection(primaryLocale) === getTextDirection(contentLocale)
+    ? "single"
+    : "mixed";
+}
+
+export function getLocaleDirectionContext(
+  locale: string,
+  options: Omit<RequestLocaleOptions, "fallbackLocale"> = {},
+): LocaleDirectionContext {
+  const normalizedLocale = normalizeLocale(locale || "en");
+  const direction = options.forceDirection ?? getTextDirection(normalizedLocale);
+  const mode = getDirectionalityMode(normalizedLocale, options.contentLocale);
+
+  return {
+    locale: normalizedLocale,
+    baseLocale: getBaseLocale(normalizedLocale),
+    direction,
+    isRTL: direction === "rtl",
+    mode,
+    htmlAttributes: {
+      lang: normalizedLocale,
+      dir: direction,
+      className: [
+        "app-shell",
+        `locale-${getBaseLocale(normalizedLocale)}`,
+        `dir-${direction}`,
+        `directionality-${mode}`,
+      ].join(" "),
+      dataLocale: normalizedLocale,
+      dataDirectionality: mode,
+    },
+  };
+}
+
+export function getDocumentDirectionContext(
+  request: Request,
+  options: RequestLocaleOptions = {},
+): LocaleDirectionContext {
+  const locale = detectLocaleFromRequest(request, options.fallbackLocale);
+  return getLocaleDirectionContext(locale, options);
+}
+
+export function detectLocaleFromRequest(
+  request: Request,
+  fallbackLocale: string = "en",
+): string {
+  const url = new URL(request.url);
+  const queryLocale = url.searchParams.get("locale") ?? url.searchParams.get("lang");
+
+  if (queryLocale) {
+    return normalizeLocale(queryLocale);
+  }
+
+  const cookieLocale = getLocaleFromCookie(request.headers.get("cookie"));
+
+  if (cookieLocale) {
+    return cookieLocale;
+  }
+
+  const headerLocale = getLocaleFromAcceptLanguage(
+    request.headers.get("accept-language"),
+  );
+
+  return headerLocale ?? normalizeLocale(fallbackLocale);
+}
+
+export function getMixedDirectionSegment(locale: string): MixedDirectionSegment {
+  const normalizedLocale = normalizeLocale(locale);
+  const direction = getTextDirection(normalizedLocale);
+
+  return {
+    locale: normalizedLocale,
+    direction,
+    attributes: {
+      lang: normalizedLocale,
+      dir: direction,
+      className: `segment-${direction}`,
+    },
+  };
+}
+
+export function shouldInjectRTLStyles(locale: string, contentLocale?: string | null): boolean {
+  return getTextDirection(locale) === "rtl" || getDirectionalityMode(locale, contentLocale) === "mixed";
+}
+
 export function flipCSSProperty(
   property: string,
   value: string,
-  locale: string
+  locale: string,
 ): { property: string; value: string } {
   if (!isRTLLanguage(locale)) {
     return { property, value };
   }
 
-  // Handle specific properties that need flipping
   const flippableProperties: Record<string, string> = {
-    'margin-left': 'margin-right',
-    'margin-right': 'margin-left',
-    'padding-left': 'padding-right',
-    'padding-right': 'padding-left',
-    'border-left': 'border-right',
-    'border-right': 'border-left',
-    'border-left-width': 'border-right-width',
-    'border-right-width': 'border-left-width',
-    'border-left-color': 'border-right-color',
-    'border-right-color': 'border-left-color',
-    'left': 'right',
-    'right': 'left',
-    'text-align': value === 'left' ? 'right' : value === 'right' ? 'left' : value,
+    "margin-left": "margin-right",
+    "margin-right": "margin-left",
+    "padding-left": "padding-right",
+    "padding-right": "padding-left",
+    "border-left": "border-right",
+    "border-right": "border-left",
+    "border-left-width": "border-right-width",
+    "border-right-width": "border-left-width",
+    "border-left-color": "border-right-color",
+    "border-right-color": "border-left-color",
+    left: "right",
+    right: "left",
+    float: value === "left" ? "right" : value === "right" ? "left" : value,
+    clear: value === "left" ? "right" : value === "right" ? "left" : value,
+    "text-align": value === "left" ? "right" : value === "right" ? "left" : value,
   };
 
   if (property in flippableProperties) {
     const newProperty = flippableProperties[property];
-    // For text-align, value is also transformed
-    if (property === 'text-align') {
+
+    if (property === "text-align" || property === "float" || property === "clear") {
       return { property, value: newProperty };
     }
+
     return { property: newProperty, value };
   }
 
   return { property, value };
 }
 
-/**
- * Wrap text with proper BiDi marks for mixed content
- * @param text - Text content
- * @param locale - Language code
- * @returns Text with BiDi marks if needed
- */
 export function wrapBiDi(text: string, locale: string): string {
   if (!isRTLLanguage(locale)) {
     return text;
   }
 
-  // Add RLM (Right-to-Left Mark) for proper BiDi handling
-  const RLM = '\u200F';
-  const LRM = '\u200E';
-  
-  // Detect if text contains mixed scripts
+  const RLM = "\u200F";
   const hasLatin = /[a-zA-Z]/.test(text);
   const hasArabic = /[\u0600-\u06FF]/.test(text);
-  
+
   if (hasLatin && hasArabic) {
-    // Wrap with RLM for proper display
     return `${RLM}${text}${RLM}`;
   }
-  
+
   return text;
 }
 
-/**
- * Get the opposite direction
- * @param dir - Current direction
- * @returns Opposite direction
- */
-export function getOppositeDirection(dir: 'rtl' | 'ltr'): 'rtl' | 'ltr' {
-  return dir === 'rtl' ? 'ltr' : 'rtl';
-}
-
-/**
- * Format number for RTL display
- * @param num - Number to format
- * @param locale - Language code
- * @returns Formatted number string
- */
 export function formatNumberForRTL(num: number, locale: string): string {
   const formatted = num.toLocaleString(locale);
-  
-  if (isRTLLanguage(locale)) {
-    // For Arabic locales, optionally use Arabic numerals
-    const arabicNumerals = formatted.replace(/[0-9]/g, (w) => {
-      return String.fromCharCode(w.charCodeAt(0) + 1584);
-    });
-    return arabicNumerals;
+
+  if (!isRTLLanguage(locale)) {
+    return formatted;
   }
-  
-  return formatted;
+
+  return formatted.replace(/[0-9]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) + 1584),
+  );
+}
+
+function getLocaleFromCookie(cookieHeader: string | null): string | null {
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const match = cookieHeader.match(/(?:^|;\s*)(?:locale|lang)=([^;]+)/i);
+  return match ? normalizeLocale(decodeURIComponent(match[1])) : null;
+}
+
+function getLocaleFromAcceptLanguage(header: string | null): string | null {
+  if (!header) {
+    return null;
+  }
+
+  const locale = header.split(",")[0]?.split(";")[0]?.trim();
+  return locale ? normalizeLocale(locale) : null;
 }
