@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add unit coverage for HTML and Markdown formatting preservation in translation formatting helpers.
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
 - Add a reusable virtualized translation-list component so long translation queues render only the visible window of rows.
 - Add translation-aware ISR headers for the public landing route so translated pages can be served stale-while-revalidate from shared caches.
