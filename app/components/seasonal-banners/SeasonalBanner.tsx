@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 import { Banner, Text } from '@shopify/polaris';
-import { getActiveCampaigns, getTemplateByType, type SeasonalTemplate } from '~/services/calendar';
+import { getActiveCampaigns, getTemplateByType, toHijri, formatHijri, getEventForDate, getWeekendDays, type SeasonalTemplate } from '~/services/calendar';
 
 export interface SeasonalBannerProps {
   country: string;
@@ -54,7 +54,6 @@ export function SeasonalBanner({ country, locale = 'en' }: SeasonalBannerProps) 
 
 // Hijri Date Display Component
 export function HijriDateBanner({ locale = 'en' }: { locale?: 'ar' | 'en' }) {
-  const { toHijri, formatHijri, getEventForDate } = await import('~/services/calendar');
   
   const today = new Date();
   const hijriDate = toHijri(today);
@@ -82,8 +81,6 @@ export function WeekendNotice({
   country: string; 
   locale?: 'ar' | 'en';
 }) {
-  const { getWeekendDays } = await import('~/services/calendar');
-  
   const weekendDays = getWeekendDays(country);
   const dayNames = locale === 'ar' 
     ? ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']

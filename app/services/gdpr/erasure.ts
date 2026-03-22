@@ -6,61 +6,63 @@
  */
 
 import type { ErasureRequest, ErasureResult } from "./types";
-
-/** Tables affected by each erasure scope. */
-const SCOPE_TABLES: Record<string, string[]> = {
-  all: [
-    "translations",
-    "translation_memory",
-    "analytics_events",
-    "usage_stats",
-    "consent_preferences",
-    "customer_data",
-    "shop_settings",
-  ],
-  translations: ["translations", "translation_memory"],
-  analytics: ["analytics_events", "usage_stats"],
-  personal: ["customer_data", "consent_preferences"],
-};
-
-/** Estimated row counts per table (placeholder for real DB queries). */
-const TABLE_ESTIMATES: Record<string, number> = {
-  translations: 340,
-  translation_memory: 180,
-  analytics_events: 1200,
-  usage_stats: 30,
-  consent_preferences: 1,
-  customer_data: 15,
-  shop_settings: 5,
-};
+import db from "../../db.server";
 
 /**
  * Process an erasure request after validating the confirmation string.
  *
  * Throws if the confirmation is invalid.
  */
-export function processErasure(request: ErasureRequest): ErasureResult {
+export async function processErasure(request: ErasureRequest): Promise<ErasureResult> {
   if (!validateErasureConfirmation(request.confirmation, request.shop)) {
     throw new Error(
       `Invalid erasure confirmation. Expected "DELETE ${request.shop}".`,
     );
   }
 
-  const tables = SCOPE_TABLES[request.scope] ?? SCOPE_TABLES["all"];
-  const recordsDeleted = tables.reduce(
-    (sum, t) => sum + (TABLE_ESTIMATES[t] ?? 0),
-    0,
-  );
+  const scope = request.scope;
+  const shop = request.shop;
+  const tablesAffected: string[] = [];
+  let recordsDeleted = 0;
 
-  // In production this would execute actual DELETE statements inside a
-  // transaction and emit audit-log entries. Here we simulate success.
+  const results = await db.$transaction(async (tx) => {
+    const counts: Record<string, number> = {};
+
+    if (scope === "all" || scope === "translations") {
+      const tmResult = await tx.translationMemory.deleteMany({ where: { shop } });
+      counts["translation_memory"] = tmResult.count;
+
+      const cacheResult = await tx.translationCache.deleteMany({});
+      counts["translation_cache"] = cacheResult.count;
+
+      const glossaryResult = await tx.glossaryEntry.deleteMany({ where: { shop } });
+      counts["glossary"] = glossaryResult.count;
+    }
+
+    if (scope === "all" || scope === "analytics") {
+      const logsResult = await tx.dataAccessLog.deleteMany({ where: { shop } });
+      counts["data_access_logs"] = logsResult.count;
+    }
+
+    if (scope === "all" || scope === "personal") {
+      const consentResult = await tx.consentRecord.deleteMany({ where: { shop } });
+      counts["consent_records"] = consentResult.count;
+    }
+
+    return counts;
+  });
+
+  for (const [table, count] of Object.entries(results)) {
+    tablesAffected.push(table);
+    recordsDeleted += count;
+  }
 
   return {
     shop: request.shop,
     erasedAt: new Date().toISOString(),
     scope: request.scope,
     recordsDeleted,
-    tablesAffected: tables,
+    tablesAffected,
   };
 }
 
@@ -79,15 +81,32 @@ export function validateErasureConfirmation(
 /**
  * Preview the impact of an erasure before it is executed.
  */
-export function getErasureImpactPreview(
-  _shop: string,
+export async function getErasureImpactPreview(
+  shop: string,
   scope: string,
-): { tables: string[]; estimatedRecords: number } {
-  const tables = SCOPE_TABLES[scope] ?? SCOPE_TABLES["all"];
-  const estimatedRecords = tables.reduce(
-    (sum, t) => sum + (TABLE_ESTIMATES[t] ?? 0),
-    0,
-  );
+): Promise<{ tables: string[]; estimatedRecords: number }> {
+  const tables: string[] = [];
+  let estimatedRecords = 0;
+
+  if (scope === "all" || scope === "translations") {
+    const tmCount = await db.translationMemory.count({ where: { shop } });
+    const cacheCount = await db.translationCache.count();
+    const glossaryCount = await db.glossaryEntry.count({ where: { shop } });
+    tables.push("translation_memory", "translation_cache", "glossary");
+    estimatedRecords += tmCount + cacheCount + glossaryCount;
+  }
+
+  if (scope === "all" || scope === "analytics") {
+    const logCount = await db.dataAccessLog.count({ where: { shop } });
+    tables.push("data_access_logs");
+    estimatedRecords += logCount;
+  }
+
+  if (scope === "all" || scope === "personal") {
+    const consentCount = await db.consentRecord.count({ where: { shop } });
+    tables.push("consent_records");
+    estimatedRecords += consentCount;
+  }
 
   return { tables, estimatedRecords };
 }

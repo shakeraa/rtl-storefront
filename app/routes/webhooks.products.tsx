@@ -1,5 +1,7 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { handleProductCreate, handleProductUpdate } from "../services/sync/webhook-handler";
+import { contentTranslator } from "../services/content-translator/index";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { topic, shop, payload } = await authenticate.webhook(request);
@@ -8,22 +10,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   switch (topic) {
     case "PRODUCTS_CREATE":
-      // Queue new product for translation
-      console.log(
-        `New product created: ${payload?.title} — queue for translation`,
-      );
+      console.log(`New product created: ${payload?.title} — queue for translation`);
+      try {
+        await handleProductCreate(shop, payload);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
     case "PRODUCTS_UPDATE":
-      // Check if translatable fields changed
-      console.log(
-        `Product updated: ${payload?.title} — check translations`,
-      );
+      console.log(`Product updated: ${payload?.title} — check translations`);
+      try {
+        await handleProductUpdate(shop, payload);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
     case "PRODUCTS_DELETE":
-      // Clean up translations
-      console.log(
-        `Product deleted: ${payload?.id} — cleanup translations`,
-      );
+      console.log(`Product deleted: ${payload?.id} — cleanup translations`);
+      try {
+        contentTranslator.invalidateCache(`product.gid://shopify/Product/${payload?.id}`);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
   }
 

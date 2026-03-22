@@ -6,13 +6,14 @@
  */
 
 import type { DataExportRequest, DataExportPackage } from "./types";
+import db from "../../db.server";
 
 /**
  * Create a full data-export package for the requesting shop.
  */
-export function createExportPackage(
+export async function createExportPackage(
   request: DataExportRequest,
-): DataExportPackage {
+): Promise<DataExportPackage> {
   const sections: Record<string, unknown[]> = {};
 
   // Always include shop settings
@@ -26,54 +27,28 @@ export function createExportPackage(
   ];
 
   if (request.includeTranslations) {
-    sections["translations"] = [
-      {
-        key: "welcome_message",
-        locale: "ar",
-        value: "مرحبا بكم في متجرنا",
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        key: "checkout_title",
-        locale: "ar",
-        value: "إتمام الشراء",
-        updatedAt: new Date().toISOString(),
-      },
-    ];
+    const translationMemory = await db.translationMemory.findMany({
+      where: { shop: request.shop },
+    });
+    sections["translation_memory"] = translationMemory;
 
-    sections["translation_memory"] = [
-      {
-        source: "Add to cart",
-        target: "أضف إلى السلة",
-        locale: "ar",
-        confidence: 0.98,
-      },
-    ];
+    const glossaryEntries = await db.glossaryEntry.findMany({
+      where: { shop: request.shop },
+    });
+    sections["glossary"] = glossaryEntries;
+
+    const translationCache = await db.translationCache.findMany({
+      where: { sourceLocale: { not: undefined } },
+      take: 1000,
+    });
+    sections["translations"] = translationCache;
   }
 
   if (request.includeAnalytics) {
-    sections["analytics"] = [
-      {
-        event: "page_view",
-        locale: "ar",
-        count: 1520,
-        period: "last_30_days",
-      },
-      {
-        event: "translation_served",
-        locale: "ar",
-        count: 4230,
-        period: "last_30_days",
-      },
-    ];
-
-    sections["usage_stats"] = [
-      {
-        apiCalls: 12400,
-        translationsCreated: 340,
-        period: "last_30_days",
-      },
-    ];
+    const dataAccessLogs = await db.dataAccessLog.findMany({
+      where: { shop: request.shop },
+    });
+    sections["data_access_logs"] = dataAccessLogs;
   }
 
   const totalRecords = Object.values(sections).reduce(
@@ -124,13 +99,12 @@ export function formatAsCSV(data: Record<string, unknown>[]): string {
 /**
  * Estimate the size of an export before generating it.
  */
-export function estimateExportSize(
+export async function estimateExportSize(
   shop: string,
-): { estimatedRecords: number; estimatedSizeMB: number } {
-  // In a real implementation this would query the database.
-  // For now we return realistic estimates based on a typical shop.
-  const _shop = shop; // acknowledge param
-  const estimatedRecords = 500;
+): Promise<{ estimatedRecords: number; estimatedSizeMB: number }> {
+  const estimatedRecords = await db.translationMemory.count({
+    where: { shop },
+  });
   const avgRecordBytes = 256;
   const estimatedSizeMB =
     Math.round((estimatedRecords * avgRecordBytes) / (1024 * 1024) * 100) / 100;

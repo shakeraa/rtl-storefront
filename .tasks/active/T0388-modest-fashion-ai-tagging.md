@@ -1,6 +1,6 @@
 # T0388 — Modest Fashion AI Auto-Tagging & Intelligence
 
-## Status: queue
+status: active
 ## Priority: medium
 ## Source: product_spec §3.4
 ## Depends: partial implementation exists (fashion-db, ModestySelector, AbayaCustomizer)

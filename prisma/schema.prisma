@@ -191,3 +191,22 @@ model ShopUsage {
   @@unique([shop, periodStart])
   @@index([shop])
 }
+
+model ShopSettings {
+  id                  String   @id @default(cuid())
+  shop                String   @unique
+  aiProvider          String   @default("openai")
+  sourceLocale        String   @default("en")
+  targetLocales       String   @default("[\"ar\",\"he\"]")
+  autoDetectRTL       Boolean  @default(true)
+  arabicFont          String   @default("noto-sans-arabic")
+  hebrewFont          String   @default("heebo")
+  farsiFont           String   @default("vazirmatn")
+  enableTM            Boolean  @default(true)
+  fuzzyThreshold      Int      @default(80)
+  autoSuggest         Boolean  @default(true)
+  qualityReview       Boolean  @default(false)
+  confidenceThreshold Int      @default(70)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}

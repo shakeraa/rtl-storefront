@@ -1,6 +1,6 @@
 # T0394 — Regional Conversion Analytics Dashboard
 
-## Status: queue
+status: active
 ## Priority: high
 ## Source: product_spec §5.1
 ## Depends: partial implementation exists (language-level analytics, ROI by language)

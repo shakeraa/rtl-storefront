@@ -1,6 +1,6 @@
 # T0391 — RTL Email Template Builder
 
-## Status: queue
+status: active
 ## Priority: medium
 ## Source: product_spec §4.3
 

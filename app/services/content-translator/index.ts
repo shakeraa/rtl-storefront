@@ -4,6 +4,7 @@
  */
 
 import { CACHE_TTL_HOURS, MAX_CACHE_SIZE } from './constants';
+import { TranslationEngine } from '../translation/engine';
 
 export interface TranslationContext {
   contentType: string;
@@ -137,6 +138,7 @@ export const TRANSLATION_KEYS = {
 export class ContentTranslator {
   private cache: Map<string, TranslationCacheEntry> = new Map();
   private eventCallbacks: Map<string, Array<(data: unknown) => void>> = new Map();
+  private engine: TranslationEngine | null = null;
   private readonly maxCacheEntries: number;
   private readonly cacheTtlMs: number;
   private readonly now: () => Date;
@@ -145,6 +147,13 @@ export class ContentTranslator {
     this.maxCacheEntries = options.maxCacheEntries ?? MAX_CACHE_SIZE;
     this.cacheTtlMs = (options.cacheTtlHours ?? CACHE_TTL_HOURS) * 60 * 60 * 1000;
     this.now = options.now ?? (() => new Date());
+  }
+
+  private getEngine(): TranslationEngine {
+    if (!this.engine) {
+      this.engine = new TranslationEngine();
+    }
+    return this.engine;
   }
 
   async translate(
@@ -165,17 +174,33 @@ export class ContentTranslator {
       };
     }
 
-    const translated = `[${targetLocale}] ${sourceText}`;
-    this.addToCache(key, targetLocale, translated);
-
-    return {
-      key,
-      sourceText,
-      translatedText: translated,
-      locale: targetLocale,
-      confidence: 0.95,
-      provider: 'ai',
-    };
+    try {
+      const result = await this.getEngine().translate({
+        text: sourceText,
+        sourceLocale: 'en',
+        targetLocale,
+        context: context?.contentType,
+      });
+      this.addToCache(key, targetLocale, result.translatedText);
+      return {
+        key,
+        sourceText,
+        translatedText: result.translatedText,
+        locale: targetLocale,
+        confidence: result.cached ? 1 : 0.95,
+        provider: result.provider,
+      };
+    } catch {
+      // Fallback: return source text when no AI providers are configured
+      return {
+        key,
+        sourceText,
+        translatedText: sourceText,
+        locale: targetLocale,
+        confidence: 0,
+        provider: 'fallback',
+      };
+    }
   }
 
   async translateBatch(

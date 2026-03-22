@@ -21,33 +21,119 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import { TranslationList } from "../components/translations/TranslationList";
+
+const LOCALE_NAMES: Record<string, { name: string; nativeName: string }> = {
+  ar: { name: "Arabic", nativeName: "العربية" },
+  he: { name: "Hebrew", nativeName: "עברית" },
+  fa: { name: "Farsi", nativeName: "فارسی" },
+  fr: { name: "French", nativeName: "Français" },
+  tr: { name: "Turkish", nativeName: "Türkçe" },
+  ur: { name: "Urdu", nativeName: "اردو" },
+};
+
+function getTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return `${seconds} sec ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days > 1 ? "s" : ""} ago`;
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
 
+  // Query translation cache for language stats
+  let languageStats: Record<string, { name: string; nativeName: string; translated: number; total: number; coverage: number }> = {};
+  let totalDistinctSources = 0;
+  try {
+    const groups = await db.translationCache.groupBy({
+      by: ["targetLocale"],
+      _count: true,
+    });
+    const distinctSources = await db.translationCache.groupBy({
+      by: ["sourceText"],
+      _count: true,
+    });
+    totalDistinctSources = distinctSources.length;
+
+    for (const g of groups) {
+      const code = g.targetLocale;
+      const translated = g._count;
+      const total = totalDistinctSources || translated;
+      languageStats[code] = {
+        name: LOCALE_NAMES[code]?.name ?? code,
+        nativeName: LOCALE_NAMES[code]?.nativeName ?? code,
+        translated,
+        total,
+        coverage: total > 0 ? Math.round((translated / total) * 100) : 0,
+      };
+    }
+  } catch {
+    // Fall back to empty stats
+  }
+
+  // Build items from translation cache grouped by context (resource key)
+  let items: Array<{ id: string; title: string; type: string; sourceLang: string; status: string; lastUpdated: string | undefined }> = [];
+  try {
+    const cacheEntries = await db.translationCache.findMany({
+      select: {
+        id: true,
+        sourceText: true,
+        context: true,
+        targetLocale: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 50,
+    });
+
+    const seen = new Map<string, typeof cacheEntries[0]>();
+    for (const entry of cacheEntries) {
+      const key = entry.context ?? entry.sourceText;
+      if (!seen.has(key)) {
+        seen.set(key, entry);
+      }
+    }
+
+    let idx = 0;
+    for (const [, entry] of seen) {
+      idx++;
+      let type = "Content";
+      if (entry.context) {
+        if (entry.context.toLowerCase().includes("product")) type = "Product";
+        else if (entry.context.toLowerCase().includes("collection")) type = "Collection";
+        else if (entry.context.toLowerCase().includes("page")) type = "Page";
+        else if (entry.context.toLowerCase().includes("blog") || entry.context.toLowerCase().includes("article")) type = "Blog";
+      }
+
+      const ago = getTimeAgo(entry.updatedAt);
+      items.push({
+        id: String(idx),
+        title: entry.sourceText.substring(0, 60) + (entry.sourceText.length > 60 ? "..." : ""),
+        type,
+        sourceLang: "English",
+        status: "Translated",
+        lastUpdated: ago,
+      });
+    }
+  } catch {
+    items = [];
+  }
+
+  const untranslatedCount = items.filter((i) => i.status === "Untranslated").length;
+  const partialCount = items.filter((i) => i.status === "Partial").length;
+
   return json({
     shop: session.shop,
-    items: [
-      { id: "1", title: "Premium Leather Handbag", type: "Product", sourceLang: "English", status: "Translated", lastUpdated: "2 hours ago" },
-      { id: "2", title: "Silk Embroidered Scarf", type: "Product", sourceLang: "English", status: "Partial", lastUpdated: "1 day ago" },
-      { id: "3", title: "Summer Collection 2026", type: "Collection", sourceLang: "English", status: "Translated", lastUpdated: "3 days ago" },
-      { id: "4", title: "Cashmere Wool Cardigan", type: "Product", sourceLang: "English", status: "Untranslated", lastUpdated: undefined },
-      { id: "5", title: "Shipping & Returns", type: "Page", sourceLang: "English", status: "Translated", lastUpdated: "1 week ago" },
-      { id: "6", title: "Artisan Jewelry Box", type: "Product", sourceLang: "English", status: "Untranslated", lastUpdated: undefined },
-      { id: "7", title: "Style Tips & Trends", type: "Blog", sourceLang: "English", status: "Partial", lastUpdated: "2 days ago" },
-      { id: "8", title: "Winter Essentials", type: "Collection", sourceLang: "English", status: "Untranslated", lastUpdated: undefined },
-      { id: "9", title: "About Us", type: "Page", sourceLang: "English", status: "Translated", lastUpdated: "5 days ago" },
-      { id: "10", title: "Linen Summer Dress", type: "Product", sourceLang: "English", status: "Partial", lastUpdated: "4 hours ago" },
-    ],
-    languageStats: {
-      ar: { name: "Arabic", nativeName: "العربية", translated: 312, total: 400, coverage: 78 },
-      he: { name: "Hebrew", nativeName: "עברית", translated: 180, total: 400, coverage: 45 },
-      fa: { name: "Farsi", nativeName: "فارسی", translated: 92, total: 400, coverage: 23 },
-      fr: { name: "French", nativeName: "Français", translated: 368, total: 400, coverage: 92 },
-    },
-    untranslatedCount: 3,
-    partialCount: 3,
+    items,
+    languageStats,
+    untranslatedCount,
+    partialCount,
   });
 };
 

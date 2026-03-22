@@ -20,12 +20,15 @@ import {
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
+  const settings = await db.shopSettings.findUnique({ where: { shop: session.shop } });
 
   return json({
     shop: session.shop,
+    settings,
     providers: {
       openai: { configured: Boolean(process.env.OPENAI_API_KEY), name: "OpenAI GPT-4o" },
       deepl: { configured: Boolean(process.env.DEEPL_API_KEY), name: "DeepL" },
@@ -44,50 +47,102 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  await authenticate.admin(request);
-  // Settings persistence would be implemented here
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+  const data = Object.fromEntries(formData);
+
+  await db.shopSettings.upsert({
+    where: { shop: session.shop },
+    update: {
+      aiProvider: String(data.aiProvider || "openai"),
+      sourceLocale: String(data.sourceLocale || "en"),
+      targetLocales: String(data.targetLocales || '["ar","he"]'),
+      autoDetectRTL: data.autoDetectRTL === "true",
+      arabicFont: String(data.arabicFont || "noto-sans-arabic"),
+      hebrewFont: String(data.hebrewFont || "heebo"),
+      farsiFont: String(data.farsiFont || "vazirmatn"),
+      enableTM: data.enableTM === "true",
+      fuzzyThreshold: parseInt(String(data.fuzzyThreshold || "80")),
+      autoSuggest: data.autoSuggest === "true",
+      qualityReview: data.qualityReview === "true",
+      confidenceThreshold: parseInt(String(data.confidenceThreshold || "70")),
+    },
+    create: {
+      shop: session.shop,
+      aiProvider: String(data.aiProvider || "openai"),
+      sourceLocale: String(data.sourceLocale || "en"),
+      targetLocales: String(data.targetLocales || '["ar","he"]'),
+      autoDetectRTL: data.autoDetectRTL === "true",
+      arabicFont: String(data.arabicFont || "noto-sans-arabic"),
+      hebrewFont: String(data.hebrewFont || "heebo"),
+      farsiFont: String(data.farsiFont || "vazirmatn"),
+      enableTM: data.enableTM === "true",
+      fuzzyThreshold: parseInt(String(data.fuzzyThreshold || "80")),
+      autoSuggest: data.autoSuggest === "true",
+      qualityReview: data.qualityReview === "true",
+      confidenceThreshold: parseInt(String(data.confidenceThreshold || "70")),
+    },
+  });
+
   return json({ success: true });
 };
 
 export default function SettingsPage() {
-  const { shop, providers, availableLanguages } = useLoaderData<typeof loader>();
+  const { shop, settings, providers, availableLanguages } = useLoaderData<typeof loader>();
   const shopify = useAppBridge();
   const submit = useSubmit();
 
+  // Parse saved target locales
+  const savedTargetLocales = (() => {
+    try {
+      const arr = JSON.parse(settings?.targetLocales || '["ar","he"]') as string[];
+      const map: Record<string, boolean> = { ar: false, he: false, fa: false, fr: false, de: false, tr: false, ur: false };
+      arr.forEach((code) => { map[code] = true; });
+      return map;
+    } catch { return { ar: true, he: true, fa: false, fr: false, de: false, tr: false, ur: false }; }
+  })();
+
   // AI provider settings
-  const [aiProvider, setAiProvider] = useState("openai");
+  const [aiProvider, setAiProvider] = useState(settings?.aiProvider || "openai");
   const [apiKey, setApiKey] = useState("");
   const [testStatus, setTestStatus] = useState<"idle" | "testing" | "ok" | "fail">("idle");
 
   // Language config
-  const [sourceLocale, setSourceLocale] = useState("en");
-  const [targetLocales, setTargetLocales] = useState<Record<string, boolean>>({
-    ar: true,
-    he: true,
-    fa: false,
-    fr: false,
-    de: false,
-    tr: false,
-    ur: false,
-  });
+  const [sourceLocale, setSourceLocale] = useState(settings?.sourceLocale || "en");
+  const [targetLocales, setTargetLocales] = useState<Record<string, boolean>>(savedTargetLocales);
 
   // RTL preferences
-  const [autoDetectRTL, setAutoDetectRTL] = useState(true);
-  const [arabicFont, setArabicFont] = useState("noto-sans-arabic");
-  const [hebrewFont, setHebrewFont] = useState("heebo");
-  const [farsiFont, setFarsiFont] = useState("vazirmatn");
+  const [autoDetectRTL, setAutoDetectRTL] = useState(settings?.autoDetectRTL ?? true);
+  const [arabicFont, setArabicFont] = useState(settings?.arabicFont || "noto-sans-arabic");
+  const [hebrewFont, setHebrewFont] = useState(settings?.hebrewFont || "heebo");
+  const [farsiFont, setFarsiFont] = useState(settings?.farsiFont || "vazirmatn");
 
   // Translation memory
-  const [enableTM, setEnableTM] = useState(true);
-  const [fuzzyThreshold, setFuzzyThreshold] = useState("80");
-  const [autoSuggest, setAutoSuggest] = useState(true);
+  const [enableTM, setEnableTM] = useState(settings?.enableTM ?? true);
+  const [fuzzyThreshold, setFuzzyThreshold] = useState(String(settings?.fuzzyThreshold ?? 80));
+  const [autoSuggest, setAutoSuggest] = useState(settings?.autoSuggest ?? true);
 
   // Quality settings
-  const [qualityReview, setQualityReview] = useState(false);
-  const [confidenceThreshold, setConfidenceThreshold] = useState("70");
+  const [qualityReview, setQualityReview] = useState(settings?.qualityReview ?? false);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(String(settings?.confidenceThreshold ?? 70));
 
   const handleSave = () => {
-    submit({ _action: "save" }, { method: "post" });
+    const formData = new FormData();
+    formData.append("aiProvider", aiProvider);
+    formData.append("sourceLocale", sourceLocale);
+    formData.append("targetLocales", JSON.stringify(
+      Object.entries(targetLocales).filter(([, v]) => v).map(([k]) => k)
+    ));
+    formData.append("autoDetectRTL", String(autoDetectRTL));
+    formData.append("arabicFont", arabicFont);
+    formData.append("hebrewFont", hebrewFont);
+    formData.append("farsiFont", farsiFont);
+    formData.append("enableTM", String(enableTM));
+    formData.append("fuzzyThreshold", fuzzyThreshold);
+    formData.append("autoSuggest", String(autoSuggest));
+    formData.append("qualityReview", String(qualityReview));
+    formData.append("confidenceThreshold", confidenceThreshold);
+    submit(formData, { method: "post" });
     shopify.toast.show("Settings saved successfully");
   };
 

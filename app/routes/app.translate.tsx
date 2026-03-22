@@ -21,10 +21,28 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import { getStats as getTMStats } from "../services/translation-memory/store";
 
+const RESOURCE_TYPE_QUERY = `
+  query TranslatableResources($resourceType: TranslatableResourceType!, $first: Int!) {
+    translatableResources(resourceType: $resourceType, first: $first) {
+      edges {
+        node {
+          resourceId
+          translatableContent {
+            key
+            value
+            locale
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
 
   // Fetch translation memory stats from the TM store service
   let tmStats: { totalEntries: number; languagePairs: Array<{ sourceLocale: string; targetLocale: string; count: number }> } = {
@@ -34,25 +52,99 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     tmStats = await getTMStats(session.shop);
   } catch {
-    // TM stats unavailable (e.g. DB not connected) — fall back to defaults
+    // TM stats unavailable — fall back to defaults
   }
 
+  // Query Shopify for translatable resources
+  let items: Array<{ id: string; title: string; type: string; sourceLang: string; status: string }> = [];
+  const resourceTypes = [
+    { type: "PRODUCT", label: "Product" },
+    { type: "COLLECTION", label: "Collection" },
+    { type: "ONLINE_STORE_PAGE", label: "Page" },
+    { type: "ONLINE_STORE_BLOG", label: "Blog" },
+  ];
+
+  try {
+    let idx = 0;
+    for (const rt of resourceTypes) {
+      try {
+        const response = await admin.graphql(RESOURCE_TYPE_QUERY, {
+          variables: { resourceType: rt.type, first: 20 },
+        });
+        const data = await response.json();
+        const edges = data?.data?.translatableResources?.edges ?? [];
+        for (const edge of edges) {
+          idx++;
+          const node = edge.node;
+          const titleContent = node.translatableContent?.find(
+            (c: any) => c.key === "title" || c.key === "name" || c.key === "body_html",
+          );
+          const title = titleContent?.value ?? `${rt.label} ${node.resourceId}`;
+
+          // Check translation status in our cache
+          let status = "Untranslated";
+          try {
+            const cacheCount = await db.translationCache.count({
+              where: { sourceText: title },
+            });
+            if (cacheCount > 0) {
+              status = "Translated";
+            }
+          } catch {
+            // ignore
+          }
+
+          items.push({
+            id: String(idx),
+            title: title.substring(0, 80),
+            type: rt.label,
+            sourceLang: "English",
+            status,
+          });
+        }
+      } catch {
+        // Skip this resource type on error
+      }
+    }
+  } catch {
+    // If GraphQL fails entirely, fall back to empty list
+    items = [];
+  }
+
+  // Build language stats from DB
+  let languageStats: Record<string, { translated: number; total: number; coverage: number }> = {};
+  try {
+    const groups = await db.translationCache.groupBy({
+      by: ["targetLocale"],
+      _count: true,
+    });
+    const distinctSources = await db.translationCache.groupBy({
+      by: ["sourceText"],
+      _count: true,
+    });
+    const total = distinctSources.length || 1;
+
+    const localeToName: Record<string, string> = { ar: "arabic", he: "hebrew", fa: "farsi" };
+    for (const g of groups) {
+      const name = localeToName[g.targetLocale] ?? g.targetLocale;
+      languageStats[name] = {
+        translated: g._count,
+        total,
+        coverage: Math.round((g._count / total) * 100),
+      };
+    }
+  } catch {
+    // Fall back to empty stats
+  }
+
+  // Ensure at least the expected keys exist
+  if (!languageStats.arabic) languageStats.arabic = { translated: 0, total: 0, coverage: 0 };
+  if (!languageStats.hebrew) languageStats.hebrew = { translated: 0, total: 0, coverage: 0 };
+  if (!languageStats.farsi) languageStats.farsi = { translated: 0, total: 0, coverage: 0 };
+
   return json({
-    items: [
-      { id: "1", title: "Premium Leather Handbag", type: "Product", sourceLang: "English", status: "Translated" },
-      { id: "2", title: "Silk Embroidered Scarf", type: "Product", sourceLang: "English", status: "Partial" },
-      { id: "3", title: "Summer Collection 2026", type: "Collection", sourceLang: "English", status: "Translated" },
-      { id: "4", title: "Cashmere Wool Cardigan", type: "Product", sourceLang: "English", status: "Untranslated" },
-      { id: "5", title: "Shipping & Returns", type: "Page", sourceLang: "English", status: "Translated" },
-      { id: "6", title: "Artisan Jewelry Box", type: "Product", sourceLang: "English", status: "Untranslated" },
-      { id: "7", title: "Style Tips & Trends", type: "Blog", sourceLang: "English", status: "Partial" },
-      { id: "8", title: "Winter Essentials", type: "Collection", sourceLang: "English", status: "Untranslated" },
-    ],
-    languageStats: {
-      arabic: { translated: 312, total: 400, coverage: 78 },
-      hebrew: { translated: 180, total: 400, coverage: 45 },
-      farsi: { translated: 92, total: 400, coverage: 23 },
-    },
+    items,
+    languageStats,
     tmStats,
   });
 };

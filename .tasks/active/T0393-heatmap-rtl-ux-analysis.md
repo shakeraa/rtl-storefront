@@ -1,6 +1,6 @@
 # T0393 — Heatmap & RTL UX Analysis
 
-## Status: queue
+status: active
 ## Priority: low
 ## Source: product_spec §5.4
 

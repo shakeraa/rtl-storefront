@@ -1,6 +1,6 @@
 # T0386 — AI Product Description Generation
 
-## Status: queue
+status: active
 ## Priority: high
 ## Source: product_spec §2.3
 

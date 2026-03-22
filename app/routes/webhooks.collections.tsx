@@ -1,5 +1,7 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { handleCollectionUpdate } from "../services/sync/webhook-handler";
+import { contentTranslator } from "../services/content-translator/index";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { topic, shop, payload } = await authenticate.webhook(request);
@@ -8,22 +10,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   switch (topic) {
     case "COLLECTIONS_CREATE":
-      // Queue new collection for translation
-      console.log(
-        `New collection created: ${payload?.title} — queue for translation`,
-      );
+      console.log(`New collection created: ${payload?.title} — queue for translation`);
+      try {
+        await handleCollectionUpdate(shop, payload);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
     case "COLLECTIONS_UPDATE":
-      // Check if translatable fields changed
-      console.log(
-        `Collection updated: ${payload?.title} — check translations`,
-      );
+      console.log(`Collection updated: ${payload?.title} — check translations`);
+      try {
+        await handleCollectionUpdate(shop, payload);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
     case "COLLECTIONS_DELETE":
-      // Clean up translations
-      console.log(
-        `Collection deleted: ${payload?.id} — cleanup translations`,
-      );
+      console.log(`Collection deleted: ${payload?.id} — cleanup translations`);
+      try {
+        contentTranslator.invalidateCache(`collection.gid://shopify/Collection/${payload?.id}`);
+      } catch (error) {
+        console.error(`[webhook] Failed to process ${topic}:`, error);
+      }
       break;
   }
 

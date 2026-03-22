@@ -3,4 +3,16 @@ api_version = "2025-01"
 [[extensions]]
 name = "RTL Fashion Sections"
 handle = "rtl-fashion-sections"
-type = "theme"
+type = "theme_app_extension"
+
+[[extensions.blocks]]
+name = "Modesty Hero"
+file = "blocks/modesty-hero.liquid"
+
+[[extensions.blocks]]
+name = "Abaya Gallery"
+file = "blocks/abaya-gallery.liquid"
+
+[[extensions.blocks]]
+name = "Hijab Grid"
+file = "blocks/hijab-grid.liquid"

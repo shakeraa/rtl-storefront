@@ -7,6 +7,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import {
   getTranslationVolumeByLanguage,
   getConversionMetricsByLanguage,
@@ -14,6 +15,10 @@ import {
   getEventCount,
 } from "../services/analytics/tracker";
 import { CostMonitor } from "../services/performance/cost-monitor";
+
+const LOCALE_DISPLAY: Record<string, string> = {
+  ar: "Arabic", he: "Hebrew", fa: "Farsi", fr: "French", tr: "Turkish", ur: "Urdu",
+};
 
 // ROI calculation — see also ../services/analytics/tracker for conversion metrics
 function calculateROI(cost: number, revenue: number): number {
@@ -43,19 +48,36 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const trackedEventCount = getEventCount();
   const costMonitor = new CostMonitor();
 
-  // Fall back to seed data when the in-memory event store is empty
-  const providers = trackedEventCount > 0
-    ? Object.entries(costMonitor.getCostByProvider()).map(([name, cost]) => ({
-        name,
-        requests: translationVolume[name]?.count ?? 0,
-        characters: translationVolume[name]?.chars ?? 0,
-        cost,
-      }))
-    : [
-        { name: "OpenAI", requests: 2847, characters: 1284000, cost: 25.68 },
-        { name: "DeepL", requests: 1203, characters: 542000, cost: 13.55 },
-        { name: "Google", requests: 891, characters: 401000, cost: 4.01 },
-      ];
+  // Fall back to DB-based data when the in-memory event store is empty
+  let providers: Array<{ name: string; requests: number; characters: number; cost: number }>;
+  if (trackedEventCount > 0) {
+    providers = Object.entries(costMonitor.getCostByProvider()).map(([name, cost]) => ({
+      name,
+      requests: translationVolume[name]?.count ?? 0,
+      characters: translationVolume[name]?.chars ?? 0,
+      cost,
+    }));
+  } else {
+    // Try to build from translation cache grouped by provider
+    try {
+      const providerGroups = await db.translationCache.groupBy({
+        by: ["provider"],
+        _count: true,
+      });
+      if (providerGroups.length > 0) {
+        providers = providerGroups.map((g) => ({
+          name: g.provider,
+          requests: g._count,
+          characters: g._count * 500, // estimate ~500 chars per translation
+          cost: g._count * 0.01, // rough cost estimate
+        }));
+      } else {
+        providers = [];
+      }
+    } catch {
+      providers = [];
+    }
+  }
 
   const totalCost = providers.reduce((s, p) => s + p.cost, 0);
   const totalRequests = providers.reduce((s, p) => s + p.requests, 0);
@@ -63,21 +85,63 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const estimatedRevenue = Object.values(conversionMetrics).reduce((s, m) => s + m.totalValue, 0) || 12500;
   const roi = calculateROI(totalCost, estimatedRevenue);
 
-  const weeklyVolume = [
-    { day: "Mon", count: 340 }, { day: "Tue", count: 520 },
-    { day: "Wed", count: 410 }, { day: "Thu", count: 680 },
-    { day: "Fri", count: 290 }, { day: "Sat", count: 150 },
-    { day: "Sun", count: 180 },
-  ];
-  const maxVolume = Math.max(...weeklyVolume.map((d) => d.count));
+  // Build weekly volume from translation cache (last 7 days)
+  let weeklyVolume: Array<{ day: string; count: number }> = [];
+  try {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = new Date(now);
+      dayStart.setDate(now.getDate() - i);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const count = await db.translationCache.count({
+        where: {
+          createdAt: { gte: dayStart, lte: dayEnd },
+        },
+      });
+      weeklyVolume.push({ day: dayNames[dayStart.getDay()], count });
+    }
+  } catch {
+    weeklyVolume = [
+      { day: "Mon", count: 0 }, { day: "Tue", count: 0 },
+      { day: "Wed", count: 0 }, { day: "Thu", count: 0 },
+      { day: "Fri", count: 0 }, { day: "Sat", count: 0 },
+      { day: "Sun", count: 0 },
+    ];
+  }
+  const maxVolume = Math.max(1, ...weeklyVolume.map((d) => d.count));
   const trend = calculateTrendDirection(weeklyVolume.map((d) => d.count));
 
-  const topLanguages = [
-    ["Arabic", "2,847", "78%", "$8,500"],
-    ["Hebrew", "1,203", "45%", "$2,800"],
-    ["Farsi", "891", "23%", "$1,200"],
-    ["French", "4,120", "92%", "$11,300"],
-  ];
+  // Build top languages from translation cache
+  let topLanguages: string[][] = [];
+  try {
+    const langGroups = await db.translationCache.groupBy({
+      by: ["targetLocale"],
+      _count: true,
+    });
+    const distinctSources = await db.translationCache.groupBy({
+      by: ["sourceText"],
+      _count: true,
+    });
+    const totalSources = distinctSources.length || 1;
+
+    topLanguages = langGroups
+      .sort((a, b) => b._count - a._count)
+      .map((g) => {
+        const coverage = Math.round((g._count / totalSources) * 100);
+        return [
+          LOCALE_DISPLAY[g.targetLocale] ?? g.targetLocale,
+          g._count.toLocaleString(),
+          `${coverage}%`,
+          "$0",
+        ];
+      });
+  } catch {
+    topLanguages = [];
+  }
 
   return json({
     providers, totalCost, totalRequests, totalCharacters, roi,
@@ -147,7 +211,7 @@ export default function AnalyticsPage() {
                       <Text as="span" variant="bodyMd">{p.name}</Text>
                       <Text as="span" variant="bodyMd">${p.cost.toFixed(2)}</Text>
                     </InlineStack>
-                    <ProgressBar progress={Math.round((p.cost / totalProviderCost) * 100)} size="small" />
+                    <ProgressBar progress={totalProviderCost > 0 ? Math.round((p.cost / totalProviderCost) * 100) : 0} size="small" />
                   </BlockStack>
                 ))}
               </BlockStack>

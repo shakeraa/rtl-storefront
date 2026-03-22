@@ -5,25 +5,75 @@ import { useLoaderData } from "@remix-run/react";
 import { Page, Layout, Card, BlockStack, InlineStack, Text, Button, Select, DataTable, Badge, ButtonGroup } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
-  return json({ shop: session.shop });
+
+  let translationData: string[][] = [];
+  try {
+    const entries = await db.translationMemory.findMany({
+      where: { shop: session.shop },
+      take: 1000,
+      orderBy: { updatedAt: "desc" },
+      select: {
+        sourceLocale: true,
+        targetLocale: true,
+        sourceText: true,
+        translatedText: true,
+        context: true,
+      },
+    });
+
+    translationData = entries.map((entry) => [
+      entry.context ?? "unknown",
+      entry.sourceLocale,
+      entry.sourceText,
+      entry.targetLocale,
+      entry.translatedText,
+    ]);
+  } catch {
+    // Fall back — also try translation cache
+    try {
+      const cacheEntries = await db.translationCache.findMany({
+        take: 1000,
+        orderBy: { updatedAt: "desc" },
+        select: {
+          sourceLocale: true,
+          targetLocale: true,
+          sourceText: true,
+          translatedText: true,
+          context: true,
+        },
+      });
+
+      translationData = cacheEntries.map((entry) => [
+        entry.context ?? "unknown",
+        entry.sourceLocale,
+        entry.sourceText,
+        entry.targetLocale,
+        entry.translatedText,
+      ]);
+    } catch {
+      translationData = [];
+    }
+  }
+
+  return json({ shop: session.shop, translationData });
 };
 
 export default function ExportPage() {
-  const { shop } = useLoaderData<typeof loader>();
+  const { shop, translationData } = useLoaderData<typeof loader>();
   const [format, setFormat] = useState("csv");
   const [locale, setLocale] = useState("ar");
   const [resourceType, setResourceType] = useState("all");
 
-  const sampleData = [
-    ["product:123:title", "en", "Premium Abaya", "ar", "عباية فاخرة"],
-    ["product:123:description", "en", "Elegant black abaya", "ar", "عباية سوداء أنيقة"],
-    ["collection:5:title", "en", "Summer Collection", "ar", "مجموعة الصيف"],
-    ["page:2:title", "en", "About Us", "ar", "من نحن"],
-    ["product:456:title", "en", "Silk Hijab", "ar", "حجاب حرير"],
-  ];
+  // Filter data by selected locale and resource type
+  const sampleData = translationData.filter((row) => {
+    if (row[3] !== locale) return false;
+    if (resourceType !== "all" && !row[0].toLowerCase().includes(resourceType.replace(/s$/, ""))) return false;
+    return true;
+  });
 
   const handleDownload = () => {
     let content: string;

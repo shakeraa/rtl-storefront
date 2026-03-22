@@ -56,19 +56,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       _count: true,
     });
 
-    // Also check shop settings for configured target locales
-    let targetLocales = Object.keys(LOCALE_INFO);
-    try {
-      const settings = await db.shopSettings.findUnique({ where: { shop } });
-      if (settings?.targetLocales) {
-        const parsed = JSON.parse(settings.targetLocales);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          targetLocales = parsed;
-        }
-      }
-    } catch {
-      // keep defaults
-    }
+    // Use known locale keys as target locales
+    const targetLocales = Object.keys(LOCALE_INFO);
 
     const translatedByLocale: Record<string, number> = {};
     for (const g of translatedGroups) {

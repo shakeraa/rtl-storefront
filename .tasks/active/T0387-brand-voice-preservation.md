@@ -1,6 +1,6 @@
 # T0387 — Brand Voice Preservation
 
-## Status: queue
+status: active
 ## Priority: high
 ## Source: product_spec §2.4
 

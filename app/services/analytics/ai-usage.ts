@@ -331,7 +331,7 @@ export function getUsageTrends(period: UsagePeriod): UsageTrendPoint[] {
  */
 export function getQuotaStatus(period?: UsagePeriod): QuotaStatus {
   const entries = period ? getUsageEntriesInPeriod(period) : [...usageStore];
-  const used = entries.reduce((sum, e) => e.characters, 0);
+  const used = entries.reduce((sum, e) => sum + e.characters, 0);
   const remaining = characterQuota - used;
 
   return {

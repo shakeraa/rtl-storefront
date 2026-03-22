@@ -1,6 +1,6 @@
 # T0392 — Bidirectional Search
 
-## Status: queue
+status: active
 ## Priority: high
 ## Source: product_spec §4.4
 ## Depends: partial implementation exists (bidi service, tashkeel utils)

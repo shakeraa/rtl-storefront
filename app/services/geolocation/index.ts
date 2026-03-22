@@ -50,20 +50,45 @@ const VPN_INDICATORS = [
   'tor',
 ];
 
+const COUNTRY_NAME_MAP: Record<string, string> = {
+  SA: 'Saudi Arabia', AE: 'United Arab Emirates', QA: 'Qatar',
+  KW: 'Kuwait', BH: 'Bahrain', OM: 'Oman', EG: 'Egypt',
+  IQ: 'Iraq', JO: 'Jordan', LB: 'Lebanon', SY: 'Syria',
+  YE: 'Yemen', PS: 'Palestine', IL: 'Israel', IR: 'Iran',
+  PK: 'Pakistan', TR: 'Turkey', US: 'United States', GB: 'United Kingdom',
+};
+
+const COUNTRY_TIMEZONE_MAP: Record<string, string> = {
+  SA: 'Asia/Riyadh', AE: 'Asia/Dubai', QA: 'Asia/Qatar',
+  KW: 'Asia/Kuwait', BH: 'Asia/Bahrain', OM: 'Asia/Muscat',
+  EG: 'Africa/Cairo', IL: 'Asia/Jerusalem', TR: 'Europe/Istanbul',
+  IR: 'Asia/Tehran', PK: 'Asia/Karachi', US: 'America/New_York',
+};
+
 /**
- * Detect location from IP (placeholder for actual geolocation API)
+ * Detect location from request headers (CDN geolocation)
  */
-export async function detectLocation(): Promise<GeoLocation | null> {
+export async function detectLocation(request?: Request): Promise<GeoLocation | null> {
   try {
-    // In production, this would call a geolocation API
-    // For now, return a mock detection
+    if (!request) return null;
+
+    const headers = request.headers;
+    const countryCode =
+      headers.get('CF-IPCountry') ||
+      headers.get('X-Vercel-IP-Country') ||
+      headers.get('X-Country-Code');
+
+    if (!countryCode || countryCode === 'XX' || countryCode === 'T1') {
+      return null;
+    }
+
+    const code = countryCode.toUpperCase();
     return {
-      country: 'Saudi Arabia',
-      countryCode: 'SA',
-      timezone: 'Asia/Riyadh',
-      currency: 'SAR',
-      language: 'ar',
-      coordinates: { latitude: 24.7136, longitude: 46.6753 },
+      country: COUNTRY_NAME_MAP[code] || code,
+      countryCode: code,
+      timezone: COUNTRY_TIMEZONE_MAP[code] || 'UTC',
+      currency: COUNTRY_CURRENCY_MAP[code] || 'USD',
+      language: COUNTRY_LANGUAGE_MAP[code] || 'en',
     };
   } catch {
     return null;
@@ -128,9 +153,22 @@ export function isCountryAllowed(
 /**
  * Detect if user is likely using VPN (simplified)
  */
-export function detectVPN(location: GeoLocation): boolean {
-  // In production, this would check against known VPN/datacenter IP ranges
-  // For now, return false as placeholder
+export function detectVPN(location: GeoLocation, request?: Request): boolean {
+  if (!request) return false;
+
+  const headers = request.headers;
+
+  // Check for Tor exit nodes (Cloudflare reports T1)
+  if (headers.get('CF-IPCountry') === 'T1') return true;
+
+  // Check X-Forwarded-For for long proxy chains (3+ hops)
+  const xff = headers.get('X-Forwarded-For');
+  if (xff && xff.split(',').length > 3) return true;
+
+  // Check Via header for datacenter/proxy indicators
+  const via = headers.get('Via') || '';
+  if (VPN_INDICATORS.some((ind) => via.toLowerCase().includes(ind))) return true;
+
   return false;
 }
 
