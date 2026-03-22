@@ -12,6 +12,19 @@ export type {
   SchemaFieldMapping,
 } from "./product-schema";
 
+export type {
+  ProductReview,
+  ProductAggregateRating,
+  EnhancedProductData,
+  GeneratedEnhancedProductSchema,
+} from "./product-schema-enhanced";
+
+export type {
+  BreadcrumbItem,
+  BreadcrumbSchemaConfig,
+  GeneratedBreadcrumbSchema,
+} from "./breadcrumb-schema";
+
 export {
   generateProductSchema,
   generateBreadcrumbSchema,
@@ -30,3 +43,24 @@ export {
   validateProductSchema,
   mergeProductSchemas,
 } from "./product-schema";
+
+export {
+  generateEnhancedProductSchema,
+  wrapEnhancedProductJsonLd,
+  validateEnhancedProductSchema,
+  extractPriceFromSchema,
+  extractReviewsFromSchema,
+  generateMultipleProductSchemas,
+  mergeEnhancedProductSchemas,
+} from "./product-schema-enhanced";
+
+export {
+  generateBreadcrumbSchema as generateTranslatedBreadcrumbSchema,
+  generateProductBreadcrumbSchema as generateProductBreadcrumb,
+  generateCollectionBreadcrumbSchema,
+  generatePageBreadcrumbSchema,
+  wrapBreadcrumbJsonLd,
+  validateBreadcrumbSchema,
+  extractBreadcrumbItems,
+  createBreadcrumbBuilder,
+} from "./breadcrumb-schema";

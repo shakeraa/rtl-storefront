@@ -1,213 +1,139 @@
 /**
- * SEO Service (T0007)
- *
- * Re-exports the SEO infrastructure and adds higher-level helpers:
- * - generateMetaTagsForLocale: combines meta tags + hreflang in one call
- * - getMultilingualSEOConfig: full SEO config object for a shop
- * - validateSEOSetup: check hreflang consistency, canonical, sitemap
+ * SEO Service Module
+ * 
+ * Comprehensive SEO functionality including:
+ * - T0007: Multilingual SEO infrastructure
+ * - T0038: Translated URL slugs
+ * - T0074: Product Schema.org Translation
+ * - T0075: Breadcrumb Schema Translation
+ * - T0076: SEO Audit Tool
+ * - T0077: Multi-language XML Sitemap
+ * - T0078: Language-specific Robots.txt
  */
 
-export * from "../seo-infrastructure";
-
-import {
+// Export from seo-infrastructure
+export {
   type SEOConfig,
   generateHreflangMeta,
   generateCanonical,
+  transliterateToSlug,
+  buildTranslatedUrl,
+  generateLocalizedBreadcrumbs,
   generateRobotsTxt,
+  getRobotsHeaders,
+  TRANSLITERATION_MAP,
 } from "../seo-infrastructure";
 
-// ---------------------------------------------------------------------------
-// generateMetaTagsForLocale
-// ---------------------------------------------------------------------------
+// Export meta tag functionality
+export type {
+  LocaleMetaTags,
+  MultilingualSEOConfig,
+  SEOValidationResult,
+} from "./meta-tags";
 
-export interface LocaleMetaTags {
-  title: string;
-  description: string;
-  canonical: string;
-  hreflangTags: string[];
-  metaTags: string[];
-}
+export {
+  generateMetaTagsForLocale,
+  getMultilingualSEOConfig,
+  validateSEOSetup,
+} from "./meta-tags";
 
-/**
- * Generate a complete set of meta tags for a given URL and locale, including
- * `<title>`, `<meta name="description">`, canonical, and hreflang alternates.
- */
-export function generateMetaTagsForLocale(
-  url: string,
-  locale: string,
-  title: string,
-  description: string,
-  config: SEOConfig,
-): LocaleMetaTags {
-  const canonical = generateCanonical(url, locale, config);
-  const hreflangTags = generateHreflangMeta(url, config);
+// Export structured data
+export {
+  generateProductSchema,
+  generateBreadcrumbSchema,
+  generateOrganizationSchema,
+} from "./structured-data";
 
-  const metaTags: string[] = [
-    `<title>${escapeHtml(title)}</title>`,
-    `<meta name="description" content="${escapeHtml(description)}" />`,
-    `<link rel="canonical" href="${canonical}" />`,
-    `<meta property="og:title" content="${escapeHtml(title)}" />`,
-    `<meta property="og:description" content="${escapeHtml(description)}" />`,
-    `<meta property="og:url" content="${canonical}" />`,
-    `<meta property="og:locale" content="${locale}" />`,
-    ...hreflangTags,
-  ];
+// Export hreflang
+export type {
+  HreflangTag,
+} from "./hreflang";
 
-  return {
-    title,
-    description,
-    canonical,
-    hreflangTags,
-    metaTags,
-  };
-}
+export {
+  generateHreflangTags,
+  getXDefaultUrl,
+} from "./hreflang";
 
-// ---------------------------------------------------------------------------
-// getMultilingualSEOConfig
-// ---------------------------------------------------------------------------
+// Export sitemap
+export type {
+  SitemapUrlEntry,
+  GeneratedSitemap,
+} from "./sitemap";
 
-export interface MultilingualSEOConfig {
-  seoConfig: SEOConfig;
-  robotsTxt: string;
-  sitemapUrls: string[];
-  hreflangEnabled: boolean;
-  canonicalStrategy: "locale-prefix" | "default-only";
-}
+export {
+  generateSitemap,
+} from "./sitemap";
 
-/**
- * Build a full multilingual SEO configuration for a shop, including
- * robots.txt content, sitemap URLs, and hreflang settings.
- */
-export function getMultilingualSEOConfig(
-  shop: string,
-  locales: string[],
-  options?: {
-    defaultLocale?: string;
-    baseUrl?: string;
-    canonicalStrategy?: "locale-prefix" | "default-only";
-  },
-): MultilingualSEOConfig {
-  const defaultLocale = options?.defaultLocale ?? locales[0] ?? "en";
-  const baseUrl = options?.baseUrl ?? `https://${shop}`;
+// Export URL translator
+export {
+  translateUrlSlug,
+  generateLocalizedUrl,
+} from "./url-translator";
 
-  const seoConfig: SEOConfig = {
-    shop,
-    defaultLocale,
-    locales,
-    baseUrl,
-  };
+// Export audit functionality
+export type {
+  AuditPage,
+  HreflangIssue,
+  MetaTagIssue,
+  BrokenLink,
+  DuplicateContentGroup,
+  LanguageScore,
+  SEOAuditResult,
+  AuditOptions,
+} from "./audit";
 
-  const robotsTxt = generateRobotsTxt(seoConfig);
-  const normalizedBase = baseUrl.replace(/\/+$/, "");
-  const sitemapUrls = locales.map(
-    (locale) => `${normalizedBase}/sitemap-${locale}.xml`,
-  );
+export {
+  runSEOAudit,
+  auditHreflang,
+  auditMetaTags,
+  auditBrokenLinks,
+  auditDuplicateContent,
+  calculateLanguageScores,
+  calculateOverallScore,
+  generateRecommendations,
+  quickAuditPage,
+} from "./audit";
 
-  return {
-    seoConfig,
-    robotsTxt,
-    sitemapUrls,
-    hreflangEnabled: locales.length > 1,
-    canonicalStrategy: options?.canonicalStrategy ?? "locale-prefix",
-  };
-}
+// Export robots.txt functionality
+export type {
+  RobotsTxtConfig,
+  UserAgentRules,
+  GeneratedRobotsTxt,
+} from "./robots-txt";
 
-// ---------------------------------------------------------------------------
-// validateSEOSetup
-// ---------------------------------------------------------------------------
+export {
+  generateLanguageSpecificRobotsTxt,
+  generateMultiUserAgentRobotsTxt,
+  generateRobotsTxtWithCrawlDelay,
+  generateBotSpecificRobotsTxt,
+  validateRobotsTxt,
+  parseRobotsTxt,
+  isUrlAllowed,
+  createRobotsTxtBuilder,
+} from "./robots-txt";
 
-export interface SEOValidationResult {
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
-}
+// Export sitemap manager
+export type {
+  SitemapPageEntry,
+  SitemapManagerConfig,
+  SitemapIndexEntry,
+} from "../sitemap/sitemap-manager";
 
-/**
- * Validate an SEO configuration for common issues:
- * - hreflang consistency (default locale must be in locales list)
- * - canonical base URL presence and format
- * - sitemap existence (at least one locale must produce a sitemap URL)
- * - robots.txt non-empty
- */
-export function validateSEOSetup(config: SEOConfig): SEOValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+export {
+  SitemapManager,
+  createSitemapManager,
+  generateMultilingualSitemap,
+  generateSitemapIndexWithChunks,
+} from "../sitemap/sitemap-manager";
 
-  // Check that locales array is non-empty
-  if (!config.locales || config.locales.length === 0) {
-    errors.push("No locales configured. At least one locale is required.");
-  }
+// Re-export sitemap types and functions
+export type {
+  SitemapUrl,
+  SitemapConfig,
+  SitemapGeneratorInput,
+} from "../sitemap";
 
-  // Check that defaultLocale is present in the locales list
-  if (config.locales && !config.locales.includes(config.defaultLocale)) {
-    errors.push(
-      `Default locale "${config.defaultLocale}" is not in the locales list [${config.locales.join(", ")}].`,
-    );
-  }
-
-  // Check for duplicate locales
-  if (config.locales) {
-    const seen = new Set<string>();
-    for (const locale of config.locales) {
-      if (seen.has(locale)) {
-        warnings.push(`Duplicate locale "${locale}" in locales list.`);
-      }
-      seen.add(locale);
-    }
-  }
-
-  // Validate base URL
-  if (!config.baseUrl || config.baseUrl.trim().length === 0) {
-    errors.push("Base URL is missing or empty.");
-  } else if (
-    !config.baseUrl.startsWith("https://") &&
-    !config.baseUrl.startsWith("http://")
-  ) {
-    errors.push(
-      `Base URL "${config.baseUrl}" must start with https:// or http://.`,
-    );
-  }
-
-  // Validate shop
-  if (!config.shop || config.shop.trim().length === 0) {
-    errors.push("Shop identifier is missing or empty.");
-  }
-
-  // Check hreflang consistency: verify that generating hreflang for any
-  // URL produces tags for all locales plus x-default
-  if (config.locales && config.locales.length > 0 && config.baseUrl) {
-    const tags = generateHreflangMeta("/", config);
-    const expectedCount = config.locales.length + 1; // locales + x-default
-    if (tags.length !== expectedCount) {
-      warnings.push(
-        `Hreflang tag count (${tags.length}) does not match expected (${expectedCount}).`,
-      );
-    }
-  }
-
-  // Check that a single-locale setup gets a warning
-  if (config.locales && config.locales.length === 1) {
-    warnings.push(
-      "Only one locale is configured. Hreflang tags are unnecessary for single-locale stores.",
-    );
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+export {
+  generateSitemapXml,
+  generateSitemapIndex,
+} from "../sitemap";
