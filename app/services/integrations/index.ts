@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface CookieConsentOptionContent {
+  optionId: string;
+  title: string;
+  description?: string;
+}
+
+export interface CookieConsentAppContent {
+  consentId: string;
+  bannerTitle: string;
+  acceptLabel?: string;
+  rejectLabel?: string;
+  options: CookieConsentOptionContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Cookie consent app integration
+export async function translateCookieConsentAppContent(
+  consent: CookieConsentAppContent,
+  targetLocale: string
+): Promise<CookieConsentAppContent> {
+  return {
+    ...consent,
+    bannerTitle: `[${targetLocale}] ${consent.bannerTitle}`,
+    acceptLabel: consent.acceptLabel
+      ? `[${targetLocale}] ${consent.acceptLabel}`
+      : undefined,
+    rejectLabel: consent.rejectLabel
+      ? `[${targetLocale}] ${consent.rejectLabel}`
+      : undefined,
+    options: consent.options.map((option) => ({
+      ...option,
+      title: `[${targetLocale}] ${option.title}`,
+      description: option.description
+        ? `[${targetLocale}] ${option.description}`
+        : undefined,
     })),
   };
 }

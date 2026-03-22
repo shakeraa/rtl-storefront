@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateCookieConsentAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,49 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Cookie Consent App Integration', () => {
+    it('should translate cookie consent content and preserve metadata', async () => {
+      const consent = {
+        consentId: 'consent-1',
+        bannerTitle: 'Manage your cookie preferences',
+        acceptLabel: 'Accept all',
+        rejectLabel: 'Reject non-essential',
+        options: [
+          {
+            optionId: 'option-1',
+            title: 'Analytics cookies',
+            description: 'Help us understand site usage',
+          },
+          {
+            optionId: 'option-2',
+            title: 'Preference cookies',
+          },
+        ],
+        metadata: {
+          provider: 'cookie-consent-app',
+        },
+      };
+
+      const result = await translateCookieConsentAppContent(consent, 'ar');
+      expect(result.bannerTitle).toBe('[ar] Manage your cookie preferences');
+      expect(result.acceptLabel).toBe('[ar] Accept all');
+      expect(result.rejectLabel).toBe('[ar] Reject non-essential');
+      expect(result.options[0]).toEqual({
+        optionId: 'option-1',
+        title: '[ar] Analytics cookies',
+        description: '[ar] Help us understand site usage',
+      });
+      expect(result.options[1]).toEqual({
+        optionId: 'option-2',
+        title: '[ar] Preference cookies',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'cookie-consent-app',
       });
     });
   });
