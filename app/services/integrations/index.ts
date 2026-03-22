@@ -26,6 +26,17 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface FAQEntry {
+  question: string;
+  answer: string;
+}
+
+export interface FAQAppContent {
+  faqId: string;
+  title: string;
+  entries: FAQEntry[];
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +105,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'helpcenter',
+    name: 'HelpCenter FAQ',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +194,21 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// FAQ app integration
+export async function translateFAQAppContent(
+  content: FAQAppContent,
+  targetLocale: string
+): Promise<FAQAppContent> {
+  return {
+    ...content,
+    title: `[${targetLocale}] ${content.title}`,
+    entries: content.entries.map((entry) => ({
+      question: `[${targetLocale}] ${entry.question}`,
+      answer: `[${targetLocale}] ${entry.answer}`,
     })),
   };
 }

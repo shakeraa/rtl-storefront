@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateFAQAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('helpcenter');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,33 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('FAQ App Integration', () => {
+    it('should translate FAQ titles, questions, and answers', async () => {
+      const faq = {
+        faqId: 'faq-1',
+        title: 'Frequently Asked Questions',
+        entries: [
+          {
+            question: 'Do you ship internationally?',
+            answer: 'Yes, we ship worldwide.',
+          },
+        ],
+      };
+
+      const result = await translateFAQAppContent(faq, 'ar');
+      expect(result).toEqual({
+        faqId: 'faq-1',
+        title: '[ar] Frequently Asked Questions',
+        entries: [
+          {
+            question: '[ar] Do you ship internationally?',
+            answer: '[ar] Yes, we ship worldwide.',
+          },
+        ],
       });
     });
   });
