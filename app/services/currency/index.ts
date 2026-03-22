@@ -5,6 +5,7 @@
 export * from './constants';
 export * from './converter';
 export * from './exchange';
+export * from './rounding';
 
 import { getCurrency, CURRENCIES, type Currency } from './constants';
 import { formatPrice, convert, parsePrice } from './converter';
