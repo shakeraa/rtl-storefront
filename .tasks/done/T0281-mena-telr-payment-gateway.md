@@ -1,10 +1,10 @@
 ---
-id: "T0286"
-title: "MENA - Aramex Shipping"
+id: "T0281"
+title: "MENA - Telr Payment Gateway"
 priority: medium
 assigned: claude-sec
-branch: feature/t0286
-status: active
+branch: feature/t0281
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Aramex shipping integration
+Telr UAE/Saudi integration
 
 ## Acceptance criteria
 - [ ] Feature implemented

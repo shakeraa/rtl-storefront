@@ -1,10 +1,10 @@
 ---
-id: "T0284"
-title: "MENA - Network International"
+id: "T0289"
+title: "MENA - WhatsApp Business Integration"
 priority: medium
 assigned: claude-sec
-branch: feature/t0284
-status: active
+branch: feature/t0289
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Network International integration
+WhatsApp for Business
 
 ## Acceptance criteria
 - [ ] Feature implemented

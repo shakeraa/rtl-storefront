@@ -1,10 +1,10 @@
 ---
-id: "T0283"
-title: "MENA - HyperPay Integration"
+id: "T0291"
+title: "MENA - Cash on Delivery"
 priority: medium
 assigned: claude-sec
-branch: feature/t0283
-status: active
+branch: feature/t0291
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-HyperPay gateway integration
+COD payment option
 
 ## Acceptance criteria
 - [ ] Feature implemented

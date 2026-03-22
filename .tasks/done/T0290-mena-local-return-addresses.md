@@ -1,10 +1,10 @@
 ---
-id: "T0289"
-title: "MENA - WhatsApp Business Integration"
+id: "T0290"
+title: "MENA - Local Return Addresses"
 priority: medium
 assigned: claude-sec
-branch: feature/t0289
-status: active
+branch: feature/t0290
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-WhatsApp for Business
+Regional return centers
 
 ## Acceptance criteria
 - [ ] Feature implemented

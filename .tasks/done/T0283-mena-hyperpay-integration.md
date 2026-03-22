@@ -1,10 +1,10 @@
 ---
-id: "T0292"
-title: "MENA - Installment Plans"
+id: "T0283"
+title: "MENA - HyperPay Integration"
 priority: medium
 assigned: claude-sec
-branch: feature/t0292
-status: active
+branch: feature/t0283
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Local installment options
+HyperPay gateway integration
 
 ## Acceptance criteria
 - [ ] Feature implemented

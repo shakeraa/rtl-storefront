@@ -1,10 +1,10 @@
 ---
-id: "T0288"
-title: "MENA - SMS Notifications Arabic"
+id: "T0287"
+title: "MENA - Fetchr/Nova Delivery"
 priority: medium
 assigned: claude-sec
-branch: feature/t0288
-status: active
+branch: feature/t0287
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Arabic SMS notifications
+Fetchr delivery integration
 
 ## Acceptance criteria
 - [ ] Feature implemented

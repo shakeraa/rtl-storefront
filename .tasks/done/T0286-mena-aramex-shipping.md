@@ -1,10 +1,10 @@
 ---
-id: "T0282"
-title: "MENA - PayFort Integration"
+id: "T0286"
+title: "MENA - Aramex Shipping"
 priority: medium
 assigned: claude-sec
-branch: feature/t0282
-status: active
+branch: feature/t0286
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-PayFort MENA integration
+Aramex shipping integration
 
 ## Acceptance criteria
 - [ ] Feature implemented

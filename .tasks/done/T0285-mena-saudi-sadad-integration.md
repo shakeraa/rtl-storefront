@@ -1,10 +1,10 @@
 ---
-id: "T0281"
-title: "MENA - Telr Payment Gateway"
+id: "T0285"
+title: "MENA - Saudi SADAD Integration"
 priority: medium
 assigned: claude-sec
-branch: feature/t0281
-status: active
+branch: feature/t0285
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Telr UAE/Saudi integration
+SADAD payment integration
 
 ## Acceptance criteria
 - [ ] Feature implemented
