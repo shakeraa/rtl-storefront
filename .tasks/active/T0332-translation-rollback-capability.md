@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0332"
+title: "Translation - Rollback Capability"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0332
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Revert to previous version
 
 ## Acceptance criteria
 - [ ] Feature implemented

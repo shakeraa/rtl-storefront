@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
-priority: low
+id: "T0180"
+title: "Performance - Code Splitting"
+priority: medium
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0180
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Split code by language/route
 
 ## Acceptance criteria
 - [ ] Feature implemented

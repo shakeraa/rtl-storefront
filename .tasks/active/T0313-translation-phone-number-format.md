@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0313"
+title: "Translation - Phone Number Format"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0313
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Format phone numbers
 
 ## Acceptance criteria
 - [ ] Feature implemented

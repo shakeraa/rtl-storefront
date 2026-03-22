@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0348"
+title: "Translation - Focus Indicators"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0348
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Focus state labels
 
 ## Acceptance criteria
 - [ ] Feature implemented

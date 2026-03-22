@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0333"
+title: "Translation - Compare Versions"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0333
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Diff view for versions
 
 ## Acceptance criteria
 - [ ] Feature implemented

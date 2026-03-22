@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0314"
+title: "Translation - Date Format Localization"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0314
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Localized date formats
 
 ## Acceptance criteria
 - [ ] Feature implemented

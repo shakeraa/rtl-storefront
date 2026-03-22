@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0329"
+title: "Translation - Review Comments"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0329
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Comment on translations
 
 ## Acceptance criteria
 - [ ] Feature implemented

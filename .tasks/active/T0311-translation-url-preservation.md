@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0311"
+title: "Translation - URL Preservation"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0311
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Keep URLs untranslated
 
 ## Acceptance criteria
 - [ ] Feature implemented
