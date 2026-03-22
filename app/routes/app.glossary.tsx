@@ -1,215 +1,143 @@
-import { useState, useCallback } from "react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { useState } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useFetcher } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Card,
-  BlockStack,
-  Text,
-  IndexTable,
-  Badge,
-  Button,
-  Tabs,
-  InlineStack,
-  useIndexResourceState,
+  Page, Layout, Card, BlockStack, InlineStack, Text,
+  IndexTable, Badge, Button, TextField, Checkbox, Tabs,
+  Modal, FormLayout,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { getAllTerms, getNeverTranslateTerms, addTerm, deleteTerm } from "../services/translation-memory/glossary";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
 
-  return json({
-    glossaryTerms: [
-      { id: "g1", source: "Abaya", translation: "\u0639\u0628\u0627\u064A\u0629", language: "Arabic", category: "Fashion" },
-      { id: "g2", source: "Hijab", translation: "\u062D\u062C\u0627\u0628", language: "Arabic", category: "Fashion" },
-      { id: "g3", source: "Kaftan", translation: "\u0642\u0641\u0637\u0627\u0646", language: "Arabic", category: "Fashion" },
-      { id: "g4", source: "Add to Cart", translation: "\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0633\u0644\u0629", language: "Arabic", category: "UI" },
-      { id: "g5", source: "Checkout", translation: "\u05E7\u05D5\u05E4\u05D4", language: "Hebrew", category: "UI" },
-      { id: "g6", source: "Free Shipping", translation: "\u0634\u062D\u0646 \u0645\u062C\u0627\u0646\u064A", language: "Arabic", category: "Shipping" },
-    ],
-    neverTranslateTerms: [
-      { id: "nt1", term: "SKU-12345", type: "SKU", caseSensitive: true },
-      { id: "nt2", term: "GUCCI", type: "Brand", caseSensitive: true },
-      { id: "nt3", term: "pH", type: "Technical", caseSensitive: true },
-      { id: "nt4", term: "COVID-19", type: "Technical", caseSensitive: false },
-    ],
-  });
+  const glossaryTerms = await getAllTerms(shop);
+  const neverTranslateTerms = await getNeverTranslateTerms(shop, "en");
+
+  return json({ glossaryTerms, neverTranslateTerms, shop });
 };
 
-function categoryBadge(category: string) {
-  switch (category) {
-    case "Fashion":
-      return <Badge tone="info">Fashion</Badge>;
-    case "UI":
-      return <Badge tone="success">UI</Badge>;
-    case "Shipping":
-      return <Badge tone="warning">Shipping</Badge>;
-    default:
-      return <Badge>{category}</Badge>;
-  }
-}
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+  const intent = formData.get("intent");
 
-function typeBadge(type: string) {
-  switch (type) {
-    case "SKU":
-      return <Badge tone="info">SKU</Badge>;
-    case "Brand":
-      return <Badge tone="success">Brand</Badge>;
-    case "Technical":
-      return <Badge tone="warning">Technical</Badge>;
-    default:
-      return <Badge>{type}</Badge>;
+  if (intent === "add") {
+    await addTerm(session.shop, {
+      sourceLocale: String(formData.get("sourceLocale") || "en"),
+      targetLocale: String(formData.get("targetLocale") || "ar"),
+      sourceTerm: String(formData.get("sourceTerm")),
+      translatedTerm: String(formData.get("translatedTerm") || ""),
+      neverTranslate: formData.get("neverTranslate") === "true",
+      caseSensitive: formData.get("caseSensitive") === "true",
+    });
+  } else if (intent === "delete") {
+    await deleteTerm(String(formData.get("id")));
   }
-}
 
-export default function Glossary() {
-  const { glossaryTerms, neverTranslateTerms } =
-    useLoaderData<typeof loader>();
+  return json({ ok: true });
+};
+
+export default function GlossaryPage() {
+  const { glossaryTerms, neverTranslateTerms } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [selectedTab, setSelectedTab] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [newTerm, setNewTerm] = useState({ sourceTerm: "", translatedTerm: "", targetLocale: "ar", neverTranslate: false, caseSensitive: false });
 
-  const handleTabChange = useCallback(
-    (selectedTabIndex: number) => setSelectedTab(selectedTabIndex),
-    [],
-  );
+  const handleAdd = () => {
+    fetcher.submit(
+      { intent: "add", ...newTerm, neverTranslate: String(newTerm.neverTranslate), caseSensitive: String(newTerm.caseSensitive) },
+      { method: "POST" },
+    );
+    setShowModal(false);
+    setNewTerm({ sourceTerm: "", translatedTerm: "", targetLocale: "ar", neverTranslate: false, caseSensitive: false });
+  };
 
-  const glossaryResource = useIndexResourceState(glossaryTerms);
-  const neverTranslateResource = useIndexResourceState(neverTranslateTerms);
+  const handleDelete = (id: string) => {
+    fetcher.submit({ intent: "delete", id }, { method: "POST" });
+  };
 
   const tabs = [
-    { id: "glossary", content: "Glossary", panelID: "glossary-panel" },
-    {
-      id: "never-translate",
-      content: "Never-Translate",
-      panelID: "never-translate-panel",
-    },
+    { id: "glossary", content: `Glossary (${glossaryTerms.length})` },
+    { id: "never-translate", content: `Never-Translate (${neverTranslateTerms.length})` },
   ];
 
-  const glossaryRowMarkup = glossaryTerms.map((term, index) => (
-    <IndexTable.Row
-      id={term.id}
-      key={term.id}
-      selected={glossaryResource.selectedResources.includes(term.id)}
-      position={index}
-    >
-      <IndexTable.Cell>
-        <Text as="span" variant="bodyMd" fontWeight="bold">
-          {term.source}
-        </Text>
-      </IndexTable.Cell>
-      <IndexTable.Cell>{term.translation}</IndexTable.Cell>
-      <IndexTable.Cell>{term.language}</IndexTable.Cell>
-      <IndexTable.Cell>{categoryBadge(term.category)}</IndexTable.Cell>
-      <IndexTable.Cell>
-        <InlineStack gap="200">
-          <Button size="slim">Edit</Button>
-          <Button size="slim" tone="critical">
-            Delete
-          </Button>
-        </InlineStack>
-      </IndexTable.Cell>
-    </IndexTable.Row>
-  ));
-
-  const neverTranslateRowMarkup = neverTranslateTerms.map((term, index) => (
-    <IndexTable.Row
-      id={term.id}
-      key={term.id}
-      selected={neverTranslateResource.selectedResources.includes(term.id)}
-      position={index}
-    >
-      <IndexTable.Cell>
-        <Text as="span" variant="bodyMd" fontWeight="bold">
-          {term.term}
-        </Text>
-      </IndexTable.Cell>
-      <IndexTable.Cell>{typeBadge(term.type)}</IndexTable.Cell>
-      <IndexTable.Cell>
-        {term.caseSensitive ? (
-          <Badge tone="info">Case Sensitive</Badge>
-        ) : (
-          <Badge>Case Insensitive</Badge>
-        )}
-      </IndexTable.Cell>
-      <IndexTable.Cell>
-        <InlineStack gap="200">
-          <Button size="slim">Edit</Button>
-          <Button size="slim" tone="critical">
-            Delete
-          </Button>
-        </InlineStack>
-      </IndexTable.Cell>
-    </IndexTable.Row>
-  ));
-
   return (
-    <Page
-      backAction={{ content: "Home", url: "/app" }}
-      title="Glossary & Never-Translate Terms"
-    >
+    <Page>
       <TitleBar title="Glossary & Never-Translate Terms">
-        <button variant="primary">Add Term</button>
+        <button variant="primary" onClick={() => setShowModal(true)}>Add Term</button>
       </TitleBar>
       <BlockStack gap="500">
-        <Layout>
-          <Layout.Section>
-            <Card padding="0">
-              <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
-                {selectedTab === 0 ? (
-                  <IndexTable
-                    resourceName={{
-                      singular: "glossary term",
-                      plural: "glossary terms",
-                    }}
-                    itemCount={glossaryTerms.length}
-                    selectedItemsCount={
-                      glossaryResource.allResourcesSelected
-                        ? "All"
-                        : glossaryResource.selectedResources.length
-                    }
-                    onSelectionChange={glossaryResource.handleSelectionChange}
-                    headings={[
-                      { title: "Source Term" },
-                      { title: "Translation" },
-                      { title: "Language" },
-                      { title: "Category" },
-                      { title: "Actions" },
-                    ]}
-                  >
-                    {glossaryRowMarkup}
-                  </IndexTable>
-                ) : (
-                  <IndexTable
-                    resourceName={{
-                      singular: "term",
-                      plural: "terms",
-                    }}
-                    itemCount={neverTranslateTerms.length}
-                    selectedItemsCount={
-                      neverTranslateResource.allResourcesSelected
-                        ? "All"
-                        : neverTranslateResource.selectedResources.length
-                    }
-                    onSelectionChange={
-                      neverTranslateResource.handleSelectionChange
-                    }
-                    headings={[
-                      { title: "Term" },
-                      { title: "Type" },
-                      { title: "Case Sensitive" },
-                      { title: "Actions" },
-                    ]}
-                  >
-                    {neverTranslateRowMarkup}
-                  </IndexTable>
-                )}
-              </Tabs>
+        <Tabs tabs={tabs} selected={selectedTab} onSelect={setSelectedTab}>
+          {selectedTab === 0 ? (
+            <Card>
+              {glossaryTerms.length === 0 ? (
+                <BlockStack gap="200">
+                  <Text as="p" variant="bodyMd">No glossary terms yet. Add terms to ensure consistent translations.</Text>
+                  <Button onClick={() => setShowModal(true)}>Add First Term</Button>
+                </BlockStack>
+              ) : (
+                <IndexTable
+                  resourceName={{ singular: "term", plural: "terms" }}
+                  itemCount={glossaryTerms.length}
+                  headings={[{ title: "Source" }, { title: "Translation" }, { title: "Language" }, { title: "Actions" }]}
+                  selectable={false}
+                >
+                  {glossaryTerms.map((term: any, i: number) => (
+                    <IndexTable.Row id={term.id} key={term.id} position={i}>
+                      <IndexTable.Cell><Text as="span" fontWeight="bold">{term.sourceTerm}</Text></IndexTable.Cell>
+                      <IndexTable.Cell>{term.translatedTerm}</IndexTable.Cell>
+                      <IndexTable.Cell><Badge>{term.targetLocale}</Badge></IndexTable.Cell>
+                      <IndexTable.Cell><Button tone="critical" size="slim" onClick={() => handleDelete(term.id)}>Delete</Button></IndexTable.Cell>
+                    </IndexTable.Row>
+                  ))}
+                </IndexTable>
+              )}
             </Card>
-          </Layout.Section>
-        </Layout>
+          ) : (
+            <Card>
+              {neverTranslateTerms.length === 0 ? (
+                <BlockStack gap="200">
+                  <Text as="p" variant="bodyMd">No never-translate terms. Add SKUs, brand names, and technical terms that should stay in their original language.</Text>
+                  <Button onClick={() => { setNewTerm({ ...newTerm, neverTranslate: true }); setShowModal(true); }}>Add Never-Translate Term</Button>
+                </BlockStack>
+              ) : (
+                <IndexTable
+                  resourceName={{ singular: "term", plural: "terms" }}
+                  itemCount={neverTranslateTerms.length}
+                  headings={[{ title: "Term" }, { title: "Case Sensitive" }, { title: "Actions" }]}
+                  selectable={false}
+                >
+                  {neverTranslateTerms.map((term: any, i: number) => (
+                    <IndexTable.Row id={term.id} key={term.id} position={i}>
+                      <IndexTable.Cell><Text as="span" fontWeight="bold">{term.sourceTerm}</Text></IndexTable.Cell>
+                      <IndexTable.Cell><Badge tone={term.caseSensitive ? "warning" : "info"}>{term.caseSensitive ? "Yes" : "No"}</Badge></IndexTable.Cell>
+                      <IndexTable.Cell><Button tone="critical" size="slim" onClick={() => handleDelete(term.id)}>Delete</Button></IndexTable.Cell>
+                    </IndexTable.Row>
+                  ))}
+                </IndexTable>
+              )}
+            </Card>
+          )}
+        </Tabs>
       </BlockStack>
+
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Add Term" primaryAction={{ content: "Add", onAction: handleAdd }} secondaryActions={[{ content: "Cancel", onAction: () => setShowModal(false) }]}>
+        <Modal.Section>
+          <FormLayout>
+            <TextField label="Source Term" value={newTerm.sourceTerm} onChange={(v) => setNewTerm({ ...newTerm, sourceTerm: v })} autoComplete="off" />
+            <TextField label="Translation" value={newTerm.translatedTerm} onChange={(v) => setNewTerm({ ...newTerm, translatedTerm: v })} autoComplete="off" helpText={newTerm.neverTranslate ? "Leave empty for never-translate terms" : ""} />
+            <TextField label="Target Locale" value={newTerm.targetLocale} onChange={(v) => setNewTerm({ ...newTerm, targetLocale: v })} autoComplete="off" />
+            <Checkbox label="Never translate this term" checked={newTerm.neverTranslate} onChange={(v) => setNewTerm({ ...newTerm, neverTranslate: v })} />
+            <Checkbox label="Case sensitive" checked={newTerm.caseSensitive} onChange={(v) => setNewTerm({ ...newTerm, caseSensitive: v })} />
+          </FormLayout>
+        </Modal.Section>
+      </Modal>
     </Page>
   );
 }
