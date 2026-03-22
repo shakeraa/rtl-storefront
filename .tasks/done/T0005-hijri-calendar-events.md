@@ -4,7 +4,7 @@ title: "Regional Calendar - Hijri Calendar & Seasonal Events"
 priority: medium
 assigned: kimi
 branch: feature/hijri-calendar
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/calendar/"]
