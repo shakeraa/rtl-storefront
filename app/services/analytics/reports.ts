@@ -18,6 +18,25 @@ export interface ReportConfig {
   metrics?: string[];
 }
 
+export interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
+
+export type DateRangePreset =
+  | 'today'
+  | 'last7Days'
+  | 'last30Days'
+  | 'monthToDate'
+  | 'custom';
+
+export interface DateRangeInput {
+  preset: DateRangePreset;
+  startDate?: Date;
+  endDate?: Date;
+  now?: Date;
+}
+
 export interface TranslationReport {
   period: { start: Date; end: Date };
   totalTranslations: number;
@@ -47,6 +66,63 @@ export interface ROIReport {
   additionalRevenue: number;
   roi: number;
   byLanguage: Record<string, { cost: number; revenue: number; roi: number }>;
+}
+
+export function resolveDateRange(input: DateRangeInput): DateRange {
+  const now = input.now ?? new Date();
+  const endOfNow = new Date(now);
+  endOfNow.setHours(23, 59, 59, 999);
+
+  switch (input.preset) {
+    case 'today': {
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: endOfNow };
+    }
+    case 'last7Days': {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: endOfNow };
+    }
+    case 'last30Days': {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 29);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: endOfNow };
+    }
+    case 'monthToDate': {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      start.setHours(0, 0, 0, 0);
+      return { startDate: start, endDate: endOfNow };
+    }
+    case 'custom': {
+      if (!input.startDate || !input.endDate) {
+        throw new Error('Custom date range requires startDate and endDate');
+      }
+      if (input.startDate > input.endDate) {
+        throw new Error('startDate must be before or equal to endDate');
+      }
+      return {
+        startDate: new Date(input.startDate),
+        endDate: new Date(input.endDate),
+      };
+    }
+  }
+}
+
+export function createReportConfigFromDateRange(
+  input: DateRangeInput,
+  options: Pick<ReportConfig, 'locales' | 'metrics'> = {}
+): ReportConfig {
+  const range = resolveDateRange(input);
+
+  return {
+    startDate: range.startDate,
+    endDate: range.endDate,
+    locales: options.locales,
+    metrics: options.metrics,
+  };
 }
 
 /**
@@ -84,7 +160,6 @@ export function generateConversionReport(
   config: ReportConfig,
   pageViews: AnalyticsEvent[]
 ): ConversionReport {
-  const conversions = getEventsByType('conversion', config.startDate, config.endDate);
   const byLanguage = getConversionMetricsByLanguage(config.startDate, config.endDate);
 
   const totalRevenue = Object.values(byLanguage).reduce((sum, v) => sum + v.totalValue, 0);

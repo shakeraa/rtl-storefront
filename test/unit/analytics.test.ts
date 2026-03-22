@@ -14,11 +14,13 @@ import {
   getEventCount,
 } from '../../app/services/analytics/tracker';
 import {
+  createReportConfigFromDateRange,
   generateTranslationReport,
   generateConversionReport,
   generateCoverageReport,
   generateROIReport,
   exportToCSV,
+  resolveDateRange,
 } from '../../app/services/analytics/reports';
 
 describe('Analytics Service - T0012', () => {
@@ -103,6 +105,13 @@ describe('Analytics Service - T0012', () => {
 
       const arEvents = getEventsByLocale('ar');
       expect(arEvents).toHaveLength(1);
+    });
+
+    it('should expose the total event count', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/' });
+      trackEvent('conversion', 'shop-1', 'session-2', { value: 100 }, 'ar');
+
+      expect(getEventCount()).toBe(2);
     });
   });
 
@@ -194,6 +203,71 @@ describe('Analytics Service - T0012', () => {
   });
 
   describe('Reports', () => {
+    it('should resolve preset date ranges', () => {
+      const now = new Date('2026-03-22T12:00:00.000Z');
+
+      const today = resolveDateRange({ preset: 'today', now });
+      expect(today.startDate.getFullYear()).toBe(2026);
+      expect(today.startDate.getMonth()).toBe(2);
+      expect(today.startDate.getDate()).toBe(22);
+      expect(today.startDate.getHours()).toBe(0);
+      expect(today.startDate.getMinutes()).toBe(0);
+      expect(today.startDate.getSeconds()).toBe(0);
+      expect(today.startDate.getMilliseconds()).toBe(0);
+      expect(today.endDate.getFullYear()).toBe(2026);
+      expect(today.endDate.getMonth()).toBe(2);
+      expect(today.endDate.getDate()).toBe(22);
+      expect(today.endDate.getHours()).toBe(23);
+      expect(today.endDate.getMinutes()).toBe(59);
+      expect(today.endDate.getSeconds()).toBe(59);
+      expect(today.endDate.getMilliseconds()).toBe(999);
+
+      const last7Days = resolveDateRange({ preset: 'last7Days', now });
+      expect(last7Days.startDate.getFullYear()).toBe(2026);
+      expect(last7Days.startDate.getMonth()).toBe(2);
+      expect(last7Days.startDate.getDate()).toBe(16);
+      expect(last7Days.startDate.getHours()).toBe(0);
+      expect(last7Days.startDate.getMinutes()).toBe(0);
+      expect(last7Days.startDate.getSeconds()).toBe(0);
+      expect(last7Days.startDate.getMilliseconds()).toBe(0);
+      expect(last7Days.endDate.getFullYear()).toBe(2026);
+      expect(last7Days.endDate.getMonth()).toBe(2);
+      expect(last7Days.endDate.getDate()).toBe(22);
+      expect(last7Days.endDate.getHours()).toBe(23);
+      expect(last7Days.endDate.getMinutes()).toBe(59);
+      expect(last7Days.endDate.getSeconds()).toBe(59);
+      expect(last7Days.endDate.getMilliseconds()).toBe(999);
+    });
+
+    it('should build report config from a custom date range', () => {
+      const config = createReportConfigFromDateRange(
+        {
+          preset: 'custom',
+          startDate: new Date('2026-03-01T00:00:00.000Z'),
+          endDate: new Date('2026-03-15T23:59:59.999Z'),
+        },
+        {
+          locales: ['ar'],
+          metrics: ['translations'],
+        }
+      );
+
+      expect(config.startDate.toISOString()).toBe('2026-03-01T00:00:00.000Z');
+      expect(config.endDate.toISOString()).toBe('2026-03-15T23:59:59.999Z');
+      expect(config.locales).toEqual(['ar']);
+      expect(config.metrics).toEqual(['translations']);
+    });
+
+    it('should reject invalid custom date ranges', () => {
+      expect(() =>
+        resolveDateRange({
+          preset: 'custom',
+          startDate: new Date('2026-03-16T00:00:00.000Z'),
+          endDate: new Date('2026-03-15T00:00:00.000Z'),
+        })
+      ).toThrow('startDate must be before or equal to endDate');
+    });
+
     it('should generate translation report', () => {
       const now = new Date();
       trackTranslation('shop-1', 'session-1', {
@@ -207,10 +281,13 @@ describe('Analytics Service - T0012', () => {
         confidence: 0.95,
       });
 
-      const report = generateTranslationReport({
-        startDate: new Date(now.getTime() - 86400000),
-        endDate: new Date(now.getTime() + 86400000),
-      });
+      const report = generateTranslationReport(
+        createReportConfigFromDateRange({
+          preset: 'custom',
+          startDate: new Date(now.getTime() - 86400000),
+          endDate: new Date(now.getTime() + 86400000),
+        })
+      );
 
       expect(report.totalTranslations).toBe(1);
       expect(report.byLanguage.ar.count).toBe(1);
@@ -229,7 +306,11 @@ describe('Analytics Service - T0012', () => {
 
       const pageViews: ReturnType<typeof getEventsByType> = [];
       const report = generateConversionReport(
-        { startDate: new Date(now.getTime() - 86400000), endDate: new Date(now.getTime() + 86400000) },
+        createReportConfigFromDateRange({
+          preset: 'custom',
+          startDate: new Date(now.getTime() - 86400000),
+          endDate: new Date(now.getTime() + 86400000),
+        }),
         pageViews
       );
 
@@ -244,7 +325,11 @@ describe('Analytics Service - T0012', () => {
       };
 
       const report = generateCoverageReport(
-        { startDate: new Date(2024, 0, 1), endDate: new Date(2024, 11, 31) },
+        createReportConfigFromDateRange({
+          preset: 'custom',
+          startDate: new Date(2024, 0, 1),
+          endDate: new Date(2024, 11, 31),
+        }),
         contentStats
       );
 
@@ -265,7 +350,11 @@ describe('Analytics Service - T0012', () => {
 
       const costs = { ar: 1000 };
       const report = generateROIReport(
-        { startDate: new Date(now.getTime() - 86400000), endDate: new Date(now.getTime() + 86400000) },
+        createReportConfigFromDateRange({
+          preset: 'custom',
+          startDate: new Date(now.getTime() - 86400000),
+          endDate: new Date(now.getTime() + 86400000),
+        }),
         costs
       );
 
