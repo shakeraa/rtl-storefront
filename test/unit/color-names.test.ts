@@ -1,0 +1,359 @@
+import { describe, it, expect } from 'vitest';
+import {
+  getColorName,
+  getColorNamesList,
+  getColorWithShade,
+  getColorShades,
+  hasShades,
+  getColorHex,
+  searchColors,
+  getColorsByCategory,
+  ARABIC_COLORS,
+  HEBREW_COLORS,
+  ENGLISH_COLORS,
+} from '../../app/services/translation-features/color-names';
+
+describe('Color Names Localization Service - T0319', () => {
+  describe('getColorName - Basic Translations', () => {
+    it('should return Arabic color name for red', () => {
+      expect(getColorName('red', 'ar')).toBe('أحمر');
+    });
+
+    it('should return Arabic color name for blue', () => {
+      expect(getColorName('blue', 'ar')).toBe('أزرق');
+    });
+
+    it('should return Arabic color name for green', () => {
+      expect(getColorName('green', 'ar')).toBe('أخضر');
+    });
+
+    it('should return Hebrew color name for red', () => {
+      expect(getColorName('red', 'he')).toBe('אדום');
+    });
+
+    it('should return Hebrew color name for blue', () => {
+      expect(getColorName('blue', 'he')).toBe('כחול');
+    });
+
+    it('should return Hebrew color name for green', () => {
+      expect(getColorName('green', 'he')).toBe('ירוק');
+    });
+
+    it('should return English color name for black', () => {
+      expect(getColorName('black', 'en')).toBe('Black');
+    });
+
+    it('should return English color name for white', () => {
+      expect(getColorName('white', 'en')).toBe('White');
+    });
+
+    it('should handle case-insensitive color keys', () => {
+      expect(getColorName('RED', 'ar')).toBe('أحمر');
+      expect(getColorName('Blue', 'he')).toBe('כחול');
+      expect(getColorName('GREEN', 'en')).toBe('Green');
+    });
+
+    it('should return original input for unknown color', () => {
+      expect(getColorName('unknown', 'ar')).toBe('unknown');
+      expect(getColorName('mystery', 'he')).toBe('mystery');
+    });
+  });
+
+  describe('Locale Handling', () => {
+    it('should handle locale with region code (ar-SA)', () => {
+      expect(getColorName('yellow', 'ar-SA')).toBe('أصفر');
+    });
+
+    it('should handle locale with region code (he-IL)', () => {
+      expect(getColorName('yellow', 'he-IL')).toBe('צהוב');
+    });
+
+    it('should handle locale with region code (en-US)', () => {
+      expect(getColorName('purple', 'en-US')).toBe('Purple');
+    });
+
+    it('should default to English for unsupported locale', () => {
+      expect(getColorName('red', 'fr')).toBe('Red');
+      expect(getColorName('blue', 'de')).toBe('Blue');
+    });
+  });
+
+  describe('getColorNamesList', () => {
+    it('should return list of all colors in Arabic', () => {
+      const colors = getColorNamesList('ar');
+      expect(colors.length).toBeGreaterThanOrEqual(24);
+      expect(colors.some(c => c.key === 'red' && c.name === 'أحمر')).toBe(true);
+      expect(colors.some(c => c.key === 'blue' && c.name === 'أزرق')).toBe(true);
+    });
+
+    it('should return list of all colors in Hebrew', () => {
+      const colors = getColorNamesList('he');
+      expect(colors.length).toBeGreaterThanOrEqual(24);
+      expect(colors.some(c => c.key === 'red' && c.name === 'אדום')).toBe(true);
+      expect(colors.some(c => c.key === 'blue' && c.name === 'כחול')).toBe(true);
+    });
+
+    it('should return list of all colors in English', () => {
+      const colors = getColorNamesList('en');
+      expect(colors.length).toBeGreaterThanOrEqual(24);
+      expect(colors.some(c => c.key === 'red' && c.name === 'Red')).toBe(true);
+      expect(colors.some(c => c.key === 'green' && c.name === 'Green')).toBe(true);
+    });
+
+    it('should include hex values for all colors', () => {
+      const colors = getColorNamesList('en');
+      expect(colors.every(c => c.hex && c.hex.startsWith('#'))).toBe(true);
+    });
+
+    it('should correctly identify colors with shades', () => {
+      const colors = getColorNamesList('en');
+      const red = colors.find(c => c.key === 'red');
+      const black = colors.find(c => c.key === 'black');
+      expect(red?.hasShades).toBe(true);
+      expect(black?.hasShades).toBe(false);
+    });
+  });
+
+  describe('getColorWithShade', () => {
+    it('should return light red in Arabic', () => {
+      expect(getColorWithShade('red', 'light', 'ar')).toBe('أحمر فاتح');
+    });
+
+    it('should return dark blue in Arabic', () => {
+      expect(getColorWithShade('blue', 'dark', 'ar')).toBe('أزرق غامق');
+    });
+
+    it('should return light green in Hebrew', () => {
+      expect(getColorWithShade('green', 'light', 'he')).toBe('ירוק בהיר');
+    });
+
+    it('should return dark red in Hebrew', () => {
+      expect(getColorWithShade('red', 'dark', 'he')).toBe('אדום כהה');
+    });
+
+    it('should return light blue in English', () => {
+      expect(getColorWithShade('blue', 'light', 'en')).toBe('Light Blue');
+    });
+
+    it('should return dark green in English', () => {
+      expect(getColorWithShade('green', 'dark', 'en')).toBe('Dark Green');
+    });
+
+    it('should handle pale shade in Arabic', () => {
+      expect(getColorWithShade('pink', 'pale', 'ar')).toBe('وردي باهت');
+    });
+
+    it('should handle bright shade in Hebrew', () => {
+      expect(getColorWithShade('yellow', 'bright', 'he')).toBe('צהוב בוהק');
+    });
+
+    it('should return base color name for colors without shades', () => {
+      expect(getColorWithShade('black', 'light', 'ar')).toBe('أسود');
+      expect(getColorWithShade('white', 'dark', 'he')).toBe('לבן');
+    });
+
+    it('should return original input for unknown color with shade', () => {
+      expect(getColorWithShade('unknown', 'light', 'ar')).toBe('unknown');
+    });
+  });
+
+  describe('getColorShades', () => {
+    it('should return all shades for red in Arabic', () => {
+      const shades = getColorShades('red', 'ar');
+      expect(shades.length).toBeGreaterThan(0);
+      expect(shades.some(s => s.shade === 'light' && s.name === 'أحمر فاتح')).toBe(true);
+      expect(shades.some(s => s.shade === 'dark' && s.name === 'أحمر غامق')).toBe(true);
+    });
+
+    it('should return all shades for blue in Hebrew', () => {
+      const shades = getColorShades('blue', 'he');
+      expect(shades.length).toBeGreaterThan(0);
+      expect(shades.some(s => s.shade === 'light' && s.name === 'כחול בהיר')).toBe(true);
+      expect(shades.some(s => s.shade === 'dark' && s.name === 'כחול כהה')).toBe(true);
+    });
+
+    it('should return empty array for colors without shades', () => {
+      expect(getColorShades('black', 'ar')).toEqual([]);
+      expect(getColorShades('white', 'he')).toEqual([]);
+    });
+
+    it('should return empty array for unknown colors', () => {
+      expect(getColorShades('unknown', 'ar')).toEqual([]);
+    });
+  });
+
+  describe('hasShades', () => {
+    it('should return true for colors with shades', () => {
+      expect(hasShades('red')).toBe(true);
+      expect(hasShades('blue')).toBe(true);
+      expect(hasShades('green')).toBe(true);
+      expect(hasShades('purple')).toBe(true);
+    });
+
+    it('should return false for colors without shades', () => {
+      expect(hasShades('black')).toBe(false);
+      expect(hasShades('white')).toBe(false);
+    });
+
+    it('should return false for unknown colors', () => {
+      expect(hasShades('unknown')).toBe(false);
+    });
+
+    it('should be case-insensitive', () => {
+      expect(hasShades('RED')).toBe(true);
+      expect(hasShades('BLACK')).toBe(false);
+    });
+  });
+
+  describe('getColorHex', () => {
+    it('should return correct hex for primary colors', () => {
+      expect(getColorHex('red')).toBe('#FF0000');
+      expect(getColorHex('blue')).toBe('#0000FF');
+      expect(getColorHex('green')).toBe('#008000');
+    });
+
+    it('should return correct hex for neutral colors', () => {
+      expect(getColorHex('black')).toBe('#000000');
+      expect(getColorHex('white')).toBe('#FFFFFF');
+      expect(getColorHex('gray')).toBe('#808080');
+    });
+
+    it('should return null for unknown colors', () => {
+      expect(getColorHex('unknown')).toBeNull();
+    });
+
+    it('should be case-insensitive', () => {
+      expect(getColorHex('RED')).toBe('#FF0000');
+      expect(getColorHex('Blue')).toBe('#0000FF');
+    });
+  });
+
+  describe('searchColors', () => {
+    it('should search colors in Arabic', () => {
+      const results = searchColors('أحمر', 'ar');
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.some(r => r.key === 'red')).toBe(true);
+    });
+
+    it('should search colors in Hebrew', () => {
+      const results = searchColors('אדום', 'he');
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.some(r => r.key === 'red')).toBe(true);
+    });
+
+    it('should search colors in English', () => {
+      const results = searchColors('red', 'en');
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.some(r => r.key === 'red')).toBe(true);
+    });
+
+    it('should return empty array for no matches', () => {
+      expect(searchColors('xyz123', 'ar')).toEqual([]);
+      expect(searchColors('xyz123', 'he')).toEqual([]);
+    });
+  });
+
+  describe('getColorsByCategory', () => {
+    it('should categorize colors in Arabic', () => {
+      const categories = getColorsByCategory('ar');
+      expect(categories.basic.length).toBeGreaterThan(0);
+      expect(categories.neutral.length).toBeGreaterThan(0);
+      expect(categories.bright.length).toBeGreaterThan(0);
+      expect(categories.metallic.length).toBeGreaterThan(0);
+    });
+
+    it('should categorize colors in Hebrew', () => {
+      const categories = getColorsByCategory('he');
+      expect(categories.basic.length).toBeGreaterThan(0);
+      expect(categories.neutral.length).toBeGreaterThan(0);
+    });
+
+    it('should include red in basic colors', () => {
+      const categories = getColorsByCategory('en');
+      expect(categories.basic.some(c => c.key === 'red')).toBe(true);
+      expect(categories.basic.some(c => c.key === 'blue')).toBe(true);
+    });
+
+    it('should include black and white in neutral colors', () => {
+      const categories = getColorsByCategory('en');
+      expect(categories.neutral.some(c => c.key === 'black')).toBe(true);
+      expect(categories.neutral.some(c => c.key === 'white')).toBe(true);
+    });
+
+    it('should include gold and silver in metallic colors', () => {
+      const categories = getColorsByCategory('en');
+      expect(categories.metallic.some(c => c.key === 'gold')).toBe(true);
+      expect(categories.metallic.some(c => c.key === 'silver')).toBe(true);
+    });
+  });
+
+  describe('Color Data Structure', () => {
+    it('should have all colors defined in all locales', () => {
+      const arKeys = Object.keys(ARABIC_COLORS);
+      const heKeys = Object.keys(HEBREW_COLORS);
+      const enKeys = Object.keys(ENGLISH_COLORS);
+      
+      expect(arKeys.length).toBeGreaterThanOrEqual(24);
+      expect(heKeys.length).toBeGreaterThanOrEqual(24);
+      expect(enKeys.length).toBeGreaterThanOrEqual(24);
+      
+      expect(arKeys.sort()).toEqual(enKeys.sort());
+      expect(heKeys.sort()).toEqual(enKeys.sort());
+    });
+
+    it('should have valid hex codes for all colors', () => {
+      const allColors = { ...ENGLISH_COLORS };
+      Object.values(allColors).forEach(color => {
+        expect(color.hex).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      });
+    });
+
+    it('should have Arabic translations for all colors', () => {
+      expect(ARABIC_COLORS.red.name).toBe('أحمر');
+      expect(ARABIC_COLORS.blue.name).toBe('أزرق');
+      expect(ARABIC_COLORS.green.name).toBe('أخضر');
+      expect(ARABIC_COLORS.black.name).toBe('أسود');
+      expect(ARABIC_COLORS.white.name).toBe('أبيض');
+    });
+
+    it('should have Hebrew translations for all colors', () => {
+      expect(HEBREW_COLORS.red.name).toBe('אדום');
+      expect(HEBREW_COLORS.blue.name).toBe('כחול');
+      expect(HEBREW_COLORS.green.name).toBe('ירוק');
+      expect(HEBREW_COLORS.black.name).toBe('שחור');
+      expect(HEBREW_COLORS.white.name).toBe('לבן');
+    });
+  });
+
+  describe('Advanced Color Translations', () => {
+    it('should return correct Arabic names for advanced colors', () => {
+      expect(getColorName('navy', 'ar')).toBe('كحلي');
+      expect(getColorName('teal', 'ar')).toBe('فيروزي');
+      expect(getColorName('coral', 'ar')).toBe('مرجاني');
+      expect(getColorName('gold', 'ar')).toBe('ذهبي');
+      expect(getColorName('silver', 'ar')).toBe('فضي');
+    });
+
+    it('should return correct Hebrew names for advanced colors', () => {
+      expect(getColorName('navy', 'he')).toBe('כחול כהה');
+      expect(getColorName('teal', 'he')).toBe('טורקיז');
+      expect(getColorName('coral', 'he')).toBe('קורל');
+      expect(getColorName('gold', 'he')).toBe('זהב');
+      expect(getColorName('silver', 'he')).toBe('כסף');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty string color', () => {
+      expect(getColorName('', 'ar')).toBe('');
+    });
+
+    it('should handle empty string locale', () => {
+      expect(getColorName('red', '')).toBe('Red');
+    });
+
+    it('should handle special characters in color name', () => {
+      expect(getColorName('red!', 'ar')).toBe('red!');
+    });
+  });
+});
