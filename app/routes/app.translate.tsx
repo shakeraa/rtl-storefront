@@ -73,6 +73,13 @@ function statusBadge(status: string) {
 export default function Translate() {
   const { items, languageStats, tmStats } = useLoaderData<typeof loader>();
   const [selectedLanguage, setSelectedLanguage] = useState("arabic");
+
+  const localeMap: Record<string, string> = {
+    arabic: "ar",
+    hebrew: "he",
+    farsi: "fa",
+  };
+
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [queryValue, setQueryValue] = useState("");
@@ -188,7 +195,12 @@ export default function Translate() {
       <IndexTable.Cell>{item.sourceLang}</IndexTable.Cell>
       <IndexTable.Cell>{statusBadge(item.status)}</IndexTable.Cell>
       <IndexTable.Cell>
-        <Button size="slim">Translate</Button>
+        <Button
+          url={`/app/translate/${item.id}?locale=${localeMap[selectedLanguage] ?? "ar"}`}
+          size="slim"
+        >
+          Translate
+        </Button>
       </IndexTable.Cell>
     </IndexTable.Row>
   ));
