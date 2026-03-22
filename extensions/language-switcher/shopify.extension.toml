@@ -13,3 +13,7 @@ name = "Language Switcher"
 [[extensions.blocks]]
 type = "checkout-rtl"
 name = "RTL Checkout Support"
+
+[[extensions.blocks]]
+type = "mena-payments"
+name = "MENA Payment Badges"
