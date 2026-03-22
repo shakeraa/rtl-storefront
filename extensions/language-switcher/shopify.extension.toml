@@ -17,3 +17,7 @@ name = "RTL Checkout Support"
 [[extensions.blocks]]
 type = "mena-payments"
 name = "MENA Payment Badges"
+
+[[extensions.blocks]]
+type = "rtl-inject"
+name = "RTL Auto-Inject"

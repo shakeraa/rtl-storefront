@@ -27,6 +27,15 @@
 - Claude moves task from review to done
 - If Claude rejects: fix on your branch, resubmit to review
 
+### 5. DO NOT Recreate Task Files (CRITICAL)
+- **NEVER recreate task files in `.tasks/active/`** that have been moved to `.tasks/done/`
+- **NEVER copy task files from `done/` back to `active/`**
+- If your worktree doesn't have the task file, that's OK — work from the task description in your branch
+- **NEVER modify `.tasks/done/` directory** — it's managed by Claude only
+- Check `.tasks/done/` before creating a task file — if it's there, the task is DONE
+- Your worktree should ONLY touch files in `app/`, `test/`, `extensions/`, and your own `.tasks/review/` submissions
+- **NEVER commit orphan test files** that import from services that don't exist on main
+
 ## Testing (MANDATORY before review)
 1. Run the task's `test_command` if specified
 2. Backend: `cd backend && PYTHONPATH=. python3 -m pytest tests/ -v --tb=short`
