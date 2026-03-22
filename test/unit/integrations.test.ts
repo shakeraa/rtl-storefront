@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateAppointmentAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,54 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Appointment App Integration', () => {
+    it('should translate booking content and preserve metadata', async () => {
+      const appointment = {
+        appointmentId: 'appointment-1',
+        title: 'Personal Styling Session',
+        description: 'Book a one-on-one fitting',
+        confirmationMessage: 'Your booking is confirmed',
+        slots: [
+          {
+            slotId: 'slot-1',
+            serviceTitle: 'Morning Consultation',
+            staffLabel: 'Senior Stylist',
+            locationLabel: 'Downtown Studio',
+          },
+          {
+            slotId: 'slot-2',
+            serviceTitle: 'Evening Consultation',
+          },
+        ],
+        metadata: {
+          provider: 'appointment-app',
+        },
+      };
+
+      const result = await translateAppointmentAppContent(appointment, 'ar');
+      expect(result.title).toBe('[ar] Personal Styling Session');
+      expect(result.description).toBe('[ar] Book a one-on-one fitting');
+      expect(result.confirmationMessage).toBe(
+        '[ar] Your booking is confirmed'
+      );
+      expect(result.slots[0]).toEqual({
+        slotId: 'slot-1',
+        serviceTitle: '[ar] Morning Consultation',
+        staffLabel: '[ar] Senior Stylist',
+        locationLabel: '[ar] Downtown Studio',
+      });
+      expect(result.slots[1]).toEqual({
+        slotId: 'slot-2',
+        serviceTitle: '[ar] Evening Consultation',
+        staffLabel: undefined,
+        locationLabel: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'appointment-app',
       });
     });
   });

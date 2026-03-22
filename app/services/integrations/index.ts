@@ -41,6 +41,22 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface AppointmentSlotContent {
+  slotId: string;
+  serviceTitle: string;
+  staffLabel?: string;
+  locationLabel?: string;
+}
+
+export interface AppointmentAppContent {
+  appointmentId: string;
+  title: string;
+  description?: string;
+  confirmationMessage?: string;
+  slots: AppointmentSlotContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +193,33 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Appointment app integration
+export async function translateAppointmentAppContent(
+  appointment: AppointmentAppContent,
+  targetLocale: string
+): Promise<AppointmentAppContent> {
+  return {
+    ...appointment,
+    title: `[${targetLocale}] ${appointment.title}`,
+    description: appointment.description
+      ? `[${targetLocale}] ${appointment.description}`
+      : undefined,
+    confirmationMessage: appointment.confirmationMessage
+      ? `[${targetLocale}] ${appointment.confirmationMessage}`
+      : undefined,
+    slots: appointment.slots.map((slot) => ({
+      ...slot,
+      serviceTitle: `[${targetLocale}] ${slot.serviceTitle}`,
+      staffLabel: slot.staffLabel
+        ? `[${targetLocale}] ${slot.staffLabel}`
+        : undefined,
+      locationLabel: slot.locationLabel
+        ? `[${targetLocale}] ${slot.locationLabel}`
+        : undefined,
     })),
   };
 }
