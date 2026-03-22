@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add a public `/health` endpoint with runtime and database checks for uptime monitoring.
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
 <<<<<<< HEAD
 <<<<<<< HEAD
