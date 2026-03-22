@@ -45,12 +45,10 @@ Successfully implemented dimension conversion service for RTL Storefront with su
 
 ## Test Results
 ```
-✓ test/unit/dimension-conversion.test.ts (60 tests) 23ms
+✓ test/unit/dimension-conversion.test.ts (60 tests)
 
 Test Files  1 passed (1)
      Tests  60 passed (60)
-  Start at  20:23:08
-  Duration  961ms
 ```
 
 ## Test Coverage
