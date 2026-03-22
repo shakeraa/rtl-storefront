@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateStockCounterLabels,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('scarcity-plus');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,27 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Stock Counter Integration', () => {
+    it('should translate stock counter labels', async () => {
+      const labels = {
+        appId: 'scarcity-plus',
+        inStockLabel: 'In stock',
+        lowStockLabel: 'Only a few left',
+        outOfStockLabel: 'Sold out',
+        remainingUnitsLabel: '{{count}} units remaining',
+      };
+
+      const result = await translateStockCounterLabels(labels, 'ar');
+      expect(result).toEqual({
+        appId: 'scarcity-plus',
+        inStockLabel: '[ar] In stock',
+        lowStockLabel: '[ar] Only a few left',
+        outOfStockLabel: '[ar] Sold out',
+        remainingUnitsLabel: '[ar] {{count}} units remaining',
       });
     });
   });

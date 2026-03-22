@@ -26,6 +26,14 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface StockCounterLabels {
+  appId: string;
+  inStockLabel: string;
+  lowStockLabel: string;
+  outOfStockLabel: string;
+  remainingUnitsLabel?: string;
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +102,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'scarcity-plus',
+    name: 'Scarcity Plus',
     category: 'other',
     status: 'available',
   },
@@ -178,6 +192,22 @@ export async function translateBundleAppContent(
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
     })),
+  };
+}
+
+// Stock counter integration
+export async function translateStockCounterLabels(
+  labels: StockCounterLabels,
+  targetLocale: string
+): Promise<StockCounterLabels> {
+  return {
+    ...labels,
+    inStockLabel: `[${targetLocale}] ${labels.inStockLabel}`,
+    lowStockLabel: `[${targetLocale}] ${labels.lowStockLabel}`,
+    outOfStockLabel: `[${targetLocale}] ${labels.outOfStockLabel}`,
+    remainingUnitsLabel: labels.remainingUnitsLabel
+      ? `[${targetLocale}] ${labels.remainingUnitsLabel}`
+      : undefined,
   };
 }
 
