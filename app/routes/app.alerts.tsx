@@ -19,6 +19,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import {
   buildAlertSummary,
   createNewContentAlert,
@@ -29,49 +30,113 @@ import {
   type TranslationAlert,
 } from "../services/alerts";
 
-const SHOP = "rtl-storefront.myshopify.com";
-
 const LOCALE_INFO: Record<string, { name: string; nativeName: string }> = {
   ar: { name: "Arabic", nativeName: "العربية" },
   he: { name: "Hebrew", nativeName: "עברית" },
   fa: { name: "Farsi", nativeName: "فارسی" },
 };
 
-const UNTRANSLATED_COUNTS: Record<string, number> = {
-  ar: 72,
-  he: 35,
-  fa: 128,
-};
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { session, admin } = await authenticate.admin(request);
+  const shop = session.shop;
 
-const NEW_CONTENT_ITEMS = [
-  { locale: "ar", resourceType: "Product", resourceId: "gid://shopify/Product/8001", title: "Summer Abaya Collection" },
-  { locale: "he", resourceType: "Page", resourceId: "gid://shopify/Page/3001", title: "Return Policy" },
-  { locale: "fa", resourceType: "Blog Post", resourceId: "gid://shopify/Article/5001", title: "Nowruz Gift Guide" },
-];
+  // Query real untranslated counts per locale
+  let untranslatedCounts: Record<string, number> = {};
+  try {
+    // Get total distinct source content
+    const distinctSources = await db.translationCache.groupBy({
+      by: ["sourceText"],
+      _count: true,
+    });
+    const totalSourceItems = distinctSources.length;
 
-function generateAlerts(): TranslationAlert[] {
-  const alerts: TranslationAlert[] = [];
+    // Get translated count per locale
+    const translatedGroups = await db.translationCache.groupBy({
+      by: ["targetLocale"],
+      _count: true,
+    });
 
-  for (const locale of Object.keys(LOCALE_INFO)) {
-    const untranslated = createUntranslatedAlert(SHOP, locale, UNTRANSLATED_COUNTS[locale]);
-    if (untranslated) alerts.push(untranslated);
+    // Also check shop settings for configured target locales
+    let targetLocales = Object.keys(LOCALE_INFO);
+    try {
+      const settings = await db.shopSettings.findUnique({ where: { shop } });
+      if (settings?.targetLocales) {
+        const parsed = JSON.parse(settings.targetLocales);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          targetLocales = parsed;
+        }
+      }
+    } catch {
+      // keep defaults
+    }
+
+    const translatedByLocale: Record<string, number> = {};
+    for (const g of translatedGroups) {
+      translatedByLocale[g.targetLocale] = g._count;
+    }
+
+    for (const locale of targetLocales) {
+      const translated = translatedByLocale[locale] ?? 0;
+      untranslatedCounts[locale] = Math.max(0, totalSourceItems - translated);
+    }
+  } catch {
+    // On failure, set all to 0 so no false alerts
+    for (const locale of Object.keys(LOCALE_INFO)) {
+      untranslatedCounts[locale] = 0;
+    }
   }
 
-  for (const item of NEW_CONTENT_ITEMS) {
+  // Query for recently added content that may need translation
+  let newContentItems: Array<{ locale: string; resourceType: string; resourceId: string; title: string }> = [];
+  try {
+    // Check DataAccessLog for recent content additions
+    const recentLogs = await db.dataAccessLog.findMany({
+      where: {
+        shop,
+        action: { in: ["create", "add", "new"] },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    });
+
+    const targetLocales = Object.keys(untranslatedCounts).length > 0
+      ? Object.keys(untranslatedCounts)
+      : Object.keys(LOCALE_INFO);
+
+    for (const log of recentLogs) {
+      // Create an alert for each configured locale
+      for (const locale of targetLocales.slice(0, 1)) { // one alert per new content
+        newContentItems.push({
+          locale,
+          resourceType: log.dataType ?? "Content",
+          resourceId: log.id,
+          title: log.details ?? log.dataType ?? "New content",
+        });
+      }
+    }
+  } catch {
+    // ignore — no new content alerts
+  }
+
+  // Generate alerts from real data
+  const alerts: TranslationAlert[] = [];
+
+  for (const locale of Object.keys(untranslatedCounts)) {
+    const count = untranslatedCounts[locale];
+    if (count > 0) {
+      const untranslated = createUntranslatedAlert(shop, locale, count);
+      if (untranslated) alerts.push(untranslated);
+    }
+  }
+
+  for (const item of newContentItems) {
     alerts.push(
-      createNewContentAlert(SHOP, item.locale, item.resourceType, item.resourceId, item.title),
+      createNewContentAlert(shop, item.locale, item.resourceType, item.resourceId, item.title),
     );
   }
 
-  return alerts;
-}
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
-
-  const alerts = generateAlerts();
   const summary = buildAlertSummary(alerts);
-  const config = getDefaultAlertConfig(SHOP);
+  const config = getDefaultAlertConfig(shop);
 
   return json({
     alerts: alerts.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })),
