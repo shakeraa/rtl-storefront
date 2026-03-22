@@ -1,10 +1,10 @@
 ---
-id: "T0258"
-title: "Analytics - Exportable Reports CSV"
+id: "T0262"
+title: "Analytics - Historical Trends"
 priority: medium
 assigned: claude-sec
-branch: feature/t0258
-status: active
+branch: feature/t0262
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Export data as CSV
+Show trends over time
 
 ## Acceptance criteria
 - [ ] Feature implemented

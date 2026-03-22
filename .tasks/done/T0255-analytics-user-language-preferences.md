@@ -4,7 +4,7 @@ title: "Analytics - User Language Preferences"
 priority: medium
 assigned: claude-sec
 branch: feature/t0255
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

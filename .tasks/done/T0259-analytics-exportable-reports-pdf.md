@@ -1,10 +1,10 @@
 ---
-id: "T0261"
-title: "Analytics - Real-time Dashboard"
+id: "T0259"
+title: "Analytics - Exportable Reports PDF"
 priority: medium
 assigned: claude-sec
-branch: feature/t0261
-status: active
+branch: feature/t0259
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Live translation metrics
+Export reports as PDF
 
 ## Acceptance criteria
 - [ ] Feature implemented

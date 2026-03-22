@@ -1,10 +1,10 @@
 ---
-id: "T0260"
-title: "Analytics - Scheduled Reports"
+id: "T0261"
+title: "Analytics - Real-time Dashboard"
 priority: medium
 assigned: claude-sec
-branch: feature/t0260
-status: active
+branch: feature/t0261
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Email scheduled reports
+Live translation metrics
 
 ## Acceptance criteria
 - [ ] Feature implemented
