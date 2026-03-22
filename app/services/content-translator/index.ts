@@ -3,6 +3,8 @@
  * Covers all content translation tasks (T0093-T0150)
  */
 
+import { CACHE_TTL_HOURS, MAX_CACHE_SIZE } from './constants';
+
 export interface TranslationContext {
   contentType: string;
   fieldName?: string;
@@ -24,6 +26,13 @@ export interface TranslationCacheEntry {
   translations: Record<string, string>;
   lastUpdated: Date;
   hitCount: number;
+  expiresAt: Date;
+}
+
+export interface ContentTranslatorOptions {
+  maxCacheEntries?: number;
+  cacheTtlHours?: number;
+  now?: () => Date;
 }
 
 // Content type categories
@@ -128,6 +137,15 @@ export const TRANSLATION_KEYS = {
 export class ContentTranslator {
   private cache: Map<string, TranslationCacheEntry> = new Map();
   private eventCallbacks: Map<string, Array<(data: unknown) => void>> = new Map();
+  private readonly maxCacheEntries: number;
+  private readonly cacheTtlMs: number;
+  private readonly now: () => Date;
+
+  constructor(options: ContentTranslatorOptions = {}) {
+    this.maxCacheEntries = options.maxCacheEntries ?? MAX_CACHE_SIZE;
+    this.cacheTtlMs = (options.cacheTtlHours ?? CACHE_TTL_HOURS) * 60 * 60 * 1000;
+    this.now = options.now ?? (() => new Date());
+  }
 
   async translate(
     key: string,
@@ -170,27 +188,38 @@ export class ContentTranslator {
   }
 
   private getFromCache(key: string, locale: string): string | null {
+    this.pruneExpiredCacheEntries();
+
     const entry = this.cache.get(key);
     if (entry && entry.translations[locale]) {
       entry.hitCount++;
+      this.touchCacheEntry(key, entry);
       return entry.translations[locale];
     }
     return null;
   }
 
   private addToCache(key: string, locale: string, translation: string): void {
+    this.pruneExpiredCacheEntries();
+
     const existing = this.cache.get(key);
+    const now = this.now();
     if (existing) {
       existing.translations[locale] = translation;
-      existing.lastUpdated = new Date();
+      existing.lastUpdated = now;
+      existing.expiresAt = new Date(now.getTime() + this.cacheTtlMs);
+      this.touchCacheEntry(key, existing);
     } else {
       this.cache.set(key, {
         key,
         translations: { [locale]: translation },
-        lastUpdated: new Date(),
+        lastUpdated: now,
         hitCount: 0,
+        expiresAt: new Date(now.getTime() + this.cacheTtlMs),
       });
     }
+
+    this.evictCacheIfNeeded();
   }
 
   invalidateCache(pattern?: string): void {
@@ -218,6 +247,8 @@ export class ContentTranslator {
   }
 
   getCacheStats(): { size: number; hitRate: number } {
+    this.pruneExpiredCacheEntries();
+
     let totalHits = 0;
     for (const entry of this.cache.values()) {
       totalHits += entry.hitCount;
@@ -227,6 +258,35 @@ export class ContentTranslator {
       size: this.cache.size,
       hitRate: totalHits / (this.cache.size || 1),
     };
+  }
+
+  private evictCacheIfNeeded(): void {
+    if (this.cache.size <= this.maxCacheEntries) {
+      return;
+    }
+
+    while (this.cache.size > this.maxCacheEntries) {
+      const oldestKey = this.cache.keys().next().value;
+      if (!oldestKey) {
+        return;
+      }
+      this.cache.delete(oldestKey);
+    }
+  }
+
+  private pruneExpiredCacheEntries(): void {
+    const now = this.now().getTime();
+
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.expiresAt.getTime() <= now) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  private touchCacheEntry(key: string, entry: TranslationCacheEntry): void {
+    this.cache.delete(key);
+    this.cache.set(key, entry);
   }
 }
 
