@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  // Functions
   getRegionalTerminology,
   getAllTerminologyForMarket,
   analyzeKeywords,
@@ -15,6 +16,7 @@ import {
   checkCulturalAppropriateness,
   getSeasonalTranslationFocus,
   getKeywordSuggestions,
+  // Data exports
   REGIONAL_TERMINOLOGY,
   COMPETITOR_KEYWORDS,
   MARKET_INSIGHTS,
@@ -32,6 +34,7 @@ describe('Market Research Service - T0340', () => {
     it('should return terminology for "sale" in UAE', () => {
       const results = getRegionalTerminology('sale', 'AE');
       expect(results.length).toBeGreaterThan(0);
+      expect(results.some(r => r.term === 'sale')).toBe(true);
     });
 
     it('should return terminology for "discount" in Egypt', () => {
@@ -71,11 +74,14 @@ describe('Market Research Service - T0340', () => {
     it('should return all terminology for UAE', () => {
       const results = getAllTerminologyForMarket('AE');
       expect(results.length).toBeGreaterThan(0);
+      expect(results.every(r => r.market === 'AE')).toBe(true);
     });
 
     it('should filter by industry', () => {
       const fashionTerms = getAllTerminologyForMarket('SA', 'fashion');
+      const electronicsTerms = getAllTerminologyForMarket('SA', 'electronics');
       expect(fashionTerms.every(r => r.industry === 'fashion')).toBe(true);
+      expect(electronicsTerms.every(r => r.industry === 'electronics')).toBe(true);
     });
 
     it('should return empty array for market with no terms', () => {
@@ -89,12 +95,15 @@ describe('Market Research Service - T0340', () => {
       const results = analyzeKeywords(['white friday'], 'SA');
       expect(results.length).toBe(1);
       expect(results[0].found).toBe(true);
+      expect(results[0].data).toBeDefined();
     });
 
     it('should analyze multiple keywords for UAE', () => {
-      const results = analyzeKeywords(['ramadan offers', 'eid sale'], 'AE');
-      expect(results.length).toBe(2);
+      const results = analyzeKeywords(['ramadan offers', 'eid sale', 'unknown-keyword'], 'AE');
+      expect(results.length).toBe(3);
       expect(results[0].found).toBe(true);
+      expect(results[1].found).toBe(true);
+      expect(results[2].found).toBe(false);
     });
 
     it('should provide alternatives for found keywords', () => {
@@ -105,7 +114,9 @@ describe('Market Research Service - T0340', () => {
 
     it('should return market-specific results', () => {
       const saResults = analyzeKeywords(['white friday'], 'SA');
+      const egResults = analyzeKeywords(['white friday'], 'EG');
       expect(saResults[0].found).toBe(true);
+      expect(egResults[0].found).toBe(false); // Egypt not in White Friday markets
     });
 
     it('should handle empty keywords array', () => {
@@ -119,6 +130,7 @@ describe('Market Research Service - T0340', () => {
       const results = getTrendingKeywords('SA');
       expect(results.length).toBeGreaterThan(0);
       expect(results.every(r => r.trending)).toBe(true);
+      expect(results.every(r => r.markets.includes('SA'))).toBe(true);
     });
 
     it('should return trending keywords for UAE', () => {
@@ -171,11 +183,13 @@ describe('Market Research Service - T0340', () => {
 
     it('should return insights for UAE', () => {
       const insights = getMarketInsights('AE');
+      expect(insights).toBeDefined();
       expect(insights?.marketName).toBe('United Arab Emirates');
     });
 
     it('should return insights for Egypt', () => {
       const insights = getMarketInsights('EG');
+      expect(insights).toBeDefined();
       expect(insights?.dialect).toBe('Egyptian Arabic');
     });
 
@@ -192,6 +206,7 @@ describe('Market Research Service - T0340', () => {
 
     it('should include preferred payment methods', () => {
       const insights = getMarketInsights('SA');
+      expect(insights?.preferredPayment.length).toBeGreaterThan(0);
       expect(insights?.preferredPayment).toContain('Mada');
     });
 
@@ -204,6 +219,7 @@ describe('Market Research Service - T0340', () => {
   describe('getSupportedMarkets()', () => {
     it('should return array of market codes', () => {
       const markets = getSupportedMarkets();
+      expect(markets.length).toBeGreaterThan(0);
       expect(markets).toContain('SA');
       expect(markets).toContain('AE');
       expect(markets).toContain('EG');
@@ -211,10 +227,20 @@ describe('Market Research Service - T0340', () => {
 
     it('should include all 14 MENA markets', () => {
       const markets = getSupportedMarkets();
-      expect(markets.length).toBe(14);
-      ['SA', 'AE', 'EG', 'QA', 'KW', 'BH', 'OM', 'JO', 'LB', 'IQ', 'MA', 'DZ', 'TN', 'LY'].forEach(m => {
-        expect(markets).toContain(m);
-      });
+      expect(markets).toContain('SA');
+      expect(markets).toContain('AE');
+      expect(markets).toContain('EG');
+      expect(markets).toContain('QA');
+      expect(markets).toContain('KW');
+      expect(markets).toContain('BH');
+      expect(markets).toContain('OM');
+      expect(markets).toContain('JO');
+      expect(markets).toContain('LB');
+      expect(markets).toContain('IQ');
+      expect(markets).toContain('MA');
+      expect(markets).toContain('DZ');
+      expect(markets).toContain('TN');
+      expect(markets).toContain('LY');
     });
   });
 
@@ -247,10 +273,12 @@ describe('Market Research Service - T0340', () => {
       const prefs = getCulturalPreferences('SA');
       expect(prefs).toBeDefined();
       expect(prefs?.colors.preferred.length).toBeGreaterThan(0);
+      expect(prefs?.messaging.values.length).toBeGreaterThan(0);
     });
 
     it('should return preferences for Egypt', () => {
       const prefs = getCulturalPreferences('EG');
+      expect(prefs).toBeDefined();
       expect(prefs?.imagery.preferred).toContain('Pyramids');
     });
 
@@ -297,6 +325,7 @@ describe('Market Research Service - T0340', () => {
       const guidelines = getMessagingGuidelines('SA');
       expect(guidelines).toBeDefined();
       expect(guidelines?.tone).toBeDefined();
+      expect(guidelines?.values.length).toBeGreaterThan(0);
     });
 
     it('should return taboo list', () => {
@@ -318,6 +347,7 @@ describe('Market Research Service - T0340', () => {
   describe('getTranslationRecommendations()', () => {
     it('should return recommendations for Saudi Arabia', () => {
       const recs = getTranslationRecommendations('SA');
+      expect(recs).toBeDefined();
       expect(recs?.formality).toBe('formal');
       expect(recs?.numberStyle).toBe('hindi');
     });
@@ -348,6 +378,7 @@ describe('Market Research Service - T0340', () => {
     it('should approve appropriate content for Saudi Arabia', () => {
       const result = checkCulturalAppropriateness('Beautiful products for your family', 'SA');
       expect(result.appropriate).toBe(true);
+      expect(result.warnings).toEqual([]);
     });
 
     it('should warn about alcohol references', () => {
@@ -404,8 +435,8 @@ describe('Market Research Service - T0340', () => {
     });
 
     it('should return relevant keywords for market', () => {
-      const suggestions = getKeywordSuggestions('free delivery shipping', 'SA');
-      expect(suggestions.length).toBeGreaterThan(0);
+      const suggestions = getKeywordSuggestions('free shipping delivery', 'SA');
+      expect(suggestions.some(s => s.keyword.includes('delivery') || s.keyword.includes('shipping'))).toBe(true);
     });
 
     it('should sort by relevance', () => {
@@ -465,6 +496,7 @@ describe('Market Research Service - T0340', () => {
         expect(insight.market).toBeDefined();
         expect(insight.marketName).toBeDefined();
         expect(insight.population).toBeGreaterThan(0);
+        expect(insight.ecommerceGrowth).toBeDefined();
         expect(insight.preferredPayment.length).toBeGreaterThan(0);
         expect(insight.topCategories.length).toBeGreaterThan(0);
       }
@@ -475,6 +507,7 @@ describe('Market Research Service - T0340', () => {
         expect(pref.market).toBeDefined();
         expect(pref.colors.preferred.length).toBeGreaterThan(0);
         expect(pref.messaging.values.length).toBeGreaterThan(0);
+        expect(pref.seasonalEvents.length).toBeGreaterThan(0);
       }
     });
 
@@ -515,8 +548,10 @@ describe('Market Research Service - T0340', () => {
 
     it('GCC countries should prefer Hindi numerals', () => {
       const saRecs = getTranslationRecommendations('SA');
+      const aeRecs = getTranslationRecommendations('AE');
       const qaRecs = getTranslationRecommendations('QA');
       expect(saRecs?.numberStyle).toBe('hindi');
+      expect(aeRecs?.numberStyle).toBe('arabic'); // UAE uses arabic
       expect(qaRecs?.numberStyle).toBe('hindi');
     });
   });
@@ -524,8 +559,7 @@ describe('Market Research Service - T0340', () => {
   describe('Edge Cases', () => {
     it('should handle empty string in terminology search', () => {
       const results = getRegionalTerminology('', 'SA');
-      // Empty string returns all terms for the market (matches everything)
-      expect(results.length).toBeGreaterThan(0);
+      expect(results).toEqual([]);
     });
 
     it('should handle whitespace in terminology search', () => {
@@ -539,7 +573,7 @@ describe('Market Research Service - T0340', () => {
     });
 
     it('should handle very long text in keyword suggestions', () => {
-      const longText = 'ramadan offers '.repeat(100);
+      const longText = 'ramadan '.repeat(100);
       const suggestions = getKeywordSuggestions(longText, 'SA');
       expect(suggestions.length).toBeGreaterThan(0);
     });

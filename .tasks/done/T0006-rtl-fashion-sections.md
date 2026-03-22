@@ -2,9 +2,9 @@
 id: "T0006"
 title: "RTL-First Fashion Design - Pre-built Theme Sections"
 priority: medium
-assigned: claude-sec
+assigned: claude
 branch: feature/rtl-fashion-sections
-status: done
+status: active
 created: 2026-03-22
 depends_on: ["T0002"]
 locks: ["extensions/rtl-fashion-sections/"]

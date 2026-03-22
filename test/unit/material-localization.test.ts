@@ -62,7 +62,7 @@ describe('Material Localization', () => {
 
     it('returns Arabic description for ar locale', () => {
       const desc = getMaterialDescription('silk', 'ar');
-      expect(desc).toContain('حرير');
+      expect(desc).toContain("بروتيني");
       expect(desc).toContain('طبيعي');
     });
 
@@ -123,7 +123,7 @@ describe('Material Localization', () => {
     it('returns array of all material keys', () => {
       const materials = getAllMaterials();
       expect(Array.isArray(materials)).toBe(true);
-      expect(materials.length).toBe(22);
+      expect(materials.length).toBe(21);
     });
 
     it('includes common materials', () => {

@@ -2,9 +2,9 @@
 id: "T0007"
 title: "SEO & Discoverability - Multilingual SEO Infrastructure"
 priority: high
-assigned: claude-sec
+assigned: claude
 branch: feature/multilingual-seo
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/seo/"]

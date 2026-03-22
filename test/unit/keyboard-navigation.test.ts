@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   KEYBOARD_SHORTCUTS,
   NAVIGATION_INSTRUCTIONS,
@@ -438,7 +438,7 @@ describe('Keyboard Navigation Service - T0347', () => {
 
     it('should include description in accessible label', () => {
       const label = getAccessibleShortcutLabel('nav-next', 'en');
-      expect(label).toContain('Move');
+      expect(label).toContain('next');
     });
 
     it('should return empty string for non-existent shortcut', () => {

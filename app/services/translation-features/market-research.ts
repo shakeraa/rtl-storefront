@@ -741,13 +741,13 @@ export const CULTURAL_PREFERENCES: CulturalPreference[] = [
       },
     },
     imagery: {
-      preferred: ['Mesopotamian history', 'Tigris and Euphrates', 'Date palms', 'Traditional markets', 'Leptis Magna', 'Berber culture', 'Oil heritage'],
-      avoided: ['War imagery', 'Political factions', 'Armed conflict', 'Instability references'],
+      preferred: ['Mesopotamian history', 'Tigris and Euphrates', 'Date palms', 'Traditional markets', 'Cultural heritage', 'Rebuilding'],
+      avoided: ['War imagery', 'Destruction', 'Political factions', 'Sectarian divisions'],
     },
     messaging: {
       tone: 'Proud, resilient, warm, traditional',
       values: ['History', 'Resilience', 'Hospitality', 'Poetry', 'Heritage', 'Family'],
-      taboos: ['War trauma', 'Political factions', 'Instability exploitation', 'Religious extremism'],
+      taboos: ['War trauma', 'Political/sectarian divisions', 'Disrespect for tradition', 'Religious criticism'],
     },
     seasonalEvents: [
       { name: 'Ramadan', arabicName: 'رمضان', month: 'Variable', translationFocus: ['Tradition', 'Family', 'Community'] },
@@ -1261,7 +1261,7 @@ export function getKeywordSuggestions(
         relevance,
       };
     })
-    .filter((item) => item.relevance > 20)
+    .filter((item) => item.relevance > 0)
     .sort((a, b) => b.relevance - a.relevance)
     .slice(0, 5);
 }

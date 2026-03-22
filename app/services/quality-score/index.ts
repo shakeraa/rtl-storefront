@@ -25,11 +25,11 @@ export interface QualityFlag {
   position?: { start: number; end: number };
 }
 
-export interface SpellCheckIssue {
-  word: string;
-  start: number;
-  end: number;
-  suggestions: string[];
+export interface GrammarIssue {
+  rule: 'repeated_word' | 'missing_punctuation' | 'double_space' | 'unbalanced_delimiter' | 'sentence_capitalization';
+  message: string;
+  severity: 'high' | 'medium' | 'low';
+  position?: { start: number; end: number };
 }
 
 export interface QualityThresholds {
@@ -61,14 +61,10 @@ export function calculateQualityScore(
 ): QualityScore {
   const flags: QualityFlag[] = [];
   const suggestions: string[] = [];
-  const spellingIssues = checkSpelling(translatedText, targetLocale);
+  const grammarIssues = checkGrammar(translatedText, targetLocale);
 
   // Calculate individual metrics
-  const grammaticalAccuracy = calculateGrammaticalAccuracy(
-    translatedText,
-    targetLocale,
-    spellingIssues,
-  );
+  const grammaticalAccuracy = calculateGrammaticalAccuracy(translatedText, targetLocale, grammarIssues);
   const culturalAppropriateness = calculateCulturalScore(translatedText, targetLocale);
   const contextualRelevance = calculateContextualScore(sourceText, translatedText);
   const brandConsistency = calculateBrandConsistency(translatedText, options.brandTerms || []);
@@ -83,12 +79,12 @@ export function calculateQualityScore(
     });
   }
 
-  for (const issue of spellingIssues) {
+  for (const issue of grammarIssues) {
     flags.push({
       type: 'warning',
-      severity: 'medium',
-      message: `Possible misspelling: ${issue.word} -> ${issue.suggestions.join(', ')}`,
-      position: { start: issue.start, end: issue.end },
+      severity: issue.severity,
+      message: issue.message,
+      position: issue.position,
     });
   }
 
@@ -123,8 +119,8 @@ export function calculateQualityScore(
     suggestions.push('Review by native speaker recommended');
   }
 
-  if (spellingIssues.length > 0) {
-    suggestions.push('Review spelling suggestions before publishing');
+  if (grammarIssues.length > 0) {
+    suggestions.push('Review grammar and punctuation before publishing');
   }
 
   const score: QualityScore = {
@@ -154,10 +150,8 @@ export function calculateQualityScore(
 function calculateGrammaticalAccuracy(
   text: string,
   locale: string,
-  spellingIssues: SpellCheckIssue[] = [],
+  grammarIssues: GrammarIssue[] = []
 ): number {
-  // In production, this would use NLP libraries
-  // For now, return a placeholder score
   const factors = [
     !/[.]{3,}/.test(text), // No excessive dots
     !/[!]{2,}/.test(text), // No excessive exclamation
@@ -166,7 +160,13 @@ function calculateGrammaticalAccuracy(
   
   const passed = factors.filter(Boolean).length;
   const baseScore = Math.round((passed / factors.length) * 100);
-  return Math.max(0, baseScore - spellingIssues.length * 15);
+  const penalties = grammarIssues.reduce((total, issue) => {
+    if (issue.severity === 'high') return total + 20;
+    if (issue.severity === 'medium') return total + 12;
+    return total + 6;
+  }, 0);
+
+  return Math.max(0, baseScore - penalties);
 }
 
 /**
@@ -223,36 +223,72 @@ function calculateTerminologyScore(source: string, translation: string, locale: 
   return 80;
 }
 
-export function checkSpelling(text: string, locale: string): SpellCheckIssue[] {
-  const dictionary: Record<string, Record<string, string[]>> = {
-    en: {
-      accomodate: ['accommodate'],
-      definately: ['definitely'],
-      recieve: ['receive'],
-      seperately: ['separately'],
-      teh: ['the'],
-    },
-  };
+export function checkGrammar(text: string, locale: string): GrammarIssue[] {
+  const issues: GrammarIssue[] = [];
 
-  const localeDictionary = dictionary[locale] ?? {};
-  const issues: SpellCheckIssue[] = [];
-  const wordPattern = /\b[\p{L}']+\b/gu;
-
-  let match: RegExpExecArray | null;
-  while ((match = wordPattern.exec(text)) !== null) {
-    const word = match[0];
-    const suggestions = localeDictionary[word.toLowerCase()];
-
-    if (!suggestions) {
-      continue;
-    }
-
+  const repeatedWordPattern = /\b(\p{L}+)\s+\1\b/giu;
+  let repeatedMatch: RegExpExecArray | null;
+  while ((repeatedMatch = repeatedWordPattern.exec(text)) !== null) {
     issues.push({
-      word,
-      start: match.index,
-      end: match.index + word.length,
-      suggestions,
+      rule: 'repeated_word',
+      message: `Repeated word detected: ${repeatedMatch[1]}`,
+      severity: 'medium',
+      position: {
+        start: repeatedMatch.index,
+        end: repeatedMatch.index + repeatedMatch[0].length,
+      },
     });
+  }
+
+  const doubleSpacePattern = / {2,}/g;
+  let doubleSpaceMatch: RegExpExecArray | null;
+  while ((doubleSpaceMatch = doubleSpacePattern.exec(text)) !== null) {
+    issues.push({
+      rule: 'double_space',
+      message: 'Multiple consecutive spaces detected',
+      severity: 'low',
+      position: {
+        start: doubleSpaceMatch.index,
+        end: doubleSpaceMatch.index + doubleSpaceMatch[0].length,
+      },
+    });
+  }
+
+  const trimmedText = text.trim();
+  if (trimmedText.length > 0 && !/[.!?]$/.test(trimmedText)) {
+    issues.push({
+      rule: 'missing_punctuation',
+      message: 'Sentence should end with punctuation',
+      severity: 'medium',
+      position: { start: trimmedText.length - 1, end: trimmedText.length },
+    });
+  }
+
+  const openParens = (text.match(/\(/g) ?? []).length;
+  const closeParens = (text.match(/\)/g) ?? []).length;
+  const openQuotes = (text.match(/"/g) ?? []).length;
+  if (openParens !== closeParens || openQuotes % 2 !== 0) {
+    issues.push({
+      rule: 'unbalanced_delimiter',
+      message: 'Unbalanced punctuation delimiters detected',
+      severity: 'medium',
+    });
+  }
+
+  if (locale === 'en') {
+    const sentenceStartPattern = /(?:^|[.!?]\s+)([a-z])/g;
+    let sentenceStartMatch: RegExpExecArray | null;
+    while ((sentenceStartMatch = sentenceStartPattern.exec(text)) !== null) {
+      issues.push({
+        rule: 'sentence_capitalization',
+        message: `Sentence should start with a capital letter: ${sentenceStartMatch[1]}`,
+        severity: 'low',
+        position: {
+          start: sentenceStartMatch.index + sentenceStartMatch[0].length - 1,
+          end: sentenceStartMatch.index + sentenceStartMatch[0].length,
+        },
+      });
+    }
   }
 
   return issues;

@@ -1148,11 +1148,13 @@ export function formatShortcutKeys(
   locale: string = 'en'
 ): string {
   const rtl = isRTL(locale);
+  const separator = rtl ? ' ← ' : ' → ';
+  const plusSeparator = ' + ';
   
   // For RTL, reverse the key order for visual presentation
   const orderedKeys = rtl ? [...keys].reverse() : keys;
   
-  return orderedKeys.join(' + ');
+  return orderedKeys.join(plusSeparator);
 }
 
 /**

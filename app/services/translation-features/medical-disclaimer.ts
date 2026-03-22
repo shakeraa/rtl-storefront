@@ -442,68 +442,68 @@ const HEALTH_WARNING_LABELS: Record<SupportedLocale, HealthWarningLabel[]> = {
 const MEDICAL_CLAIM_PATTERNS: Record<SupportedLocale, Record<MedicalClaimType, RegExp[]>> = {
   ar: {
     treatment: [
-      /يعالج|علاج|شفاء|يُعالج|علاجي/g,
-      /يُساعد في علاج|يُحسّن حالة|يُخفف من/g,
+      /يعالج|علاج|شفاء|يُعالج|علاجي/,
+      /يُساعد في علاج|يُحسّن حالة|يُخفف من/,
     ],
     cure: [
-      /يشفي|شفاء تام|قضاء على|يُزيل|يُنهي/g,
-      /علاج نهائي|حل نهائي|شفاء كامل/g,
+      /يشفي|شفاء تام|قضاء على|يُزيل|يُنهي/,
+      /علاج نهائي|حل نهائي|شفاء كامل/,
     ],
     prevention: [
-      /يحمي من|وقاية|يمنع|يُقي|حماية/g,
-      /يُقلل من خطر|يُبعد خطر|يُجنبك/g,
+      /يحمي من|وقاية|يمنع|يُقي|حماية/,
+      /يُقلل من خطر|يُبعد خطر|يُجنبك/,
     ],
     diagnosis: [
-      /يُشخص|كشف|تشخيص|فحص|يُحدد/g,
-      /يُكشف عن|اكتشاف|تحديد/g,
+      /يُشخص|كشف|تشخيص|فحص|يُحدد/,
+      /يُكشف عن|اكتشاف|تحديد/,
     ],
     guarantee: [
-      /ضمان|مضمون|نتائج مضمونة|100%/g,
-      /يضمن|يؤكد|وعد|نتائج مؤكدة/g,
+      /ضمان|مضمون|نتائج مضمونة|100%/,
+      /يضمن|يؤكد|وعد|نتائج مؤكدة/,
     ],
   },
   he: {
     treatment: [
-      /מטפל|טיפול|ריפוי|מסייע|טיפולי/g,
-      /מסייע בטיפול|משפר את מצב|מקל על/g,
+      /מטפל|טיפול|ריפוי|מסייע|טיפולי/,
+      /מסייע בטיפול|משפר את מצב|מקל על/,
     ],
     cure: [
-      /מרפא|ריפוי מלא|מסיים|מסיר|מחסל/g,
-      /טיפול סופי|פתרון סופי|ריפוי שלם/g,
+      /מרפא|ריפוי מלא|מסיים|מסיר|מחסל/,
+      /טיפול סופי|פתרון סופי|ריפוי שלם/,
     ],
     prevention: [
-      /מגן מפני|מניעה|מונע|שומר|הגנה/g,
-      /מפחית סיכון|מרחיק סיכון|מונע/g,
+      /מגן מפני|מניעה|מונע|שומר|הגנה/,
+      /מפחית סיכון|מרחיק סיכון|מונע/,
     ],
     diagnosis: [
-      /מאבחן|אבחון|בדיקה|זיהוי|קביעה/g,
-      /מגלה|גילוי|קביעת/g,
+      /מאבחן|אבחון|בדיקה|זיהוי|קביעה/,
+      /מגלה|גילוי|קביעת/,
     ],
     guarantee: [
-      /אחריות|מובטח|תוצאות מובטחות|100%/g,
-      /מבטיח|מאשר|הבטחה|תוצאות ודאיות/g,
+      /אחריות|מובטח|תוצאות מובטחות|100%/,
+      /מבטיח|מאשר|הבטחה|תוצאות ודאיות/,
     ],
   },
   en: {
     treatment: [
-      /treat|treatment|therapy|therapeutic|helps? (with|treat)/gi,
-      /relieves?|alleviates?|reduces? symptoms?/gi,
+      /treat|treatment|therapy|therapeutic|helps? (with|treat)/i,
+      /relieves?|alleviates?|reduces? symptoms?/i,
     ],
     cure: [
-      /cure|cures|complete cure|eliminates?|eradicates?/gi,
-      /heals?|healing|full recovery|permanent solution/gi,
+      /cure|cures|complete cure|eliminates?|eradicates?/i,
+      /heals?|healing|full recovery|permanent solution/i,
     ],
     prevention: [
-      /prevents?|preventive|protection|protects?/gi,
-      /reduces? risk|guards against|shields?/gi,
+      /prevents?|preventive|protection|protects?/i,
+      /reduces? risk|guards against|shields?/i,
     ],
     diagnosis: [
-      /diagnos(?:is|es|e)|detect(?:s|ion)|identifies?/gi,
-      /screen(?:s|ing)|recognizes?|determines?/gi,
+      /diagnos(?:is|es|e)|detect(?:s|ion)|identifies?/i,
+      /screen(?:s|ing)|recognizes?|determines?/i,
     ],
     guarantee: [
-      /guarantees?|guaranteed|100%|promises?/gi,
-      /assured|assurance|certain|sure/gi,
+      /guarantees?|guaranteed|100%|promises?/i,
+      /assured|assurance|certain|sure/,
     ],
   },
 };

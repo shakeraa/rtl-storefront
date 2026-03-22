@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateQualityScore,
-  checkSpelling,
+  checkGrammar,
   getQualityRating,
   needsReview,
   getQualityScore,
@@ -63,40 +63,47 @@ describe('Quality Score Service - T0051', () => {
       expect(score.overallScore).toBeLessThanOrEqual(100);
     });
 
-    it('adds spelling flags and suggestions for known misspellings', () => {
+    it('adds grammar flags and suggestions for detected issues', () => {
       const score = calculateQualityScore(
-        'trans-spell',
-        'Receive the product separately.',
-        'Recieve teh product seperately.',
+        'trans-grammar',
+        'This is a test.',
+        'this is is a test  without punctuation',
         'en'
       );
 
-      expect(score.flags.some((flag) => flag.message.includes('Possible misspelling'))).toBe(true);
-      expect(score.suggestions).toContain('Review spelling suggestions before publishing');
-      expect(score.metrics.grammaticalAccuracy).toBeLessThan(100);
+      expect(score.flags.some((flag) => flag.message.includes('Repeated word detected'))).toBe(true);
+      expect(score.flags.some((flag) => flag.message.includes('Sentence should end with punctuation'))).toBe(true);
+      expect(score.suggestions).toContain('Review grammar and punctuation before publishing');
+      expect(score.metrics.grammaticalAccuracy).toBeLessThan(70);
     });
   });
 
-  describe('Spell Check', () => {
-    it('detects known misspellings with correction suggestions', () => {
-      expect(checkSpelling('Recieve teh update seperately.', 'en')).toEqual([
+  describe('Grammar Check', () => {
+    it('detects repeated words, spacing, punctuation, and capitalization issues', () => {
+      expect(checkGrammar('this is is a test  without punctuation', 'en')).toEqual([
         {
-          word: 'Recieve',
-          start: 0,
-          end: 7,
-          suggestions: ['receive'],
+          rule: 'repeated_word',
+          message: 'Repeated word detected: is',
+          severity: 'medium',
+          position: { start: 5, end: 10 },
         },
         {
-          word: 'teh',
-          start: 8,
-          end: 11,
-          suggestions: ['the'],
+          rule: 'double_space',
+          message: 'Multiple consecutive spaces detected',
+          severity: 'low',
+          position: { start: 17, end: 19 },
         },
         {
-          word: 'seperately',
-          start: 19,
-          end: 29,
-          suggestions: ['separately'],
+          rule: 'missing_punctuation',
+          message: 'Sentence should end with punctuation',
+          severity: 'medium',
+          position: { start: 37, end: 38 },
+        },
+        {
+          rule: 'sentence_capitalization',
+          message: 'Sentence should start with a capital letter: t',
+          severity: 'low',
+          position: { start: 0, end: 1 },
         },
       ]);
     });

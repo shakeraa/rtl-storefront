@@ -4,7 +4,7 @@ title: "Translation - Market Research"
 priority: low
 assigned: kimi
 branch: feature/t0340
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: []
