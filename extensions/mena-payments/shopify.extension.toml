@@ -1,0 +1,29 @@
+api_version = "2025-01"
+
+[[extensions]]
+type = "ui_extension"
+name = "MENA Payment Methods"
+handle = "mena-payments"
+
+  [extensions.targeting]
+  module = "./src/index.tsx"
+  target = "purchase.checkout.payment-method-list.render-after"
+
+  [extensions.settings]
+    [[extensions.settings.fields]]
+    key = "enabled_providers"
+    type = "list.single_line_text_field"
+    name = "Enabled Providers"
+    description = "Comma-separated list of enabled MENA payment providers"
+
+    [[extensions.settings.fields]]
+    key = "store_currency"
+    type = "single_line_text_field"
+    name = "Store Currency"
+    description = "Primary store currency (SAR, AED, KWD, etc.)"
+
+    [[extensions.settings.fields]]
+    key = "store_country"
+    type = "single_line_text_field"
+    name = "Store Country Code"
+    description = "ISO 3166-1 alpha-2 country code (SA, AE, KW, etc.)"
