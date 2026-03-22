@@ -26,6 +26,16 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface CountdownTimerLabels {
+  appId: string;
+  heading: string;
+  endsInLabel: string;
+  dayLabel: string;
+  hourLabel: string;
+  minuteLabel: string;
+  secondLabel: string;
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +104,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'hurrify',
+    name: 'Hurrify Countdown',
     category: 'other',
     status: 'available',
   },
@@ -178,6 +194,22 @@ export async function translateBundleAppContent(
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
     })),
+  };
+}
+
+// Countdown timer integration
+export async function translateCountdownTimerLabels(
+  labels: CountdownTimerLabels,
+  targetLocale: string
+): Promise<CountdownTimerLabels> {
+  return {
+    ...labels,
+    heading: `[${targetLocale}] ${labels.heading}`,
+    endsInLabel: `[${targetLocale}] ${labels.endsInLabel}`,
+    dayLabel: `[${targetLocale}] ${labels.dayLabel}`,
+    hourLabel: `[${targetLocale}] ${labels.hourLabel}`,
+    minuteLabel: `[${targetLocale}] ${labels.minuteLabel}`,
+    secondLabel: `[${targetLocale}] ${labels.secondLabel}`,
   };
 }
 

@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateCountdownTimerLabels,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('hurrify');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,31 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Countdown Timer Integration', () => {
+    it('should translate countdown timer labels', async () => {
+      const labels = {
+        appId: 'hurrify',
+        heading: 'Flash sale',
+        endsInLabel: 'Ends in',
+        dayLabel: 'Days',
+        hourLabel: 'Hours',
+        minuteLabel: 'Minutes',
+        secondLabel: 'Seconds',
+      };
+
+      const result = await translateCountdownTimerLabels(labels, 'ar');
+      expect(result).toEqual({
+        appId: 'hurrify',
+        heading: '[ar] Flash sale',
+        endsInLabel: '[ar] Ends in',
+        dayLabel: '[ar] Days',
+        hourLabel: '[ar] Hours',
+        minuteLabel: '[ar] Minutes',
+        secondLabel: '[ar] Seconds',
       });
     });
   });
