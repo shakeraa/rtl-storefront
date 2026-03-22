@@ -51,16 +51,26 @@
 - NO fake inline components — import the REAL screen
 - Assert specific values, not just `.toBeTruthy()`
 
+## REJECTED WORK — READ BEFORE STARTING
+
+### DO NOT create stub implementations
+Your branches `feature/batch-core-services` and `feature/batch1-content-translation` were **REJECTED** for these reasons:
+
+1. **NO STUBS** — Every method must have real logic, not `return "[ar] " + text` or hardcoded mock data. If a method needs an external API, implement the structure with proper error handling and mark the API call with a `// TODO: wire to Shopify API` comment — but the surrounding logic must be real.
+
+2. **NO DUPLICATING existing services** — Before creating a new service, check what exists on main:
+   - `app/services/product-variants/` — already handles option/variant translation
+   - `app/services/language-switcher/` — already has SUPPORTED_LANGUAGES
+   - `app/services/fashion-db/` — already has 60+ fashion terms
+   - `app/services/translation/` — already has the translation engine with AI providers
+   - `app/services/translation-memory/` — already has TM and glossary
+   Read the existing code BEFORE writing new code.
+
+3. **USE existing translation infrastructure** — Import from `app/services/translation/engine.ts` for actual translations. Do NOT create parallel translation systems.
+
+4. **Tests must verify real behavior** — `expect(result).toContain('[ar]')` tests nothing. Test actual logic: correct field mapping, error handling, edge cases.
+
+5. **One branch per task** — Do NOT batch 40 tasks into one branch. One task = one branch = one review.
+
 ## Current Active Tasks
 Check `.tasks/active/` for tasks assigned to `kimi`.
-
-### Priority:
-1. **T1047** (CRITICAL) — Vue Router "No match found" for all new screens — BLOCKS EVERYTHING
-2. **T1048** — Fix hardcoded colors in T302, T402, T407
-3. **T1041** — QA all 15 new screens
-4. **T1043** — Null reference guards
-5. **T1046** — Wizard theme regression guard
-6. **T1040** — PostExploitation crash
-7. **T1042** — CIS Benchmarks route
-8. **T1044** — WebSocket notification error
-9. **T1045** — Competitor gap analysis
