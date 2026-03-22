@@ -13,6 +13,15 @@ export interface CostEntry {
   timestamp: Date;
 }
 
+export interface CostMonitorOptions {
+  maxEntries?: number;
+  retentionDays?: number;
+  now?: () => Date;
+}
+
+const DEFAULT_MAX_ENTRIES = 5_000;
+const DEFAULT_RETENTION_DAYS = 31;
+
 /** Cost rates per 1 000 characters by provider (USD) */
 const RATES: Record<string, number> = {
   openai: 0.02,
@@ -27,32 +36,54 @@ function costForChars(provider: string, characters: number): number {
 
 export class CostMonitor {
   private entries: CostEntry[] = [];
+  private readonly maxEntries: number;
+  private readonly retentionMs: number;
+  private readonly now: () => Date;
+
+  constructor(options: CostMonitorOptions = {}) {
+    this.maxEntries = options.maxEntries ?? DEFAULT_MAX_ENTRIES;
+    this.retentionMs =
+      (options.retentionDays ?? DEFAULT_RETENTION_DAYS) *
+      24 *
+      60 *
+      60 *
+      1000;
+    this.now = options.now ?? (() => new Date());
+  }
 
   /**
    * Record a translation usage event. The cost is computed automatically
    * from the provider's rate and the character count.
    */
   recordUsage(provider: string, characters: number, locale: string): void {
+    this.prune();
+
     const cost = costForChars(provider, characters);
     this.entries.push({
       provider,
       characters,
       cost,
       locale,
-      timestamp: new Date(),
+      timestamp: this.now(),
     });
+
+    this.trimToMaxEntries();
   }
 
   /** Total cost for the current UTC day. */
   getDailyCost(): number {
-    const todayStart = new Date();
+    this.prune();
+
+    const todayStart = this.now();
     todayStart.setUTCHours(0, 0, 0, 0);
     return this.sumCostSince(todayStart);
   }
 
   /** Total cost for the current UTC calendar month. */
   getMonthlyCost(): number {
-    const monthStart = new Date();
+    this.prune();
+
+    const monthStart = this.now();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
     return this.sumCostSince(monthStart);
@@ -60,11 +91,13 @@ export class CostMonitor {
 
   /** Aggregate cost grouped by provider name. */
   getCostByProvider(): Record<string, number> {
+    this.prune();
     return this.groupCost((e) => e.provider);
   }
 
   /** Aggregate cost grouped by target locale. */
   getCostByLocale(): Record<string, number> {
+    this.prune();
     return this.groupCost((e) => e.locale);
   }
 
@@ -80,6 +113,8 @@ export class CostMonitor {
    * - Over-budget when exceeded
    */
   getAlerts(monthlyBudget: number): string[] {
+    this.prune();
+
     const spent = this.getMonthlyCost();
     const pct = (spent / monthlyBudget) * 100;
     const alerts: string[] = [];
@@ -101,7 +136,33 @@ export class CostMonitor {
     return alerts;
   }
 
+  getEntryCount(): number {
+    this.prune();
+    return this.entries.length;
+  }
+
   // ---- private helpers ----
+
+  private prune(): void {
+    const cutoff = this.now().getTime() - this.retentionMs;
+
+    while (
+      this.entries.length > 0 &&
+      this.entries[0].timestamp.getTime() < cutoff
+    ) {
+      this.entries.shift();
+    }
+
+    this.trimToMaxEntries();
+  }
+
+  private trimToMaxEntries(): void {
+    if (this.entries.length <= this.maxEntries) {
+      return;
+    }
+
+    this.entries.splice(0, this.entries.length - this.maxEntries);
+  }
 
   private sumCostSince(since: Date): number {
     const ts = since.getTime();
