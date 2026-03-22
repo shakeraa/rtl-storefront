@@ -6,7 +6,7 @@ Successfully implemented Mailchimp email template translation service with full 
 ## Files Created/Modified
 
 ### New Files
-- `/app/services/integrations/mailchimp.ts` - Main Mailchimp integration service
+- `/app/services/integrations/mailchimp.ts` - Main Mailchimp integration service (602 lines)
 - `/test/unit/mailchimp.test.ts` - Comprehensive test suite (51 tests)
 
 ### Modified Files
