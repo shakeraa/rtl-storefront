@@ -8,7 +8,7 @@ status: active
 created: 2026-03-22
 depends_on: []
 locks: []
-test_command: ""
+test_command: "npx vitest run test/unit/klaviyo.test.ts --reporter=verbose"
 ---
 
 ## Description

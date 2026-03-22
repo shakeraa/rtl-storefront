@@ -6,7 +6,7 @@ export const SUPPORTED_PAGE_BUILDERS = ['pagefly', 'gempages', 'shogun'];
 
 export const SUPPORTED_REVIEW_APPS = ['judgeme', 'loox', 'stamped', 'yotpo'];
 
-export const SUPPORTED_EMAIL_APPS = ['klaviyo', 'omnisend'];
+export const SUPPORTED_EMAIL_APPS = ['klaviyo', 'omnisend', 'mailchimp'];
 
 export const SUPPORTED_SUPPORT_APPS = ['zendesk', 'gorgias'];
 

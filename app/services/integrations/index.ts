@@ -97,6 +97,12 @@ export const INTEGRATIONS: Integration[] = [
     category: 'other',
     status: 'available',
   },
+  {
+    id: 'mailchimp',
+    name: 'Mailchimp',
+    category: 'email',
+    status: 'available',
+  },
 ];
 
 // PageFly integration
@@ -207,3 +213,4 @@ export async function checkIntegrationHealth(
 }
 
 export * from './constants';
+export * from './mailchimp';
