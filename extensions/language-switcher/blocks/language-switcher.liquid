@@ -1,0 +1,59 @@
+{% comment %} RTL Storefront Language Switcher Block {% endcomment %}
+<div class="rtl-lang-switcher" data-position="{{ block.settings.position }}" dir="{{ request.locale.iso_code | split: '-' | first | default: 'ltr' }}">
+  <button class="rtl-lang-switcher__trigger" aria-expanded="false" aria-haspopup="listbox">
+    <span class="rtl-lang-switcher__current">{{ request.locale.endonym_name }}</span>
+    <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+  </button>
+  <ul class="rtl-lang-switcher__list" role="listbox" hidden>
+    {% for locale in shop.published_locales %}
+      <li role="option" {% if locale == request.locale %}aria-selected="true"{% endif %}>
+        <a href="{{ locale | locale_url }}" lang="{{ locale.iso_code }}">
+          {{ locale.endonym_name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% schema %}
+{
+  "name": "Language Switcher",
+  "target": "section",
+  "settings": [
+    { "type": "select", "id": "position", "label": "Position", "options": [
+      { "value": "header", "label": "Header" },
+      { "value": "footer", "label": "Footer" }
+    ], "default": "header" },
+    { "type": "checkbox", "id": "show_flags", "label": "Show flags", "default": false },
+    { "type": "checkbox", "id": "show_native_names", "label": "Show native names", "default": true }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+.rtl-lang-switcher { position: relative; display: inline-block; font-family: inherit; }
+.rtl-lang-switcher__trigger { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 1px solid var(--color-border, #ccc); border-radius: 4px; background: transparent; cursor: pointer; font-size: 0.875rem; }
+.rtl-lang-switcher__list { position: absolute; top: 100%; left: 0; min-width: 100%; margin: 0.25rem 0 0; padding: 0.25rem 0; list-style: none; background: var(--color-background, #fff); border: 1px solid var(--color-border, #ccc); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 100; }
+[dir="rtl"] .rtl-lang-switcher__list { left: auto; right: 0; }
+.rtl-lang-switcher__list li a { display: block; padding: 0.5rem 1rem; text-decoration: none; color: inherit; white-space: nowrap; }
+.rtl-lang-switcher__list li a:hover { background: var(--color-background-secondary, #f5f5f5); }
+.rtl-lang-switcher__list li[aria-selected="true"] a { font-weight: bold; }
+{% endstylesheet %}
+
+{% javascript %}
+(function() {
+  var switchers = document.querySelectorAll('.rtl-lang-switcher');
+  switchers.forEach(function(s) {
+    var trigger = s.querySelector('.rtl-lang-switcher__trigger');
+    var list = s.querySelector('.rtl-lang-switcher__list');
+    trigger.addEventListener('click', function() {
+      var expanded = trigger.getAttribute('aria-expanded') === 'true';
+      trigger.setAttribute('aria-expanded', !expanded);
+      list.hidden = expanded;
+    });
+    document.addEventListener('click', function(e) {
+      if (!s.contains(e.target)) { trigger.setAttribute('aria-expanded', 'false'); list.hidden = true; }
+    });
+  });
+})();
+{% endjavascript %}
