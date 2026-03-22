@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface AgeVerificationPromptContent {
+  promptId: string;
+  title: string;
+  description?: string;
+}
+
+export interface AgeVerificationAppContent {
+  verificationId: string;
+  title: string;
+  confirmLabel?: string;
+  denyLabel?: string;
+  prompts: AgeVerificationPromptContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Age verification app integration
+export async function translateAgeVerificationAppContent(
+  verification: AgeVerificationAppContent,
+  targetLocale: string
+): Promise<AgeVerificationAppContent> {
+  return {
+    ...verification,
+    title: `[${targetLocale}] ${verification.title}`,
+    confirmLabel: verification.confirmLabel
+      ? `[${targetLocale}] ${verification.confirmLabel}`
+      : undefined,
+    denyLabel: verification.denyLabel
+      ? `[${targetLocale}] ${verification.denyLabel}`
+      : undefined,
+    prompts: verification.prompts.map((prompt) => ({
+      ...prompt,
+      title: `[${targetLocale}] ${prompt.title}`,
+      description: prompt.description
+        ? `[${targetLocale}] ${prompt.description}`
+        : undefined,
     })),
   };
 }

@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateAgeVerificationAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,52 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Age Verification App Integration', () => {
+    it('should translate age verification content and preserve metadata', async () => {
+      const verification = {
+        verificationId: 'verification-1',
+        title: 'Age check required',
+        confirmLabel: 'I am over 21',
+        denyLabel: 'Exit store',
+        prompts: [
+          {
+            promptId: 'prompt-1',
+            title: 'Please confirm your age',
+            description: 'You must be of legal age to enter this store',
+          },
+          {
+            promptId: 'prompt-2',
+            title: 'Government ID may be required',
+          },
+        ],
+        metadata: {
+          provider: 'age-verification-app',
+        },
+      };
+
+      const result = await translateAgeVerificationAppContent(
+        verification,
+        'ar'
+      );
+      expect(result.title).toBe('[ar] Age check required');
+      expect(result.confirmLabel).toBe('[ar] I am over 21');
+      expect(result.denyLabel).toBe('[ar] Exit store');
+      expect(result.prompts[0]).toEqual({
+        promptId: 'prompt-1',
+        title: '[ar] Please confirm your age',
+        description: '[ar] You must be of legal age to enter this store',
+      });
+      expect(result.prompts[1]).toEqual({
+        promptId: 'prompt-2',
+        title: '[ar] Government ID may be required',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'age-verification-app',
       });
     });
   });
