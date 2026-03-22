@@ -2,9 +2,9 @@
 id: "T0012"
 title: "Analytics - Translation & Conversion Tracking"
 priority: medium
-assigned: claude-sec
+assigned: claude
 branch: feature/analytics
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/analytics/"]
