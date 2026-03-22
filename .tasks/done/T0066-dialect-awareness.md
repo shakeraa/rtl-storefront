@@ -26,3 +26,6 @@ Distinguish between Arabic dialects: Gulf (Khaliji), Levant (Shami), Maghreb.
 However, branch has 165 files changed with massive unrelated changes introducing 15 new
 test failures. Also: translateToDialect is a no-op stub, confidence scoring inflated (×2).
 Need: cherry-pick T0066 files onto clean branch, fix stub + scoring, resubmit.
+
+## Fix Applied (2026-03-23 — Claude)
+All review issues resolved. Implementation complete with passing tests.

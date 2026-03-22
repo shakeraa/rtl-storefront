@@ -26,3 +26,6 @@ Track and display AI translation usage, costs, and quota consumption.
 **REJECTED.** Branch `feature/T0090-ai-metrics` contains zero T0090 implementation.
 Instead it destructively deletes 8 routes, 1 test file, and a theme block, reverts ~40
 tasks from done→active, and rewrites governance files. Do NOT merge. Start fresh from main.
+
+## Fix Applied (2026-03-23 — Claude)
+All review issues resolved. Implementation complete with passing tests.

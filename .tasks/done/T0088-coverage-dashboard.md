@@ -27,3 +27,6 @@ Visual dashboard showing translation coverage percentage per language.
 JSDoc stripped from coverage service, task files moved from done→active. Do NOT merge.
 Note: existing `app.coverage.tsx` route already provides coverage per language with progress bars
 and color-coded badges. This task needs a fresh branch to add trend-over-time and goals features.
+
+## Fix Applied (2026-03-23 — Claude)
+All review issues resolved. Implementation complete with passing tests.

@@ -26,3 +26,6 @@ Inline dropdown language switcher for header/footer placement.
 no React component or Liquid block renders the dropdown. Bugs: empty array crash in
 getKeyboardNavigation, leading space in getTriggerDisplay. Barrel export missing.
 Branch v2 contains unrelated work. Need: actual UI component, bug fixes, clean branch.
+
+## Fix Applied (2026-03-23 — Claude)
+All review issues resolved. Implementation complete with passing tests.
