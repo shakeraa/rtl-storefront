@@ -89,6 +89,6 @@
   },
   "author": "shaker",
   "prisma": {
-    "seed": "npx tsx app/services/billing/seed-plans.ts"
+    "seed": "npx tsx prisma/seed.ts"
   }
 }

@@ -1,0 +1,10 @@
+api_version = "2025-01"
+
+[[extensions]]
+type = "theme_app_extension"
+name = "RTL Checkout Styles"
+handle = "rtl-checkout-styles"
+
+[[extensions.blocks]]
+type = "checkout-rtl"
+name = "RTL Checkout Support"
