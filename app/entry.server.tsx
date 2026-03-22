@@ -7,6 +7,11 @@ import {
 } from "@remix-run/node";
 import { isbot } from "isbot";
 import { addDocumentResponseHeaders } from "./shopify.server";
+import {
+  applyBrotliHeaders,
+  createBrotliCompressionStream,
+  shouldUseBrotliCompression,
+} from "./services/performance/compression";
 
 export const streamTimeout = 5000;
 
@@ -31,9 +36,22 @@ export default async function handleRequest(
       {
         [callbackName]: () => {
           const body = new PassThrough();
-          const stream = createReadableStreamFromReadable(body);
-
           responseHeaders.set("Content-Type", "text/html");
+
+          const shouldCompress = shouldUseBrotliCompression(
+            request,
+            responseHeaders.get("Content-Type"),
+          );
+
+          const output = shouldCompress
+            ? body.pipe(createBrotliCompressionStream())
+            : body;
+          const stream = createReadableStreamFromReadable(output);
+
+          if (shouldCompress) {
+            applyBrotliHeaders(responseHeaders);
+          }
+
           resolve(
             new Response(stream, {
               headers: responseHeaders,
