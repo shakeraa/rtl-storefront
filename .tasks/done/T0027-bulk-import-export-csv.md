@@ -4,7 +4,7 @@ title: "Bulk Import/Export - CSV Format Support"
 priority: medium
 assigned: claude-sec
 branch: feature/bulk-csv
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0017"]
 locks: ["app/services/import-export/csv.ts"]

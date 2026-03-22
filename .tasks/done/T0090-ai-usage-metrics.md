@@ -4,7 +4,7 @@ title: "Admin - AI Usage Metrics Dashboard"
 priority: medium
 assigned: claude-sec
 branch: feature/ai-metrics
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0009"]
 locks: []

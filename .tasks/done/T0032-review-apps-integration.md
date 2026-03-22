@@ -4,7 +4,7 @@ title: "Third-Party - Review Apps Integration"
 priority: medium
 assigned: claude-sec
 branch: feature/review-apps
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0014"]
 locks: []

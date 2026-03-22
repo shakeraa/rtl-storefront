@@ -4,7 +4,7 @@ title: "Analytics - Conversion Rate by Language"
 priority: medium
 assigned: claude-sec
 branch: feature/conversion-analytics
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0012"]
 locks: []

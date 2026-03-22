@@ -4,7 +4,7 @@ title: "Translation Methods - Manual Entry & Side-by-Side Editor"
 priority: medium
 assigned: claude-sec
 branch: feature/translation-manual
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0009"]
 locks: ["app/components/translation-editor/"]
