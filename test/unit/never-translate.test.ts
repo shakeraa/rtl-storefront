@@ -4,6 +4,8 @@ import {
   createDefaultConfig,
   addSkuTerms,
   addBrandTerms,
+  addExtractedBrandTerms,
+  extractTerminologyCandidates,
   type NeverTranslateConfig,
 } from '../../app/services/never-translate/index';
 
@@ -110,6 +112,46 @@ describe('NeverTranslate Service', () => {
       expect(updated.terms).toHaveLength(2);
       expect(updated.terms[0].category).toBe('brand');
       expect(updated.terms[0].caseSensitive).toBe(false);
+    });
+  });
+
+  describe('terminology extraction', () => {
+    it('extracts repeated brand-like terms from source text', () => {
+      const candidates = extractTerminologyCandidates(
+        [
+          'Shop Nike shoes with Air Max comfort',
+          'Nike sportswear pairs well with Adidas socks',
+          'Our Nike collection includes Air Max styles',
+        ],
+        { minOccurrences: 2 }
+      );
+
+      expect(candidates).toEqual([
+        { term: 'Nike', occurrences: 3, category: 'brand' },
+        { term: 'Air Max', occurrences: 2, category: 'brand' },
+      ]);
+    });
+
+    it('adds extracted brands without duplicating existing config terms', () => {
+      const config = makeConfig({
+        terms: [
+          { term: 'Nike', type: 'exact', caseSensitive: false, category: 'brand' },
+        ],
+      });
+
+      const updated = addExtractedBrandTerms(
+        config,
+        [
+          'Nike and Adidas now available',
+          'Adidas performance wear now in stock',
+        ],
+        { minOccurrences: 2 }
+      );
+
+      expect(updated.terms).toEqual([
+        { term: 'Nike', type: 'exact', caseSensitive: false, category: 'brand' },
+        { term: 'Adidas', type: 'exact', caseSensitive: false, category: 'brand' },
+      ]);
     });
   });
 
