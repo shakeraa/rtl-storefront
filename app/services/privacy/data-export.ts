@@ -1,5 +1,6 @@
 import prisma from "../../db.server";
 import type { DataExportResult } from "./types";
+export type { DataExportResult };
 
 /**
  * Mask sensitive fields in session data for GDPR-compliant export.
@@ -69,4 +70,55 @@ export async function exportShopData(shop: string): Promise<DataExportResult> {
       accessLogs: accessLogs as unknown as Array<Record<string, unknown>>,
     },
   };
+}
+
+/**
+ * Format exported data as a JSON string (pretty-printed).
+ */
+export function formatExportAsJson(data: unknown): string {
+  return JSON.stringify(data, null, 2);
+}
+
+/**
+ * Format exported data as CSV.
+ * Each top-level array in `data.data` is flattened into its own CSV block
+ * separated by a blank line.
+ */
+export function formatExportAsCsv(data: DataExportResult): string {
+  const sections: string[] = [];
+
+  sections.push(`# GDPR Data Export`);
+  sections.push(`# Shop: ${data.shop}`);
+  sections.push(`# Exported at: ${data.exportedAt}`);
+  sections.push(``);
+
+  const arrayToCSV = (
+    label: string,
+    rows: Array<Record<string, unknown>>,
+  ): string => {
+    if (rows.length === 0) return `# ${label}\n(no records)\n`;
+    const keys = Object.keys(rows[0]);
+    const header = keys.map((k) => `"${k}"`).join(",");
+    const body = rows
+      .map((row) =>
+        keys
+          .map((k) => {
+            const v = row[k];
+            if (v === null || v === undefined) return `""`;
+            return `"${String(v).replace(/"/g, '""')}"`;
+          })
+          .join(","),
+      )
+      .join("\n");
+    return `# ${label}\n${header}\n${body}\n`;
+  };
+
+  sections.push(arrayToCSV("Sessions", data.data.sessions));
+  sections.push(
+    arrayToCSV("Translation Cache", data.data.translationCache),
+  );
+  sections.push(arrayToCSV("Consents", data.data.consents));
+  sections.push(arrayToCSV("Access Logs", data.data.accessLogs));
+
+  return sections.join("\n");
 }
