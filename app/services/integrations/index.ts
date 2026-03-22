@@ -26,6 +26,17 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface TrustBadge {
+  label: string;
+  description?: string;
+}
+
+export interface TrustBadgeContent {
+  appId: string;
+  heading: string;
+  badges: TrustBadge[];
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +105,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'trustbadge-master',
+    name: 'TrustBadge Master',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +194,23 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Trust badge integration
+export async function translateTrustBadgeContent(
+  content: TrustBadgeContent,
+  targetLocale: string
+): Promise<TrustBadgeContent> {
+  return {
+    ...content,
+    heading: `[${targetLocale}] ${content.heading}`,
+    badges: content.badges.map((badge) => ({
+      label: `[${targetLocale}] ${badge.label}`,
+      description: badge.description
+        ? `[${targetLocale}] ${badge.description}`
+        : undefined,
     })),
   };
 }

@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateTrustBadgeContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('trustbadge-master');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,35 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Trust Badge Integration', () => {
+    it('should translate trust badge headings and badge labels', async () => {
+      const content = {
+        appId: 'trustbadge-master',
+        heading: 'Why shoppers trust us',
+        badges: [
+          { label: 'Secure checkout', description: 'SSL encrypted payments' },
+          { label: 'Fast delivery' },
+        ],
+      };
+
+      const result = await translateTrustBadgeContent(content, 'ar');
+      expect(result).toEqual({
+        appId: 'trustbadge-master',
+        heading: '[ar] Why shoppers trust us',
+        badges: [
+          {
+            label: '[ar] Secure checkout',
+            description: '[ar] SSL encrypted payments',
+          },
+          {
+            label: '[ar] Fast delivery',
+            description: undefined,
+          },
+        ],
       });
     });
   });
