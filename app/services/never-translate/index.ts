@@ -20,8 +20,30 @@ export interface ProtectionResult {
   protectedTerms: string[];
 }
 
+export interface TerminologyCandidate {
+  term: string;
+  occurrences: number;
+  category: "brand";
+}
+
 const PLACEHOLDER_PREFIX = "⟦NT_";
 const PLACEHOLDER_SUFFIX = "⟧";
+const BRAND_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "best",
+  "buy",
+  "for",
+  "from",
+  "new",
+  "our",
+  "shop",
+  "the",
+  "this",
+  "with",
+  "your",
+]);
 
 /**
  * Protects never-translate terms by replacing them with placeholders
@@ -183,4 +205,74 @@ export function addBrandTerms(config: NeverTranslateConfig, brands: string[]): N
       })),
     ],
   };
+}
+
+export function extractTerminologyCandidates(
+  texts: string[],
+  options: { minOccurrences?: number } = {},
+): TerminologyCandidate[] {
+  const minOccurrences = options.minOccurrences ?? 1;
+  const matchesByKey = new Map<string, TerminologyCandidate>();
+  const pattern =
+    /\b(?:[A-Z][A-Za-z0-9-]*|[A-Z]{2,}[A-Z0-9-]*)(?:\s+(?:[A-Z][A-Za-z0-9-]*|[A-Z]{2,}[A-Z0-9-]*)){0,2}\b/g;
+
+  for (const text of texts) {
+    const matches = text.match(pattern) ?? [];
+
+    for (const rawMatch of matches) {
+      const words = rawMatch.trim().split(/\s+/);
+      while (words.length > 0 && BRAND_STOP_WORDS.has(words[0].toLowerCase())) {
+        words.shift();
+      }
+
+      const term = words.join(" ");
+
+      if (
+        term.length < 2 ||
+        BRAND_STOP_WORDS.has(term.toLowerCase()) ||
+        words.length === 0
+      ) {
+        continue;
+      }
+
+      const key = term.toLowerCase();
+      const existing = matchesByKey.get(key);
+
+      if (existing) {
+        existing.occurrences += 1;
+        continue;
+      }
+
+      matchesByKey.set(key, {
+        term,
+        occurrences: 1,
+        category: "brand",
+      });
+    }
+  }
+
+  return Array.from(matchesByKey.values())
+    .filter((candidate) => candidate.occurrences >= minOccurrences)
+    .sort(
+      (left, right) =>
+        right.occurrences - left.occurrences || right.term.length - left.term.length,
+    );
+}
+
+export function addExtractedBrandTerms(
+  config: NeverTranslateConfig,
+  texts: string[],
+  options: { minOccurrences?: number } = {},
+): NeverTranslateConfig {
+  const extracted = extractTerminologyCandidates(texts, options);
+  const existingTerms = new Set(config.terms.map((term) => term.term.toLowerCase()));
+  const nextBrands = extracted
+    .map((candidate) => candidate.term)
+    .filter((term) => !existingTerms.has(term.toLowerCase()));
+
+  if (nextBrands.length === 0) {
+    return config;
+  }
+
+  return addBrandTerms(config, nextBrands);
 }
