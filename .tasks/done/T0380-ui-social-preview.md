@@ -1,10 +1,10 @@
 ---
-id: "T0382"
-title: "System - Status Page"
+id: "T0380"
+title: "UI - Social Preview"
 priority: low
 assigned: codex
-branch: feature/t0382
-status: active
+branch: feature/t0380
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Public status page
+Social media preview
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0378"
-title: "UI - Reading Time"
+id: "T0375"
+title: "UI - Find Replace"
 priority: low
 assigned: codex
-branch: feature/t0378
-status: active
+branch: feature/t0375
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Estimated reading time
+Find and replace tool
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0379"
-title: "UI - SEO Preview"
+id: "T0373"
+title: "UI - Undo Redo"
 priority: low
 assigned: codex
-branch: feature/t0379
-status: active
+branch: feature/t0373
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Google SERP preview
+Undo/redo actions
 
 ## Acceptance criteria
 - [ ] Feature implemented

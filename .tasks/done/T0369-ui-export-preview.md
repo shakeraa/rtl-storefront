@@ -1,10 +1,10 @@
 ---
-id: "T0381"
-title: "System - Health Check Endpoint"
+id: "T0369"
+title: "UI - Export Preview"
 priority: low
 assigned: codex
-branch: feature/t0381
-status: active
+branch: feature/t0369
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-API health monitoring
+Preview before export
 
 ## Acceptance criteria
 - [ ] Feature implemented

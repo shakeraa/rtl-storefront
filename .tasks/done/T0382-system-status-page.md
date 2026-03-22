@@ -1,10 +1,10 @@
 ---
-id: "T0368"
-title: "UI - Saved Searches"
+id: "T0382"
+title: "System - Status Page"
 priority: low
 assigned: codex
-branch: feature/t0368
-status: active
+branch: feature/t0382
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Bookmark searches
+Public status page
 
 ## Acceptance criteria
 - [ ] Feature implemented

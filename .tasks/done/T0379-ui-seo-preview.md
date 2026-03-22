@@ -1,10 +1,10 @@
 ---
-id: "T0375"
-title: "UI - Find Replace"
+id: "T0379"
+title: "UI - SEO Preview"
 priority: low
 assigned: codex
-branch: feature/t0375
-status: active
+branch: feature/t0379
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Find and replace tool
+Google SERP preview
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0380"
-title: "UI - Social Preview"
+id: "T0383"
+title: "System - Backup System"
 priority: low
 assigned: codex
-branch: feature/t0380
-status: active
+branch: feature/t0383
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Social media preview
+Automated backups
 
 ## Acceptance criteria
 - [ ] Feature implemented

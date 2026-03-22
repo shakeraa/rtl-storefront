@@ -1,10 +1,10 @@
 ---
-id: "T0372"
-title: "UI - Auto-Save Indicator"
+id: "T0377"
+title: "UI - Word Count"
 priority: low
 assigned: codex
-branch: feature/t0372
-status: active
+branch: feature/t0377
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Show auto-save status
+Character/word counters
 
 ## Acceptance criteria
 - [ ] Feature implemented

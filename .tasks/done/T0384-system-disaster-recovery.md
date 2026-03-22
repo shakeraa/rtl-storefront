@@ -4,7 +4,7 @@ title: "System - Disaster Recovery"
 priority: low
 assigned: codex
 branch: feature/t0384
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

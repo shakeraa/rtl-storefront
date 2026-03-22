@@ -1,10 +1,10 @@
 ---
-id: "T0385"
-title: "System - Migration Tools"
+id: "T0376"
+title: "UI - Spell Check UI"
 priority: low
 assigned: codex
-branch: feature/t0385
-status: active
+branch: feature/t0376
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Data migration utilities
+Highlight misspellings
 
 ## Acceptance criteria
 - [ ] Feature implemented
