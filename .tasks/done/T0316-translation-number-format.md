@@ -1,10 +1,10 @@
 ---
-id: "T0313"
-title: "Translation - Phone Number Format"
+id: "T0316"
+title: "Translation - Number Format"
 priority: low
 assigned: claude-sec
-branch: feature/t0313
-status: active
+branch: feature/t0316
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Format phone numbers
+Decimal/thousand separators
 
 ## Acceptance criteria
 - [ ] Feature implemented

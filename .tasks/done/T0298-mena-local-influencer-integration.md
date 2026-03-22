@@ -1,10 +1,10 @@
 ---
-id: "T0300"
-title: "MENA - Local Legal Compliance"
+id: "T0298"
+title: "MENA - Local Influencer Integration"
 priority: medium
 assigned: claude-sec
-branch: feature/t0300
-status: active
+branch: feature/t0298
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-MENA legal requirements
+Influencer marketplace
 
 ## Acceptance criteria
 - [ ] Feature implemented

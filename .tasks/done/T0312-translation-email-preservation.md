@@ -1,10 +1,10 @@
 ---
-id: "T0314"
-title: "Translation - Date Format Localization"
+id: "T0312"
+title: "Translation - Email Preservation"
 priority: low
 assigned: claude-sec
-branch: feature/t0314
-status: active
+branch: feature/t0312
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Localized date formats
+Keep emails untranslated
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0311"
-title: "Translation - URL Preservation"
+id: "T0307"
+title: "Translation - Character Limits"
 priority: low
 assigned: claude-sec
-branch: feature/t0311
-status: active
+branch: feature/t0307
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keep URLs untranslated
+Enforce max characters
 
 ## Acceptance criteria
 - [ ] Feature implemented

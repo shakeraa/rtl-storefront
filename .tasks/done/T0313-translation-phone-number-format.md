@@ -1,10 +1,10 @@
 ---
-id: "T0312"
-title: "Translation - Email Preservation"
+id: "T0313"
+title: "Translation - Phone Number Format"
 priority: low
 assigned: claude-sec
-branch: feature/t0312
-status: active
+branch: feature/t0313
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keep emails untranslated
+Format phone numbers
 
 ## Acceptance criteria
 - [ ] Feature implemented

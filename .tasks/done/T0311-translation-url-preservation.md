@@ -1,10 +1,10 @@
 ---
-id: "T0298"
-title: "MENA - Local Influencer Integration"
-priority: medium
+id: "T0311"
+title: "Translation - URL Preservation"
+priority: low
 assigned: claude-sec
-branch: feature/t0298
-status: active
+branch: feature/t0311
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Influencer marketplace
+Keep URLs untranslated
 
 ## Acceptance criteria
 - [ ] Feature implemented

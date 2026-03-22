@@ -4,7 +4,7 @@ title: "Translation - Special Characters"
 priority: low
 assigned: claude-sec
 branch: feature/t0310
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

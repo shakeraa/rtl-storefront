@@ -1,0 +1,241 @@
+{% comment %}
+  Modesty Wear Hero Section
+  T0006: RTL-First Fashion Design
+{% endcomment %}
+
+<section class="modesty-hero" data-section-id="{{ section.id }}" dir="{{ section.settings.text_direction }}">
+  <div class="modesty-hero__container">
+    <div class="modesty-hero__content">
+      {% if section.settings.heading != blank %}
+        <h1 class="modesty-hero__heading" style="font-family: {{ section.settings.heading_font }};">
+          {{ section.settings.heading }}
+        </h1>
+      {% endif %}
+      
+      {% if section.settings.subheading != blank %}
+        <p class="modesty-hero__subheading">{{ section.settings.subheading }}</p>
+      {% endif %}
+      
+      {% if section.settings.button_text != blank %}
+        <a href="{{ section.settings.button_link }}" class="modesty-hero__button">
+          {{ section.settings.button_text }}
+        </a>
+      {% endif %}
+    </div>
+    
+    <div class="modesty-hero__image-wrapper">
+      {% if section.settings.hero_image != blank %}
+        <img 
+          src="{{ section.settings.hero_image | image_url: width: 1200 }}" 
+          alt="{{ section.settings.heading | escape }}"
+          class="modesty-hero__image"
+          loading="eager"
+        >
+      {% endif %}
+    </div>
+  </div>
+  
+  {% if section.settings.show_pattern %}
+    <div class="modesty-hero__pattern"></div>
+  {% endif %}
+</section>
+
+<style>
+  .modesty-hero {
+    position: relative;
+    overflow: hidden;
+    background: {{ section.settings.background_color }};
+  }
+  
+  .modesty-hero__container {
+    display: flex;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    gap: 3rem;
+  }
+  
+  [dir="rtl"] .modesty-hero__container {
+    flex-direction: row-reverse;
+  }
+  
+  .modesty-hero__content {
+    flex: 1;
+    text-align: {{ section.settings.text_alignment }};
+  }
+  
+  [dir="rtl"] .modesty-hero__content {
+    text-align: right;
+  }
+  
+  .modesty-hero__heading {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: {{ section.settings.heading_color }};
+    line-height: 1.2;
+  }
+  
+  .modesty-hero__subheading {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: {{ section.settings.text_color }};
+    opacity: 0.9;
+  }
+  
+  .modesty-hero__button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: {{ section.settings.button_color }};
+    color: {{ section.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .modesty-hero__button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .modesty-hero__image-wrapper {
+    flex: 1;
+  }
+  
+  .modesty-hero__image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  
+  .modesty-hero__pattern {
+    position: absolute;
+    top: 0;
+    {{ section.settings.text_direction | replace: 'ltr', 'right' | replace: 'rtl', 'left' }}: 0;
+    width: 200px;
+    height: 100%;
+    opacity: 0.1;
+    background-image: url("{{ 'geometric-pattern.svg' | asset_url }}");
+    background-repeat: repeat;
+    pointer-events: none;
+  }
+  
+  @media (max-width: 768px) {
+    .modesty-hero__container {
+      flex-direction: column;
+      padding: 2rem 1rem;
+    }
+    
+    [dir="rtl"] .modesty-hero__container {
+      flex-direction: column;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Modesty Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Elegant Modest Fashion"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Discover our collection of beautiful abayas and modest wear"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link",
+      "default": "/collections/all"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "select",
+      "id": "text_direction",
+      "label": "Text Direction",
+      "options": [
+        { "value": "ltr", "label": "Left to Right" },
+        { "value": "rtl", "label": "Right to Left" }
+      ],
+      "default": "rtl"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading Font",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#1a5f2a"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pattern",
+      "label": "Show Islamic Pattern",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modesty Hero"
+    }
+  ]
+}
+{% endschema %}

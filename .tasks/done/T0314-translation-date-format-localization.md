@@ -1,10 +1,10 @@
 ---
-id: "T0299"
-title: "MENA - Regional Social Platforms"
-priority: medium
+id: "T0314"
+title: "Translation - Date Format Localization"
+priority: low
 assigned: claude-sec
-branch: feature/t0299
-status: active
+branch: feature/t0314
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Snapchat, TikTok MENA
+Localized date formats
 
 ## Acceptance criteria
 - [ ] Feature implemented
