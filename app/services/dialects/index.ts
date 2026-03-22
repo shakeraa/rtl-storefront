@@ -109,7 +109,9 @@ export function detectDialect(text: string): DialectDetectionResult {
   for (const [d, ms] of Object.entries(markers)) if (ms.length > max) { max = ms.length; best = d as ArabicDialect; }
   
   const total = Object.values(markers).flat().length;
-  return { dialect: best, confidence: total ? Math.min((max / total) * 2, 1) : 0, markers: markers[best] };
+  // Confidence is ratio of best dialect's markers to total markers found
+  const rawConfidence = total ? max / total : 0;
+  return { dialect: best, confidence: rawConfidence, markers: markers[best] };
 }
 
 export function detectDialectFromCountry(code: string): ArabicDialect {
@@ -128,7 +130,20 @@ export function formatDialectName(d: ArabicDialect, l: 'en' | 'ar' = 'en') { con
 export function containsDialectTerms(t: string, d: ArabicDialect) { return getDialectConfig(d).features.some(f => t.toLowerCase().includes(f.toLowerCase())); }
 export function getAllDialectOptions() { return Object.values(ARABIC_DIALECTS).map(d => ({ code: d.code, name: d.nameEn, nameAr: d.nameAr })); }
 export function getDialectPhrase(d: ArabicDialect, k: string) { return DIALECT_PHRASES[d]?.[k] || DIALECT_PHRASES.standard?.[k] || ''; }
-export function translateToDialect(t: string, d: ArabicDialect) { return d === 'standard' ? t : t; }
+export function translateToDialect(t: string, d: ArabicDialect): string {
+  if (d === 'standard') return t;
+  // Look up known vocabulary terms and replace with dialect-specific versions
+  let result = t;
+  for (const [term, translations] of Object.entries(DIALECT_VOCABULARY)) {
+    const standardForm = translations.standard;
+    const dialectForm = translations[d];
+    if (standardForm && dialectForm && standardForm !== dialectForm) {
+      result = result.replace(new RegExp(escapeRegex(standardForm), 'g'), dialectForm);
+    }
+  }
+  return result;
+}
+function escapeRegex(s: string): string { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 export function getDialectVocabulary(d: ArabicDialect) { return Object.fromEntries(Object.entries(DIALECT_VOCABULARY).map(([k, v]) => [k, v[d]])); }
 export function getDialectRegions(d: ArabicDialect) {
   return Object.entries(DIALECT_REGIONS).filter(([_, i]) => i.primaryDialect === d || i.secondaryDialects.includes(d))

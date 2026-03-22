@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -12,7 +13,9 @@ import {
   Layout,
   Page,
   ProgressBar,
+  Select,
   Text,
+  TextField,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -76,6 +79,38 @@ const CONTENT_TYPE_COVERAGE: ContentTypeCoverage[] = [
   { type: "Navigation", total: 8, translated: 8 },
   { type: "Theme", total: 703, translated: 389 },
 ];
+
+interface WeeklyTrend {
+  week: string;
+  ar: number;
+  he: number;
+  fa: number;
+  fr: number;
+  tr: number;
+  ur: number;
+  overall: number;
+}
+
+const WEEKLY_TREND_DATA: WeeklyTrend[] = [
+  { week: "Mar 2", ar: 62, he: 44, fa: 24, fr: 82, tr: 34, ur: 10, overall: 43 },
+  { week: "Mar 9", ar: 65, he: 46, fa: 27, fr: 85, tr: 36, ur: 12, overall: 45 },
+  { week: "Mar 16", ar: 67, he: 48, fa: 28, fr: 88, tr: 38, ur: 14, overall: 47 },
+  { week: "Mar 23", ar: 69, he: 50, fa: 30, fr: 90, tr: 40, ur: 15, overall: 49 },
+];
+
+interface CoverageGoalEntry {
+  code: string;
+  name: string;
+  currentPercent: number;
+  goalPercent: number;
+}
+
+const DEFAULT_COVERAGE_GOALS: CoverageGoalEntry[] = LANGUAGE_COVERAGE.map((lang) => ({
+  code: lang.code,
+  name: lang.name,
+  currentPercent: Math.round((lang.translated / lang.total) * 100),
+  goalPercent: 90,
+}));
 
 function getCoveragePercent(translated: number, total: number): number {
   return total === 0 ? 0 : Math.round((translated / total) * 100);
@@ -215,9 +250,153 @@ export default function CoveragePage() {
                 />
               </BlockStack>
             </Card>
+
+            {/* Coverage Trend Over Time */}
+            <Card>
+              <BlockStack gap="400">
+                <Text as="h2" variant="headingMd">
+                  Coverage Trend (Last 4 Weeks)
+                </Text>
+                <DataTable
+                  columnContentTypes={[
+                    "text",
+                    "numeric",
+                    "numeric",
+                    "numeric",
+                    "numeric",
+                    "numeric",
+                    "numeric",
+                    "numeric",
+                  ]}
+                  headings={[
+                    "Week",
+                    "Arabic",
+                    "Hebrew",
+                    "Farsi",
+                    "French",
+                    "Turkish",
+                    "Urdu",
+                    "Overall",
+                  ]}
+                  rows={WEEKLY_TREND_DATA.map((w) => [
+                    w.week,
+                    `${w.ar}%`,
+                    `${w.he}%`,
+                    `${w.fa}%`,
+                    `${w.fr}%`,
+                    `${w.tr}%`,
+                    `${w.ur}%`,
+                    `${w.overall}%`,
+                  ])}
+                />
+                <InlineStack align="space-between">
+                  <Text as="span" variant="bodySm" tone="subdued">
+                    Data shown as weekly snapshots of translation coverage
+                    percentage
+                  </Text>
+                  {(() => {
+                    const first = WEEKLY_TREND_DATA[0].overall;
+                    const last =
+                      WEEKLY_TREND_DATA[WEEKLY_TREND_DATA.length - 1].overall;
+                    const delta = last - first;
+                    return (
+                      <Badge tone={delta >= 0 ? "success" : "critical"}>
+                        {delta >= 0 ? "+" : ""}
+                        {delta}% overall change
+                      </Badge>
+                    );
+                  })()}
+                </InlineStack>
+              </BlockStack>
+            </Card>
+
+            {/* Coverage Goals */}
+            <CoverageGoalsSection />
           </BlockStack>
         </Layout.Section>
       </Layout>
     </Page>
+  );
+}
+
+function CoverageGoalsSection() {
+  const [goals, setGoals] = useState<CoverageGoalEntry[]>(
+    () => DEFAULT_COVERAGE_GOALS,
+  );
+
+  const updateGoal = (code: string, value: string) => {
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed < 0 || parsed > 100) return;
+    setGoals((prev) =>
+      prev.map((g) => (g.code === code ? { ...g, goalPercent: parsed } : g)),
+    );
+  };
+
+  return (
+    <Card>
+      <BlockStack gap="400">
+        <InlineStack align="space-between" blockAlign="center">
+          <Text as="h2" variant="headingMd">
+            Coverage Goals
+          </Text>
+          <Text as="span" variant="bodySm" tone="subdued">
+            Set a target coverage percentage for each language
+          </Text>
+        </InlineStack>
+        {goals.map((goal) => {
+          const met = goal.currentPercent >= goal.goalPercent;
+          const progressToGoal = Math.min(
+            100,
+            Math.round((goal.currentPercent / goal.goalPercent) * 100),
+          );
+          return (
+            <Card key={goal.code}>
+              <BlockStack gap="300">
+                <InlineStack align="space-between" blockAlign="center">
+                  <Text as="h3" variant="headingSm">
+                    {goal.name}
+                  </Text>
+                  <InlineStack gap="200" blockAlign="center">
+                    <Badge tone={met ? "success" : "warning"}>
+                      {met ? "Goal Met" : "In Progress"}
+                    </Badge>
+                    <Text as="span" variant="bodySm">
+                      {goal.currentPercent}% / {goal.goalPercent}%
+                    </Text>
+                  </InlineStack>
+                </InlineStack>
+                <ProgressBar
+                  progress={progressToGoal}
+                  size="small"
+                  tone={met ? "success" : "highlight"}
+                />
+                <InlineStack gap="200" blockAlign="center">
+                  <Box minWidth="160px">
+                    <Select
+                      label="Goal"
+                      labelHidden
+                      options={[
+                        { label: "70%", value: "70" },
+                        { label: "80%", value: "80" },
+                        { label: "90%", value: "90" },
+                        { label: "95%", value: "95" },
+                        { label: "100%", value: "100" },
+                      ]}
+                      value={String(goal.goalPercent)}
+                      onChange={(value) => updateGoal(goal.code, value)}
+                    />
+                  </Box>
+                  <Text as="span" variant="bodySm" tone="subdued">
+                    {met
+                      ? "Target reached!"
+                      : `${goal.goalPercent - goal.currentPercent}% remaining to goal`}
+                  </Text>
+                </InlineStack>
+              </BlockStack>
+            </Card>
+          );
+        })}
+      </BlockStack>
+    </Card>
   );
 }
