@@ -53,6 +53,7 @@ export interface LoyaltyLabels {
   reviewEarn: string;
   socialShareEarn: string;
   perDollarSpent: string;
+  freeShipping: string;
 }
 
 // Reward item interface
@@ -152,6 +153,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'Write a review',
     socialShareEarn: 'Share on social media',
     perDollarSpent: 'per $1 spent',
+    freeShipping: 'Free Shipping',
   },
   ar: {
     programName: 'برنامج المكافآت',
@@ -187,6 +189,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'اكتب تقييماً',
     socialShareEarn: 'شارك على وسائل التواصل',
     perDollarSpent: 'لكل $1 تنفقه',
+    freeShipping: 'شحن مجاني',
   },
   he: {
     programName: 'תוכנית המכירות',
@@ -222,6 +225,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'כתוב ביקורת',
     socialShareEarn: 'שתף ברשתות חברתיות',
     perDollarSpent: 'לכל $1 שהוצא',
+    freeShipping: 'משלוח חינם',
   },
   fr: {
     programName: 'Programme de Fidélité',
@@ -257,6 +261,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'Écrivez un avis',
     socialShareEarn: 'Partagez sur les réseaux',
     perDollarSpent: 'par $1 dépensé',
+    freeShipping: 'Livraison Gratuite',
   },
   de: {
     programName: 'Treueprogramm',
@@ -292,6 +297,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'Schreiben Sie eine Bewertung',
     socialShareEarn: 'Auf Social Media teilen',
     perDollarSpent: 'pro $1 ausgegeben',
+    freeShipping: 'Kostenloser Versand',
   },
   es: {
     programName: 'Programa de Recompensas',
@@ -327,6 +333,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'Escriba una reseña',
     socialShareEarn: 'Comparta en redes sociales',
     perDollarSpent: 'por cada $1 gastado',
+    freeShipping: 'Envío Gratis',
   },
   ja: {
     programName: 'ポイントプログラム',
@@ -362,6 +369,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: 'レビューを書く',
     socialShareEarn: 'SNSでシェア',
     perDollarSpent: '$1につき',
+    freeShipping: '送料無料',
   },
   ko: {
     programName: '포인트 프로그램',
@@ -397,6 +405,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: '리뷰 작성',
     socialShareEarn: 'SNS 공유',
     perDollarSpent: '$1당',
+    freeShipping: '무료 배송',
   },
   zh: {
     programName: '积分计划',
@@ -432,6 +441,7 @@ const LOYALTY_LOCALIZATION: Record<SupportedLocale, LoyaltyLabels> = {
     reviewEarn: '撰写评价',
     socialShareEarn: '社交媒体分享',
     perDollarSpent: '每消费$1',
+    freeShipping: '免费配送',
   },
 };
 
@@ -1030,7 +1040,7 @@ export function getTierBenefitsList(tier: VipTier, locale: string): string[] {
   }
   
   if (tierConfig.benefits.freeShipping) {
-    benefits.push(labels.free_shipping);
+    benefits.push(labels.freeShipping);
   }
   
   if (tierConfig.benefits.earlyAccess) {

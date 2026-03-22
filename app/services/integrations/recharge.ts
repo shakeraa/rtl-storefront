@@ -121,7 +121,7 @@ const SUBSCRIPTION_TRANSLATIONS: Record<RechargeLocale, {
     },
     actions: {
       subscribe: 'اشتراك',
-      subscribeSave: 'اشتراك وتوفير',
+      subscribeSave: 'اشترك ووفر',
       oneTimePurchase: 'شراء لمرة واحدة',
       manage: 'إدارة الاشتراك',
       pause: 'إيقاف مؤقت',
@@ -563,12 +563,8 @@ function buildNotificationSubject(type: NotificationType, locale: RechargeLocale
 /**
  * Build notification body based on type and locale
  */
-function buildNotificationBody(type: NotificationType, locale: RechargeLocale, customBody?: string): string {
+function buildNotificationBody(type: NotificationType, locale: RechargeLocale): string {
   const translations = SUBSCRIPTION_TRANSLATIONS[locale];
-  
-  if (customBody) {
-    return customBody;
-  }
   
   const bodyMap: Record<NotificationType, string> = {
     subscription_created: `${translations.notifications.subscriptionCreated}\n\n${translations.notifications.subscriptionDetails}`,
@@ -616,7 +612,7 @@ export function translateNotification(
   locale: RechargeLocale
 ): SubscriptionNotification {
   const translatedSubject = buildNotificationSubject(notification.type, locale);
-  const translatedBody = buildNotificationBody(notification.type, locale, notification.body);
+  const translatedBody = buildNotificationBody(notification.type, locale);
   const translatedActionText = buildActionText(notification.type, locale);
   
   return {

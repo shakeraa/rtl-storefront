@@ -80,12 +80,6 @@ export const INTEGRATIONS: Integration[] = [
     status: 'available',
   },
   {
-    id: 'mailchimp',
-    name: 'Mailchimp',
-    category: 'email',
-    status: 'available',
-  },
-  {
     id: 'zendesk',
     name: 'Zendesk',
     category: 'support',
@@ -100,6 +94,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'bold',
+    name: 'Bold Subscriptions',
     category: 'other',
     status: 'available',
   },
@@ -213,5 +213,4 @@ export async function checkIntegrationHealth(
 }
 
 export * from './constants';
-export * from './search-apps';
-export * from './mailchimp';
+export * from './bold';
