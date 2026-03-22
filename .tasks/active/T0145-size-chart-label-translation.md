@@ -2,7 +2,7 @@
 id: "T0145"
 title: "Size Chart - Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0145
 status: active
 created: 2026-03-22

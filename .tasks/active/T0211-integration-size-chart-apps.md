@@ -2,7 +2,7 @@
 id: "T0211"
 title: "Integration - Size Chart Apps"
 priority: medium
-assigned: codex
+assigned: claude-sec
 branch: feature/t0211
 status: active
 created: 2026-03-22

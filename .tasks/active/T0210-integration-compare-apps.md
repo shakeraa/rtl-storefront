@@ -2,7 +2,7 @@
 id: "T0210"
 title: "Integration - Compare Apps"
 priority: medium
-assigned: codex
+assigned: claude-sec
 branch: feature/t0210
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0195"
 title: "GDPR - Anonymization"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0195
 status: active
 created: 2026-03-22

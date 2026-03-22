@@ -2,7 +2,7 @@
 id: "T0177"
 title: "Performance - Background Sync"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0177
 status: active
 created: 2026-03-22

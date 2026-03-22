@@ -2,7 +2,7 @@
 id: "T0198"
 title: "Compliance - Section 508"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0198
 status: active
 created: 2026-03-22

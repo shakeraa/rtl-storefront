@@ -2,7 +2,7 @@
 id: "T0153"
 title: "Performance - Async Translation Loading"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0153
 status: active
 created: 2026-03-22

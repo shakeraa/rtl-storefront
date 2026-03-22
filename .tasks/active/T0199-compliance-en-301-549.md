@@ -2,7 +2,7 @@
 id: "T0199"
 title: "Compliance - EN 301 549"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0199
 status: active
 created: 2026-03-22

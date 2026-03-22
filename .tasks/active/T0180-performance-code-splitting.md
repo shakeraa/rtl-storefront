@@ -2,7 +2,7 @@
 id: "T0180"
 title: "Performance - Code Splitting"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0180
 status: active
 created: 2026-03-22

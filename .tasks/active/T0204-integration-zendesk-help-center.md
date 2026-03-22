@@ -2,7 +2,7 @@
 id: "T0204"
 title: "Integration - Zendesk Help Center"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0204
 status: active
 created: 2026-03-22

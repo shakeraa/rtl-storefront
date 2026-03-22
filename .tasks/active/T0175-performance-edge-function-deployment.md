@@ -2,7 +2,7 @@
 id: "T0175"
 title: "Performance - Edge Function Deployment"
 priority: medium
-assigned: codex
+assigned: claude-sec
 branch: feature/t0175
 status: active
 created: 2026-03-22

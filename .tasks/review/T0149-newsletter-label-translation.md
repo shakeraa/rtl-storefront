@@ -2,7 +2,7 @@
 id: "T0149"
 title: "Newsletter - Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0149
 status: active
 created: 2026-03-22

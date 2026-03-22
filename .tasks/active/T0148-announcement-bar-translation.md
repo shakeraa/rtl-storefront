@@ -2,7 +2,7 @@
 id: "T0148"
 title: "Announcement Bar Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0148
 status: active
 created: 2026-03-22

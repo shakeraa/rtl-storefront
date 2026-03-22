@@ -2,7 +2,7 @@
 id: "T0181"
 title: "Security - API Key Encryption"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0181
 status: active
 created: 2026-03-22
