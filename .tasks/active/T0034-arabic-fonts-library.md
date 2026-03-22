@@ -2,7 +2,7 @@
 id: "T0034"
 title: "Typography - Arabic Font Library"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/arabic-fonts
 status: active
 created: 2026-03-22

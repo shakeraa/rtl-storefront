@@ -2,7 +2,7 @@
 id: "T0054"
 title: "RTL - Admin Dashboard RTL Support"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/rtl-admin
 status: active
 created: 2026-03-22

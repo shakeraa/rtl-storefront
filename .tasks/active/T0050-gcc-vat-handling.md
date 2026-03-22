@@ -2,7 +2,7 @@
 id: "T0050"
 title: "MENA - GCC VAT Handling"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/gcc-vat
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0029"
 title: "Media & Visual - AI Image Translation (OCR)"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/image-ocr
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0004"
 title: "Cultural Intelligence - Context-Aware Translation AI"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/cultural-ai
 status: active
 created: 2026-03-22

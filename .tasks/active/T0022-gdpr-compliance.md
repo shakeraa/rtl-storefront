@@ -2,7 +2,7 @@
 id: "T0022"
 title: "GDPR Compliance & Data Privacy"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/gdpr
 status: active
 created: 2026-03-22

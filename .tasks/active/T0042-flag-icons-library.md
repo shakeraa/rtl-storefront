@@ -2,7 +2,7 @@
 id: "T0042"
 title: "Language Switcher - Flag Icons Library"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/flag-icons
 status: active
 created: 2026-03-22

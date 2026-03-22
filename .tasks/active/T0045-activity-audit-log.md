@@ -2,7 +2,7 @@
 id: "T0045"
 title: "Team - Activity Audit Log"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/activity-log
 status: active
 created: 2026-03-22

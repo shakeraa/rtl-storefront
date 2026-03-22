@@ -2,7 +2,7 @@
 id: "T0041"
 title: "Automation - Auto-Redirect with Confirmation Banner"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/auto-redirect
 status: active
 created: 2026-03-22

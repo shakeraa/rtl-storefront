@@ -2,7 +2,7 @@
 id: "T0047"
 title: "Analytics - Sales by Language Report"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/sales-report
 status: active
 created: 2026-03-22

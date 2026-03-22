@@ -2,7 +2,7 @@
 id: "T0036"
 title: "RTL - Arabic Numerals Option (١٢٣ vs 123)"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/arabic-numerals
 status: active
 created: 2026-03-22

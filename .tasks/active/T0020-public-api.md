@@ -2,7 +2,7 @@
 id: "T0020"
 title: "Public API - REST & GraphQL"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/public-api
 status: active
 created: 2026-03-22

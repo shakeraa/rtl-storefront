@@ -2,7 +2,7 @@
 id: "T0014"
 title: "Integrations - Shopify Ecosystem & Third-Party Apps"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/integrations
 status: active
 created: 2026-03-22

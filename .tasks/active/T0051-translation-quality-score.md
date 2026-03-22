@@ -2,7 +2,7 @@
 id: "T0051"
 title: "Translation Quality - AI Confidence Scoring"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/quality-score
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0037"
 title: "URL Structure - Subfolder (/ar/, /he/) Support"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/url-subfolder
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0032"
 title: "Third-Party - Review Apps Integration"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/review-apps
 status: active
 created: 2026-03-22

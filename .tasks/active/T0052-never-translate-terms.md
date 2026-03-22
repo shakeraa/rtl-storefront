@@ -2,7 +2,7 @@
 id: "T0052"
 title: "Translation Memory - Never-Translate Terms (SKUs, Brands)"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/never-translate
 status: active
 created: 2026-03-22
