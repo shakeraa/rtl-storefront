@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateWarrantyAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,53 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Warranty App Integration', () => {
+    it('should translate warranty information and preserve metadata', async () => {
+      const warranty = {
+        warrantyId: 'warranty-1',
+        title: 'Extended Protection Plan',
+        summary: 'Coverage for accidental damage and defects',
+        claimInstructions: 'Submit photos and order details to start a claim',
+        clauses: [
+          {
+            clauseId: 'clause-1',
+            title: 'What is covered',
+            description: 'Manufacturing defects for 24 months',
+          },
+          {
+            clauseId: 'clause-2',
+            title: 'What is excluded',
+          },
+        ],
+        metadata: {
+          provider: 'warranty-app',
+        },
+      };
+
+      const result = await translateWarrantyAppContent(warranty, 'ar');
+      expect(result.title).toBe('[ar] Extended Protection Plan');
+      expect(result.summary).toBe(
+        '[ar] Coverage for accidental damage and defects'
+      );
+      expect(result.claimInstructions).toBe(
+        '[ar] Submit photos and order details to start a claim'
+      );
+      expect(result.clauses[0]).toEqual({
+        clauseId: 'clause-1',
+        title: '[ar] What is covered',
+        description: '[ar] Manufacturing defects for 24 months',
+      });
+      expect(result.clauses[1]).toEqual({
+        clauseId: 'clause-2',
+        title: '[ar] What is excluded',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'warranty-app',
       });
     });
   });

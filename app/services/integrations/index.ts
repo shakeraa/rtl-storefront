@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface WarrantyClauseContent {
+  clauseId: string;
+  title: string;
+  description?: string;
+}
+
+export interface WarrantyAppContent {
+  warrantyId: string;
+  title: string;
+  summary?: string;
+  claimInstructions?: string;
+  clauses: WarrantyClauseContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,28 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Warranty app integration
+export async function translateWarrantyAppContent(
+  warranty: WarrantyAppContent,
+  targetLocale: string
+): Promise<WarrantyAppContent> {
+  return {
+    ...warranty,
+    title: `[${targetLocale}] ${warranty.title}`,
+    summary: warranty.summary ? `[${targetLocale}] ${warranty.summary}` : undefined,
+    claimInstructions: warranty.claimInstructions
+      ? `[${targetLocale}] ${warranty.claimInstructions}`
+      : undefined,
+    clauses: warranty.clauses.map((clause) => ({
+      ...clause,
+      title: `[${targetLocale}] ${clause.title}`,
+      description: clause.description
+        ? `[${targetLocale}] ${clause.description}`
+        : undefined,
     })),
   };
 }
