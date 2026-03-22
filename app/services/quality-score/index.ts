@@ -25,6 +25,13 @@ export interface QualityFlag {
   position?: { start: number; end: number };
 }
 
+export interface GrammarIssue {
+  rule: 'repeated_word' | 'missing_punctuation' | 'double_space' | 'unbalanced_delimiter' | 'sentence_capitalization';
+  message: string;
+  severity: 'high' | 'medium' | 'low';
+  position?: { start: number; end: number };
+}
+
 export interface QualityThresholds {
   excellent: number; // >= 90
   good: number;      // >= 70
@@ -54,9 +61,10 @@ export function calculateQualityScore(
 ): QualityScore {
   const flags: QualityFlag[] = [];
   const suggestions: string[] = [];
+  const grammarIssues = checkGrammar(translatedText, targetLocale);
 
   // Calculate individual metrics
-  const grammaticalAccuracy = calculateGrammaticalAccuracy(translatedText, targetLocale);
+  const grammaticalAccuracy = calculateGrammaticalAccuracy(translatedText, targetLocale, grammarIssues);
   const culturalAppropriateness = calculateCulturalScore(translatedText, targetLocale);
   const contextualRelevance = calculateContextualScore(sourceText, translatedText);
   const brandConsistency = calculateBrandConsistency(translatedText, options.brandTerms || []);
@@ -68,6 +76,15 @@ export function calculateQualityScore(
       type: 'warning',
       severity: 'high',
       message: 'Potential grammatical issues detected',
+    });
+  }
+
+  for (const issue of grammarIssues) {
+    flags.push({
+      type: 'warning',
+      severity: issue.severity,
+      message: issue.message,
+      position: issue.position,
     });
   }
 
@@ -102,6 +119,10 @@ export function calculateQualityScore(
     suggestions.push('Review by native speaker recommended');
   }
 
+  if (grammarIssues.length > 0) {
+    suggestions.push('Review grammar and punctuation before publishing');
+  }
+
   const score: QualityScore = {
     translationId,
     overallScore,
@@ -126,9 +147,11 @@ export function calculateQualityScore(
 /**
  * Calculate grammatical accuracy (placeholder)
  */
-function calculateGrammaticalAccuracy(text: string, locale: string): number {
-  // In production, this would use NLP libraries
-  // For now, return a placeholder score
+function calculateGrammaticalAccuracy(
+  text: string,
+  locale: string,
+  grammarIssues: GrammarIssue[] = []
+): number {
   const factors = [
     !/[.]{3,}/.test(text), // No excessive dots
     !/[!]{2,}/.test(text), // No excessive exclamation
@@ -136,7 +159,14 @@ function calculateGrammaticalAccuracy(text: string, locale: string): number {
   ];
   
   const passed = factors.filter(Boolean).length;
-  return Math.round((passed / factors.length) * 100);
+  const baseScore = Math.round((passed / factors.length) * 100);
+  const penalties = grammarIssues.reduce((total, issue) => {
+    if (issue.severity === 'high') return total + 20;
+    if (issue.severity === 'medium') return total + 12;
+    return total + 6;
+  }, 0);
+
+  return Math.max(0, baseScore - penalties);
 }
 
 /**
@@ -191,6 +221,77 @@ function calculateBrandConsistency(text: string, brandTerms: string[]): number {
 function calculateTerminologyScore(source: string, translation: string, locale: string): number {
   // In production, check against terminology database
   return 80;
+}
+
+export function checkGrammar(text: string, locale: string): GrammarIssue[] {
+  const issues: GrammarIssue[] = [];
+
+  const repeatedWordPattern = /\b(\p{L}+)\s+\1\b/giu;
+  let repeatedMatch: RegExpExecArray | null;
+  while ((repeatedMatch = repeatedWordPattern.exec(text)) !== null) {
+    issues.push({
+      rule: 'repeated_word',
+      message: `Repeated word detected: ${repeatedMatch[1]}`,
+      severity: 'medium',
+      position: {
+        start: repeatedMatch.index,
+        end: repeatedMatch.index + repeatedMatch[0].length,
+      },
+    });
+  }
+
+  const doubleSpacePattern = / {2,}/g;
+  let doubleSpaceMatch: RegExpExecArray | null;
+  while ((doubleSpaceMatch = doubleSpacePattern.exec(text)) !== null) {
+    issues.push({
+      rule: 'double_space',
+      message: 'Multiple consecutive spaces detected',
+      severity: 'low',
+      position: {
+        start: doubleSpaceMatch.index,
+        end: doubleSpaceMatch.index + doubleSpaceMatch[0].length,
+      },
+    });
+  }
+
+  const trimmedText = text.trim();
+  if (trimmedText.length > 0 && !/[.!?]$/.test(trimmedText)) {
+    issues.push({
+      rule: 'missing_punctuation',
+      message: 'Sentence should end with punctuation',
+      severity: 'medium',
+      position: { start: trimmedText.length - 1, end: trimmedText.length },
+    });
+  }
+
+  const openParens = (text.match(/\(/g) ?? []).length;
+  const closeParens = (text.match(/\)/g) ?? []).length;
+  const openQuotes = (text.match(/"/g) ?? []).length;
+  if (openParens !== closeParens || openQuotes % 2 !== 0) {
+    issues.push({
+      rule: 'unbalanced_delimiter',
+      message: 'Unbalanced punctuation delimiters detected',
+      severity: 'medium',
+    });
+  }
+
+  if (locale === 'en') {
+    const sentenceStartPattern = /(?:^|[.!?]\s+)([a-z])/g;
+    let sentenceStartMatch: RegExpExecArray | null;
+    while ((sentenceStartMatch = sentenceStartPattern.exec(text)) !== null) {
+      issues.push({
+        rule: 'sentence_capitalization',
+        message: `Sentence should start with a capital letter: ${sentenceStartMatch[1]}`,
+        severity: 'low',
+        position: {
+          start: sentenceStartMatch.index + sentenceStartMatch[0].length - 1,
+          end: sentenceStartMatch.index + sentenceStartMatch[0].length,
+        },
+      });
+    }
+  }
+
+  return issues;
 }
 
 /**

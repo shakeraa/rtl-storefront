@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   calculateQualityScore,
+  checkGrammar,
   getQualityRating,
   needsReview,
   getQualityScore,
@@ -60,6 +61,51 @@ describe('Quality Score Service - T0051', () => {
       // Score calculation may or may not flag depending on algorithm
       expect(score.overallScore).toBeGreaterThanOrEqual(0);
       expect(score.overallScore).toBeLessThanOrEqual(100);
+    });
+
+    it('adds grammar flags and suggestions for detected issues', () => {
+      const score = calculateQualityScore(
+        'trans-grammar',
+        'This is a test.',
+        'this is is a test  without punctuation',
+        'en'
+      );
+
+      expect(score.flags.some((flag) => flag.message.includes('Repeated word detected'))).toBe(true);
+      expect(score.flags.some((flag) => flag.message.includes('Sentence should end with punctuation'))).toBe(true);
+      expect(score.suggestions).toContain('Review grammar and punctuation before publishing');
+      expect(score.metrics.grammaticalAccuracy).toBeLessThan(70);
+    });
+  });
+
+  describe('Grammar Check', () => {
+    it('detects repeated words, spacing, punctuation, and capitalization issues', () => {
+      expect(checkGrammar('this is is a test  without punctuation', 'en')).toEqual([
+        {
+          rule: 'repeated_word',
+          message: 'Repeated word detected: is',
+          severity: 'medium',
+          position: { start: 5, end: 10 },
+        },
+        {
+          rule: 'double_space',
+          message: 'Multiple consecutive spaces detected',
+          severity: 'low',
+          position: { start: 17, end: 19 },
+        },
+        {
+          rule: 'missing_punctuation',
+          message: 'Sentence should end with punctuation',
+          severity: 'medium',
+          position: { start: 37, end: 38 },
+        },
+        {
+          rule: 'sentence_capitalization',
+          message: 'Sentence should start with a capital letter: t',
+          severity: 'low',
+          position: { start: 0, end: 1 },
+        },
+      ]);
     });
   });
 
