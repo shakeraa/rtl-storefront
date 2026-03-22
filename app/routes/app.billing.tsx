@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
@@ -131,9 +132,16 @@ export default function BillingPage() {
     useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigation = useNavigation();
+  const [submittingPlanId, setSubmittingPlanId] = useState<string | null>(null);
   const isSubmitting = navigation.state === "submitting";
 
+  // Reset submitting state when navigation completes
+  if (!isSubmitting && submittingPlanId) {
+    setSubmittingPlanId(null);
+  }
+
   const handleSelectPlan = (plan: PlanWithFeatures) => {
+    setSubmittingPlanId(plan.id);
     const formData = new FormData();
     formData.set("planId", plan.id);
     submit(formData, { method: "post" });
@@ -142,18 +150,24 @@ export default function BillingPage() {
   const isCurrentPlan = (plan: PlanWithFeatures) =>
     subscription?.planId === plan.id && subscription?.status === "active";
 
+  const isDistributionError = error?.includes("public distribution");
+
   return (
     <Page>
       <TitleBar title="Plans & Billing" />
       <BlockStack gap="500">
         {error && (
-          <Banner tone="critical" title="Billing Error">
+          <Banner tone={isDistributionError ? "warning" : "critical"} title={isDistributionError ? "Setup Required" : "Billing Error"}>
             <p>
-              {error === "charge_not_active"
-                ? "The charge could not be verified. Please try again."
-                : error === "plan_not_found"
-                  ? "Plan not found. Please select a plan."
-                  : error}
+              {isDistributionError
+                ? "To enable billing, set your app to \"Public distribution\" in the Shopify Partners dashboard under Distribution settings. This is required by Shopify before the Billing API can be used."
+                : error === "charge_not_active"
+                  ? "The charge could not be verified. Please try again."
+                  : error === "plan_not_found"
+                    ? "Plan not found. Please select a plan."
+                    : error === "no_confirmation_url"
+                      ? "Shopify did not return a confirmation URL. Please try again."
+                      : decodeURIComponent(error)}
             </p>
           </Banner>
         )}
@@ -220,7 +234,7 @@ export default function BillingPage() {
                   fullWidth
                   disabled={isCurrentPlan(plan) || isSubmitting}
                   onClick={() => handleSelectPlan(plan)}
-                  loading={isSubmitting}
+                  loading={submittingPlanId === plan.id && isSubmitting}
                 >
                   {isCurrentPlan(plan) ? "Current Plan" : "Choose Plan"}
                 </Button>
