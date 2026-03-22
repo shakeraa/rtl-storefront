@@ -26,6 +26,19 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface UpsellRecommendation {
+  productId: string;
+  title: string;
+  reason?: string;
+}
+
+export interface UpsellAppContent {
+  appId: string;
+  sectionTitle: string;
+  ctaLabel: string;
+  recommendations: UpsellRecommendation[];
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +107,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'reconvert',
+    name: 'ReConvert Upsell',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +196,25 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Upsell integration
+export async function translateUpsellAppContent(
+  content: UpsellAppContent,
+  targetLocale: string
+): Promise<UpsellAppContent> {
+  return {
+    ...content,
+    sectionTitle: `[${targetLocale}] ${content.sectionTitle}`,
+    ctaLabel: `[${targetLocale}] ${content.ctaLabel}`,
+    recommendations: content.recommendations.map((recommendation) => ({
+      ...recommendation,
+      title: `[${targetLocale}] ${recommendation.title}`,
+      reason: recommendation.reason
+        ? `[${targetLocale}] ${recommendation.reason}`
+        : undefined,
     })),
   };
 }

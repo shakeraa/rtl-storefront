@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateUpsellAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('reconvert');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,37 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Upsell Integration', () => {
+    it('should translate upsell section titles and recommendation labels', async () => {
+      const content = {
+        appId: 'reconvert',
+        sectionTitle: 'You may also like',
+        ctaLabel: 'Add recommended items',
+        recommendations: [
+          {
+            productId: 'p1',
+            title: 'Matching Belt',
+            reason: 'Pairs well with your cart',
+          },
+        ],
+      };
+
+      const result = await translateUpsellAppContent(content, 'ar');
+      expect(result).toEqual({
+        appId: 'reconvert',
+        sectionTitle: '[ar] You may also like',
+        ctaLabel: '[ar] Add recommended items',
+        recommendations: [
+          {
+            productId: 'p1',
+            title: '[ar] Matching Belt',
+            reason: '[ar] Pairs well with your cart',
+          },
+        ],
       });
     });
   });
