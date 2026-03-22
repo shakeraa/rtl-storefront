@@ -1,231 +1,114 @@
-import { useState, useCallback } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Card,
-  BlockStack,
-  InlineStack,
-  InlineGrid,
-  Text,
-  DataTable,
-  ButtonGroup,
-  Button,
-  ProgressBar,
-  Box,
+  Page, Layout, Card, BlockStack, InlineStack, InlineGrid, Text,
+  DataTable, Box, Badge, ProgressBar,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { calculateROI } from "../services/analytics/roi";
+import { calculateTrendDirection } from "../services/analytics/trends";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+
+  const providers = [
+    { name: "OpenAI", requests: 2847, characters: 1284000, cost: 25.68 },
+    { name: "DeepL", requests: 1203, characters: 542000, cost: 13.55 },
+    { name: "Google", requests: 891, characters: 401000, cost: 4.01 },
+  ];
+
+  const totalCost = providers.reduce((s, p) => s + p.cost, 0);
+  const totalRequests = providers.reduce((s, p) => s + p.requests, 0);
+  const totalCharacters = providers.reduce((s, p) => s + p.characters, 0);
+  const roi = calculateROI(totalCost, 12500);
+
+  const weeklyVolume = [
+    { day: "Mon", count: 340 }, { day: "Tue", count: 520 },
+    { day: "Wed", count: 410 }, { day: "Thu", count: 680 },
+    { day: "Fri", count: 290 }, { day: "Sat", count: 150 },
+    { day: "Sun", count: 180 },
+  ];
+  const maxVolume = Math.max(...weeklyVolume.map((d) => d.count));
+  const trend = calculateTrendDirection(weeklyVolume.map((d) => d.count));
+
+  const topLanguages = [
+    ["Arabic", "2,847", "78%", "$8,500"],
+    ["Hebrew", "1,203", "45%", "$2,800"],
+    ["Farsi", "891", "23%", "$1,200"],
+    ["French", "4,120", "92%", "$11,300"],
+  ];
 
   return json({
-    metrics: {
-      totalTranslations: 2847,
-      charactersTranslated: 1_240_000,
-      aiCost: 142.56,
-      timeSaved: "86 hrs",
-    },
-    dailyVolume: [
-      { day: "Mon", count: 120 },
-      { day: "Tue", count: 245 },
-      { day: "Wed", count: 180 },
-      { day: "Thu", count: 310 },
-      { day: "Fri", count: 275 },
-      { day: "Sat", count: 90 },
-      { day: "Sun", count: 65 },
-    ],
-    topLanguages: [
-      ["Arabic", "1,245", "78%", "$12,400"],
-      ["French", "892", "92%", "$8,200"],
-      ["Hebrew", "420", "45%", "$5,100"],
-      ["Farsi", "290", "23%", "$2,800"],
-    ],
-    costBreakdown: [
-      { provider: "OpenAI GPT-4", cost: 68.30, percentage: 48 },
-      { provider: "DeepL Pro", cost: 45.20, percentage: 32 },
-      { provider: "Google Translate", cost: 29.06, percentage: 20 },
-    ],
+    providers, totalCost, totalRequests, totalCharacters, roi,
+    weeklyVolume, maxVolume, trend, topLanguages,
+    timeSaved: Math.round(totalCharacters / 30000), // ~500 chars/min = 30k chars/hour
   });
 };
 
-export default function Analytics() {
-  const { metrics, dailyVolume, topLanguages, costBreakdown } =
-    useLoaderData<typeof loader>();
-  const [dateRange, setDateRange] = useState("30");
-
-  const handleDateRangeChange = useCallback(
-    (value: string) => setDateRange(value),
-    [],
-  );
-
-  const maxVolume = Math.max(...dailyVolume.map((d) => d.count));
+export default function AnalyticsPage() {
+  const { providers, totalCost, totalRequests, totalCharacters, roi, weeklyVolume, maxVolume, trend, topLanguages, timeSaved } = useLoaderData<typeof loader>();
+  const totalProviderCost = providers.reduce((s, p) => s + p.cost, 0);
 
   return (
-    <Page
-      backAction={{ content: "Home", url: "/app" }}
-      title="Analytics & Reports"
-    >
+    <Page>
       <TitleBar title="Analytics & Reports" />
       <BlockStack gap="500">
-        {/* Date Range Selector */}
-        <InlineStack align="end">
-          <ButtonGroup variant="segmented">
-            <Button
-              pressed={dateRange === "7"}
-              onClick={() => handleDateRangeChange("7")}
-            >
-              Last 7 days
-            </Button>
-            <Button
-              pressed={dateRange === "30"}
-              onClick={() => handleDateRangeChange("30")}
-            >
-              Last 30 days
-            </Button>
-            <Button
-              pressed={dateRange === "90"}
-              onClick={() => handleDateRangeChange("90")}
-            >
-              Last 90 days
-            </Button>
-          </ButtonGroup>
-        </InlineStack>
-
-        {/* Metric Cards */}
         <InlineGrid columns={4} gap="400">
-          <Card>
-            <BlockStack gap="200">
-              <Text as="p" variant="bodyMd" tone="subdued">
-                Total Translations
-              </Text>
-              <Text as="p" variant="headingXl">
-                {metrics.totalTranslations.toLocaleString()}
-              </Text>
-            </BlockStack>
-          </Card>
-          <Card>
-            <BlockStack gap="200">
-              <Text as="p" variant="bodyMd" tone="subdued">
-                Characters Translated
-              </Text>
-              <Text as="p" variant="headingXl">
-                {(metrics.charactersTranslated / 1_000_000).toFixed(2)}M
-              </Text>
-            </BlockStack>
-          </Card>
-          <Card>
-            <BlockStack gap="200">
-              <Text as="p" variant="bodyMd" tone="subdued">
-                AI Cost
-              </Text>
-              <Text as="p" variant="headingXl">
-                ${metrics.aiCost.toFixed(2)}
-              </Text>
-            </BlockStack>
-          </Card>
-          <Card>
-            <BlockStack gap="200">
-              <Text as="p" variant="bodyMd" tone="subdued">
-                Time Saved
-              </Text>
-              <Text as="p" variant="headingXl">
-                {metrics.timeSaved}
-              </Text>
-            </BlockStack>
-          </Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Total Translations</Text><Text as="p" variant="headingLg">{totalRequests.toLocaleString()}</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Characters</Text><Text as="p" variant="headingLg">{(totalCharacters / 1000000).toFixed(1)}M</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">AI Cost</Text><Text as="p" variant="headingLg">${totalCost.toFixed(2)}</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Time Saved</Text><Text as="p" variant="headingLg">{timeSaved}h</Text></BlockStack></Card>
         </InlineGrid>
 
         <Layout>
           <Layout.Section>
-            {/* Translation Volume Chart */}
             <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Translation Volume
-                </Text>
+              <BlockStack gap="300">
+                <InlineStack align="space-between">
+                  <Text as="h2" variant="headingMd">Translation Volume (7 days)</Text>
+                  <Badge tone={trend === "up" ? "success" : trend === "down" ? "critical" : "info"}>{trend}</Badge>
+                </InlineStack>
                 <InlineStack gap="200" align="end" blockAlign="end">
-                  {dailyVolume.map((day) => (
-                    <BlockStack key={day.day} gap="200" inlineAlign="center">
-                      <Box
-                        background="bg-fill-info"
-                        borderRadius="100"
-                        minHeight={`${Math.max((day.count / maxVolume) * 200, 8)}px`}
-                        minWidth="40px"
-                      />
-                      <Text as="p" variant="bodySm" alignment="center">
-                        {day.day}
-                      </Text>
-                      <Text
-                        as="p"
-                        variant="bodySm"
-                        tone="subdued"
-                        alignment="center"
-                      >
-                        {day.count}
-                      </Text>
+                  {weeklyVolume.map((d) => (
+                    <BlockStack gap="100" key={d.day} inlineAlign="center">
+                      <Box background="bg-fill-info" borderRadius="100" minHeight={`${Math.max((d.count / maxVolume) * 80, 4)}px`} minWidth="32px" />
+                      <Text as="p" variant="bodySm">{d.day}</Text>
                     </BlockStack>
                   ))}
                 </InlineStack>
               </BlockStack>
             </Card>
-
-            {/* Top Languages Table */}
-            <Box paddingBlockStart="500">
-              <Card>
-                <BlockStack gap="400">
-                  <Text as="h2" variant="headingMd">
-                    Top Languages
-                  </Text>
-                  <DataTable
-                    columnContentTypes={["text", "numeric", "numeric", "numeric"]}
-                    headings={[
-                      "Language",
-                      "Translations",
-                      "Coverage %",
-                      "Revenue Impact",
-                    ]}
-                    rows={topLanguages}
-                  />
-                </BlockStack>
-              </Card>
-            </Box>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Top Languages</Text>
+                <DataTable
+                  columnContentTypes={["text", "numeric", "text", "numeric"]}
+                  headings={["Language", "Translations", "Coverage", "Revenue Impact"]}
+                  rows={topLanguages}
+                />
+              </BlockStack>
+            </Card>
           </Layout.Section>
-
-          {/* Cost Breakdown Sidebar */}
           <Layout.Section variant="oneThird">
             <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Cost Breakdown
-                </Text>
-                <Text as="p" variant="bodyMd" tone="subdued">
-                  Total: ${metrics.aiCost.toFixed(2)}
-                </Text>
-                {costBreakdown.map((item) => (
-                  <BlockStack gap="200" key={item.provider}>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">ROI</Text>
+                <Text as="p" variant="headingXl" tone="success">{roi.toFixed(0)}%</Text>
+                <Text as="p" variant="bodyMd" tone="subdued">Return on translation investment</Text>
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Cost by Provider</Text>
+                {providers.map((p) => (
+                  <BlockStack gap="100" key={p.name}>
                     <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        {item.provider}
-                      </Text>
-                      <Text as="span" variant="bodyMd" fontWeight="semibold">
-                        ${item.cost.toFixed(2)}
-                      </Text>
+                      <Text as="span" variant="bodyMd">{p.name}</Text>
+                      <Text as="span" variant="bodyMd">${p.cost.toFixed(2)}</Text>
                     </InlineStack>
-                    <ProgressBar
-                      progress={item.percentage}
-                      size="small"
-                      tone={
-                        item.percentage >= 40
-                          ? "highlight"
-                          : item.percentage >= 25
-                            ? "success"
-                            : "primary"
-                      }
-                    />
+                    <ProgressBar progress={Math.round((p.cost / totalProviderCost) * 100)} size="small" />
                   </BlockStack>
                 ))}
               </BlockStack>
