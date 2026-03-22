@@ -3,7 +3,7 @@
  * Manages real-time and cached exchange rates
  */
 
-import { db } from '../../db.server';
+import db from '../../db.server';
 
 export interface ExchangeRate {
   from: string;
