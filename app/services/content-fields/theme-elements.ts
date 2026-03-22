@@ -1,0 +1,554 @@
+/**
+ * Theme UI element translations covering tasks T0109 through T0115.
+ *
+ * All labels provided in en, ar (Arabic), he (Hebrew), fa (Farsi/Persian).
+ */
+
+// ---------------------------------------------------------------------------
+// T0109 - Theme section headers
+// ---------------------------------------------------------------------------
+export const SECTION_HEADERS: Record<string, Record<string, string>> = {
+  featured_collection: {
+    en: "Featured Collection",
+    ar: "\u0627\u0644\u0645\u062C\u0645\u0648\u0639\u0629 \u0627\u0644\u0645\u0645\u064A\u0632\u0629",
+    he: "\u05E7\u05D5\u05DC\u05E7\u05E6\u05D9\u05D4 \u05DE\u05D5\u05DE\u05DC\u05E6\u05EA",
+    fa: "\u0645\u062C\u0645\u0648\u0639\u0647 \u0648\u06CC\u0698\u0647",
+  },
+  hero_banner: {
+    en: "Hero Banner",
+    ar: "\u0627\u0644\u0628\u0627\u0646\u0631 \u0627\u0644\u0631\u0626\u064A\u0633\u064A",
+    he: "\u05D1\u05D0\u05E0\u05E8 \u05E8\u05D0\u05E9\u05D9",
+    fa: "\u0628\u0646\u0631 \u0627\u0635\u0644\u06CC",
+  },
+  image_with_text: {
+    en: "Image with Text",
+    ar: "\u0635\u0648\u0631\u0629 \u0645\u0639 \u0646\u0635",
+    he: "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05E2\u05DD \u05D8\u05E7\u05E1\u05D8",
+    fa: "\u062A\u0635\u0648\u06CC\u0631 \u0628\u0627 \u0645\u062A\u0646",
+  },
+  newsletter: {
+    en: "Newsletter",
+    ar: "\u0627\u0644\u0646\u0634\u0631\u0629 \u0627\u0644\u0625\u062E\u0628\u0627\u0631\u064A\u0629",
+    he: "\u05D3\u05D9\u05D5\u05D5\u05E8 \u05D7\u05D3\u05E9\u05D5\u05EA",
+    fa: "\u062E\u0628\u0631\u0646\u0627\u0645\u0647",
+  },
+  testimonials: {
+    en: "Testimonials",
+    ar: "\u0622\u0631\u0627\u0621 \u0627\u0644\u0639\u0645\u0644\u0627\u0621",
+    he: "\u05D4\u05DE\u05DC\u05E6\u05D5\u05EA",
+    fa: "\u0646\u0638\u0631\u0627\u062A \u0645\u0634\u062A\u0631\u06CC\u0627\u0646",
+  },
+  faq: {
+    en: "Frequently Asked Questions",
+    ar: "\u0627\u0644\u0623\u0633\u0626\u0644\u0629 \u0627\u0644\u0634\u0627\u0626\u0639\u0629",
+    he: "\u05E9\u05D0\u05DC\u05D5\u05EA \u05E0\u05E4\u05D5\u05E6\u05D5\u05EA",
+    fa: "\u0633\u0648\u0627\u0644\u0627\u062A \u0645\u062A\u062F\u0627\u0648\u0644",
+  },
+  contact_form: {
+    en: "Contact Form",
+    ar: "\u0646\u0645\u0648\u0630\u062C \u0627\u0644\u0627\u062A\u0635\u0627\u0644",
+    he: "\u05D8\u05D5\u05E4\u05E1 \u05D9\u05E6\u05D9\u05E8\u05EA \u05E7\u05E9\u05E8",
+    fa: "\u0641\u0631\u0645 \u062A\u0645\u0627\u0633",
+  },
+  footer: {
+    en: "Footer",
+    ar: "\u0627\u0644\u062A\u0630\u064A\u064A\u0644",
+    he: "\u05DB\u05D5\u05EA\u05E8\u05EA \u05EA\u05D7\u05EA\u05D5\u05E0\u05D4",
+    fa: "\u067E\u0627\u0648\u0631\u0642\u06CC",
+  },
+  announcement: {
+    en: "Announcement Bar",
+    ar: "\u0634\u0631\u064A\u0637 \u0627\u0644\u0625\u0639\u0644\u0627\u0646\u0627\u062A",
+    he: "\u05E1\u05E8\u05D2\u05DC \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA",
+    fa: "\u0646\u0648\u0627\u0631 \u0627\u0637\u0644\u0627\u0639\u06CC\u0647",
+  },
+  slideshow: {
+    en: "Slideshow",
+    ar: "\u0639\u0631\u0636 \u0627\u0644\u0634\u0631\u0627\u0626\u062D",
+    he: "\u05DE\u05E6\u05D2\u05EA \u05E9\u05E7\u05D5\u05E4\u05D9\u05D5\u05EA",
+    fa: "\u0646\u0645\u0627\u06CC\u0634 \u0627\u0633\u0644\u0627\u06CC\u062F",
+  },
+  product_grid: {
+    en: "Product Grid",
+    ar: "\u0634\u0628\u0643\u0629 \u0627\u0644\u0645\u0646\u062A\u062C\u0627\u062A",
+    he: "\u05E8\u05E9\u05EA \u05DE\u05D5\u05E6\u05E8\u05D9\u05DD",
+    fa: "\u0634\u0628\u06A9\u0647 \u0645\u062D\u0635\u0648\u0644\u0627\u062A",
+  },
+  collection_list: {
+    en: "Collection List",
+    ar: "\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0645\u062C\u0645\u0648\u0639\u0627\u062A",
+    he: "\u05E8\u05E9\u05D9\u05DE\u05EA \u05E7\u05D5\u05DC\u05E7\u05E6\u05D9\u05D5\u05EA",
+    fa: "\u0641\u0647\u0631\u0633\u062A \u0645\u062C\u0645\u0648\u0639\u0647\u200C\u0647\u0627",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0110 - Theme button labels
+// ---------------------------------------------------------------------------
+export const BUTTON_LABELS: Record<string, Record<string, string>> = {
+  add_to_cart: {
+    en: "Add to Cart",
+    ar: "\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0633\u0644\u0629",
+    he: "\u05D4\u05D5\u05E1\u05E3 \u05DC\u05E2\u05D2\u05DC\u05D4",
+    fa: "\u0627\u0641\u0632\u0648\u062F\u0646 \u0628\u0647 \u0633\u0628\u062F",
+  },
+  buy_now: {
+    en: "Buy Now",
+    ar: "\u0627\u0634\u062A\u0631\u0650 \u0627\u0644\u0622\u0646",
+    he: "\u05E7\u05E0\u05D4 \u05E2\u05DB\u05E9\u05D9\u05D5",
+    fa: "\u0647\u0645\u06CC\u0646 \u0627\u0644\u0627\u0646 \u0628\u062E\u0631\u06CC\u062F",
+  },
+  view_product: {
+    en: "View Product",
+    ar: "\u0639\u0631\u0636 \u0627\u0644\u0645\u0646\u062A\u062C",
+    he: "\u05E6\u05E4\u05D4 \u05D1\u05DE\u05D5\u05E6\u05E8",
+    fa: "\u0645\u0634\u0627\u0647\u062F\u0647 \u0645\u062D\u0635\u0648\u0644",
+  },
+  view_all: {
+    en: "View All",
+    ar: "\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
+    he: "\u05E6\u05E4\u05D4 \u05D1\u05D4\u05DB\u05DC",
+    fa: "\u0645\u0634\u0627\u0647\u062F\u0647 \u0647\u0645\u0647",
+  },
+  shop_now: {
+    en: "Shop Now",
+    ar: "\u062A\u0633\u0648\u0642 \u0627\u0644\u0622\u0646",
+    he: "\u05E7\u05E0\u05D4 \u05E2\u05DB\u05E9\u05D9\u05D5",
+    fa: "\u0647\u0645\u06CC\u0646 \u0627\u0644\u0627\u0646 \u062E\u0631\u06CC\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  learn_more: {
+    en: "Learn More",
+    ar: "\u0627\u0639\u0631\u0641 \u0627\u0644\u0645\u0632\u064A\u062F",
+    he: "\u05DC\u05DE\u05D3 \u05E2\u05D5\u05D3",
+    fa: "\u0628\u06CC\u0634\u062A\u0631 \u0628\u062F\u0627\u0646\u06CC\u062F",
+  },
+  subscribe: {
+    en: "Subscribe",
+    ar: "\u0627\u0634\u062A\u0631\u0643",
+    he: "\u05D4\u05D9\u05E8\u05E9\u05DD",
+    fa: "\u0627\u0634\u062A\u0631\u0627\u06A9",
+  },
+  submit: {
+    en: "Submit",
+    ar: "\u0625\u0631\u0633\u0627\u0644",
+    he: "\u05E9\u05DC\u05D7",
+    fa: "\u0627\u0631\u0633\u0627\u0644",
+  },
+  apply: {
+    en: "Apply",
+    ar: "\u062A\u0637\u0628\u064A\u0642",
+    he: "\u05D4\u05D7\u05DC",
+    fa: "\u0627\u0639\u0645\u0627\u0644",
+  },
+  close: {
+    en: "Close",
+    ar: "\u0625\u063A\u0644\u0627\u0642",
+    he: "\u05E1\u05D2\u05D5\u05E8",
+    fa: "\u0628\u0633\u062A\u0646",
+  },
+  back: {
+    en: "Back",
+    ar: "\u0631\u062C\u0648\u0639",
+    he: "\u05D7\u05D6\u05D5\u05E8",
+    fa: "\u0628\u0627\u0632\u06AF\u0634\u062A",
+  },
+  next: {
+    en: "Next",
+    ar: "\u0627\u0644\u062A\u0627\u0644\u064A",
+    he: "\u05D4\u05D1\u05D0",
+    fa: "\u0628\u0639\u062F\u06CC",
+  },
+  previous: {
+    en: "Previous",
+    ar: "\u0627\u0644\u0633\u0627\u0628\u0642",
+    he: "\u05D4\u05E7\u05D5\u05D3\u05DD",
+    fa: "\u0642\u0628\u0644\u06CC",
+  },
+  load_more: {
+    en: "Load More",
+    ar: "\u062A\u062D\u0645\u064A\u0644 \u0627\u0644\u0645\u0632\u064A\u062F",
+    he: "\u05D8\u05E2\u05DF \u05E2\u05D5\u05D3",
+    fa: "\u0628\u0627\u0631\u06AF\u0630\u0627\u0631\u06CC \u0628\u06CC\u0634\u062A\u0631",
+  },
+  see_more: {
+    en: "See More",
+    ar: "\u0634\u0627\u0647\u062F \u0627\u0644\u0645\u0632\u064A\u062F",
+    he: "\u05E8\u05D0\u05D4 \u05E2\u05D5\u05D3",
+    fa: "\u0645\u0634\u0627\u0647\u062F\u0647 \u0628\u06CC\u0634\u062A\u0631",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0111 - Theme form labels
+// ---------------------------------------------------------------------------
+export const FORM_LABELS: Record<string, Record<string, string>> = {
+  name: {
+    en: "Name",
+    ar: "\u0627\u0644\u0627\u0633\u0645",
+    he: "\u05E9\u05DD",
+    fa: "\u0646\u0627\u0645",
+  },
+  email: {
+    en: "Email",
+    ar: "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A",
+    he: "\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC",
+    fa: "\u0627\u06CC\u0645\u06CC\u0644",
+  },
+  phone: {
+    en: "Phone",
+    ar: "\u0627\u0644\u0647\u0627\u062A\u0641",
+    he: "\u05D8\u05DC\u05E4\u05D5\u05DF",
+    fa: "\u062A\u0644\u0641\u0646",
+  },
+  message: {
+    en: "Message",
+    ar: "\u0627\u0644\u0631\u0633\u0627\u0644\u0629",
+    he: "\u05D4\u05D5\u05D3\u05E2\u05D4",
+    fa: "\u067E\u06CC\u0627\u0645",
+  },
+  subject: {
+    en: "Subject",
+    ar: "\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
+    he: "\u05E0\u05D5\u05E9\u05D0",
+    fa: "\u0645\u0648\u0636\u0648\u0639",
+  },
+  company: {
+    en: "Company",
+    ar: "\u0627\u0644\u0634\u0631\u0643\u0629",
+    he: "\u05D7\u05D1\u05E8\u05D4",
+    fa: "\u0634\u0631\u06A9\u062A",
+  },
+  address: {
+    en: "Address",
+    ar: "\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
+    he: "\u05DB\u05EA\u05D5\u05D1\u05EA",
+    fa: "\u0622\u062F\u0631\u0633",
+  },
+  city: {
+    en: "City",
+    ar: "\u0627\u0644\u0645\u062F\u064A\u0646\u0629",
+    he: "\u05E2\u05D9\u05E8",
+    fa: "\u0634\u0647\u0631",
+  },
+  country: {
+    en: "Country",
+    ar: "\u0627\u0644\u062F\u0648\u0644\u0629",
+    he: "\u05DE\u05D3\u05D9\u05E0\u05D4",
+    fa: "\u06A9\u0634\u0648\u0631",
+  },
+  postal_code: {
+    en: "Postal Code",
+    ar: "\u0627\u0644\u0631\u0645\u0632 \u0627\u0644\u0628\u0631\u064A\u062F\u064A",
+    he: "\u05DE\u05D9\u05E7\u05D5\u05D3",
+    fa: "\u06A9\u062F \u067E\u0633\u062A\u06CC",
+  },
+  password: {
+    en: "Password",
+    ar: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631",
+    he: "\u05E1\u05D9\u05E1\u05DE\u05D4",
+    fa: "\u0631\u0645\u0632 \u0639\u0628\u0648\u0631",
+  },
+  confirm_password: {
+    en: "Confirm Password",
+    ar: "\u062A\u0623\u0643\u064A\u062F \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631",
+    he: "\u05D0\u05D9\u05DE\u05D5\u05EA \u05E1\u05D9\u05E1\u05DE\u05D4",
+    fa: "\u062A\u0623\u06CC\u06CC\u062F \u0631\u0645\u0632 \u0639\u0628\u0648\u0631",
+  },
+  quantity: {
+    en: "Quantity",
+    ar: "\u0627\u0644\u0643\u0645\u064A\u0629",
+    he: "\u05DB\u05DE\u05D5\u05EA",
+    fa: "\u062A\u0639\u062F\u0627\u062F",
+  },
+  size: {
+    en: "Size",
+    ar: "\u0627\u0644\u0645\u0642\u0627\u0633",
+    he: "\u05DE\u05D9\u05D3\u05D4",
+    fa: "\u0627\u0646\u062F\u0627\u0632\u0647",
+  },
+  color: {
+    en: "Color",
+    ar: "\u0627\u0644\u0644\u0648\u0646",
+    he: "\u05E6\u05D1\u05E2",
+    fa: "\u0631\u0646\u06AF",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0112 - Theme placeholder text
+// ---------------------------------------------------------------------------
+export const PLACEHOLDER_TEXT: Record<string, Record<string, string>> = {
+  search_placeholder: {
+    en: "Search our store...",
+    ar: "\u0627\u0628\u062D\u062B \u0641\u064A \u0645\u062A\u062C\u0631\u0646\u0627...",
+    he: "\u05D7\u05E4\u05E9 \u05D1\u05D7\u05E0\u05D5\u05EA \u05E9\u05DC\u05E0\u05D5...",
+    fa: "\u062C\u0633\u062A\u062C\u0648 \u062F\u0631 \u0641\u0631\u0648\u0634\u06AF\u0627\u0647 \u0645\u0627...",
+  },
+  email_placeholder: {
+    en: "Enter your email",
+    ar: "\u0623\u062F\u062E\u0644 \u0628\u0631\u064A\u062F\u0643 \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A",
+    he: "\u05D4\u05D6\u05DF \u05D0\u05EA \u05DB\u05EA\u05D5\u05D1\u05EA \u05D4\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05E9\u05DC\u05DA",
+    fa: "\u0627\u06CC\u0645\u06CC\u0644 \u062E\u0648\u062F \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  name_placeholder: {
+    en: "Enter your name",
+    ar: "\u0623\u062F\u062E\u0644 \u0627\u0633\u0645\u0643",
+    he: "\u05D4\u05D6\u05DF \u05D0\u05EA \u05E9\u05DE\u05DA",
+    fa: "\u0646\u0627\u0645 \u062E\u0648\u062F \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  phone_placeholder: {
+    en: "Enter your phone number",
+    ar: "\u0623\u062F\u062E\u0644 \u0631\u0642\u0645 \u0647\u0627\u062A\u0641\u0643",
+    he: "\u05D4\u05D6\u05DF \u05D0\u05EA \u05DE\u05E1\u05E4\u05E8 \u05D4\u05D8\u05DC\u05E4\u05D5\u05DF \u05E9\u05DC\u05DA",
+    fa: "\u0634\u0645\u0627\u0631\u0647 \u062A\u0644\u0641\u0646 \u062E\u0648\u062F \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  message_placeholder: {
+    en: "Write your message here...",
+    ar: "\u0627\u0643\u062A\u0628 \u0631\u0633\u0627\u0644\u062A\u0643 \u0647\u0646\u0627...",
+    he: "\u05DB\u05EA\u05D5\u05D1 \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DC\u05DA \u05DB\u05D0\u05DF...",
+    fa: "\u067E\u06CC\u0627\u0645 \u062E\u0648\u062F \u0631\u0627 \u0627\u06CC\u0646\u062C\u0627 \u0628\u0646\u0648\u06CC\u0633\u06CC\u062F...",
+  },
+  coupon_placeholder: {
+    en: "Enter coupon code",
+    ar: "\u0623\u062F\u062E\u0644 \u0631\u0645\u0632 \u0627\u0644\u0642\u0633\u064A\u0645\u0629",
+    he: "\u05D4\u05D6\u05DF \u05E7\u05D5\u05D3 \u05E7\u05D5\u05E4\u05D5\u05DF",
+    fa: "\u06A9\u062F \u062A\u062E\u0641\u06CC\u0641 \u0631\u0627 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0113 - Theme error messages
+// ---------------------------------------------------------------------------
+export const ERROR_MESSAGES: Record<string, Record<string, string>> = {
+  required_field: {
+    en: "This field is required",
+    ar: "\u0647\u0630\u0627 \u0627\u0644\u062D\u0642\u0644 \u0645\u0637\u0644\u0648\u0628",
+    he: "\u05E9\u05D3\u05D4 \u05D6\u05D4 \u05D4\u05D5\u05D0 \u05E9\u05D3\u05D4 \u05D7\u05D5\u05D1\u05D4",
+    fa: "\u0627\u06CC\u0646 \u0641\u06CC\u0644\u062F \u0627\u0644\u0632\u0627\u0645\u06CC \u0627\u0633\u062A",
+  },
+  invalid_email: {
+    en: "Please enter a valid email address",
+    ar: "\u064A\u0631\u062C\u0649 \u0625\u062F\u062E\u0627\u0644 \u0639\u0646\u0648\u0627\u0646 \u0628\u0631\u064A\u062F \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0635\u062D\u064A\u062D",
+    he: "\u05D0\u05E0\u05D0 \u05D4\u05D6\u05DF \u05DB\u05EA\u05D5\u05D1\u05EA \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05EA\u05E7\u05D9\u05E0\u05D4",
+    fa: "\u0644\u0637\u0641\u0627\u064B \u06CC\u06A9 \u0622\u062F\u0631\u0633 \u0627\u06CC\u0645\u06CC\u0644 \u0645\u0639\u062A\u0628\u0631 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  invalid_phone: {
+    en: "Please enter a valid phone number",
+    ar: "\u064A\u0631\u062C\u0649 \u0625\u062F\u062E\u0627\u0644 \u0631\u0642\u0645 \u0647\u0627\u062A\u0641 \u0635\u062D\u064A\u062D",
+    he: "\u05D0\u05E0\u05D0 \u05D4\u05D6\u05DF \u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF \u05EA\u05E7\u05D9\u05DF",
+    fa: "\u0644\u0637\u0641\u0627\u064B \u06CC\u06A9 \u0634\u0645\u0627\u0631\u0647 \u062A\u0644\u0641\u0646 \u0645\u0639\u062A\u0628\u0631 \u0648\u0627\u0631\u062F \u06A9\u0646\u06CC\u062F",
+  },
+  password_too_short: {
+    en: "Password must be at least 8 characters",
+    ar: "\u064A\u062C\u0628 \u0623\u0646 \u062A\u0643\u0648\u0646 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0668 \u0623\u062D\u0631\u0641 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644",
+    he: "\u05D4\u05E1\u05D9\u05E1\u05DE\u05D4 \u05D7\u05D9\u05D9\u05D1\u05EA \u05DC\u05D4\u05DB\u05D9\u05DC \u05DC\u05E4\u05D7\u05D5\u05EA 8 \u05EA\u05D5\u05D5\u05D9\u05DD",
+    fa: "\u0631\u0645\u0632 \u0639\u0628\u0648\u0631 \u0628\u0627\u06CC\u062F \u062D\u062F\u0627\u0642\u0644 \u06F8 \u06A9\u0627\u0631\u0627\u06A9\u062A\u0631 \u0628\u0627\u0634\u062F",
+  },
+  passwords_dont_match: {
+    en: "Passwords do not match",
+    ar: "\u0643\u0644\u0645\u062A\u0627 \u0627\u0644\u0645\u0631\u0648\u0631 \u063A\u064A\u0631 \u0645\u062A\u0637\u0627\u0628\u0642\u062A\u064A\u0646",
+    he: "\u05D4\u05E1\u05D9\u05E1\u05DE\u05D0\u05D5\u05EA \u05D0\u05D9\u05E0\u05DF \u05EA\u05D5\u05D0\u05DE\u05D5\u05EA",
+    fa: "\u0631\u0645\u0632\u0647\u0627\u06CC \u0639\u0628\u0648\u0631 \u0645\u0637\u0627\u0628\u0642\u062A \u0646\u062F\u0627\u0631\u0646\u062F",
+  },
+  out_of_stock: {
+    en: "This product is currently out of stock",
+    ar: "\u0647\u0630\u0627 \u0627\u0644\u0645\u0646\u062A\u062C \u063A\u064A\u0631 \u0645\u062A\u0648\u0641\u0631 \u062D\u0627\u0644\u064A\u064B\u0627",
+    he: "\u05DE\u05D5\u05E6\u05E8 \u05D6\u05D4 \u05D0\u05D6\u05DC \u05DB\u05E8\u05D2\u05E2 \u05DE\u05D4\u05DE\u05DC\u05D0\u05D9",
+    fa: "\u0627\u06CC\u0646 \u0645\u062D\u0635\u0648\u0644 \u062F\u0631 \u062D\u0627\u0644 \u062D\u0627\u0636\u0631 \u0645\u0648\u062C\u0648\u062F \u0646\u06CC\u0633\u062A",
+  },
+  cart_empty: {
+    en: "Your cart is empty",
+    ar: "\u0633\u0644\u0629 \u0627\u0644\u062A\u0633\u0648\u0642 \u0641\u0627\u0631\u063A\u0629",
+    he: "\u05D4\u05E2\u05D2\u05DC\u05D4 \u05E9\u05DC\u05DA \u05E8\u05D9\u05E7\u05D4",
+    fa: "\u0633\u0628\u062F \u062E\u0631\u06CC\u062F \u0634\u0645\u0627 \u062E\u0627\u0644\u06CC \u0627\u0633\u062A",
+  },
+  payment_failed: {
+    en: "Payment failed. Please try again",
+    ar: "\u0641\u0634\u0644 \u0627\u0644\u062F\u0641\u0639. \u064A\u0631\u062C\u0649 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649",
+    he: "\u05D4\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05DB\u05E9\u05DC. \u05D0\u05E0\u05D0 \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1",
+    fa: "\u067E\u0631\u062F\u0627\u062E\u062A \u0646\u0627\u0645\u0648\u0641\u0642 \u0628\u0648\u062F. \u0644\u0637\u0641\u0627\u064B \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u0644\u0627\u0634 \u06A9\u0646\u06CC\u062F",
+  },
+  network_error: {
+    en: "Network error. Please check your connection",
+    ar: "\u062E\u0637\u0623 \u0641\u064A \u0627\u0644\u0634\u0628\u0643\u0629. \u064A\u0631\u062C\u0649 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u0627\u062A\u0635\u0627\u0644",
+    he: "\u05E9\u05D2\u05D9\u05D0\u05EA \u05E8\u05E9\u05EA. \u05D0\u05E0\u05D0 \u05D1\u05D3\u05D5\u05E7 \u05D0\u05EA \u05D4\u05D7\u05D9\u05D1\u05D5\u05E8 \u05E9\u05DC\u05DA",
+    fa: "\u062E\u0637\u0627\u06CC \u0634\u0628\u06A9\u0647. \u0644\u0637\u0641\u0627\u064B \u0627\u062A\u0635\u0627\u0644 \u062E\u0648\u062F \u0631\u0627 \u0628\u0631\u0631\u0633\u06CC \u06A9\u0646\u06CC\u062F",
+  },
+  generic_error: {
+    en: "Something went wrong. Please try again later",
+    ar: "\u062D\u062F\u062B \u062E\u0637\u0623 \u0645\u0627. \u064A\u0631\u062C\u0649 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629 \u0644\u0627\u062D\u0642\u064B\u0627",
+    he: "\u05DE\u05E9\u05D4\u05D5 \u05D4\u05E9\u05EA\u05D1\u05E9. \u05D0\u05E0\u05D0 \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1 \u05DE\u05D0\u05D5\u05D7\u05E8 \u05D9\u05D5\u05EA\u05E8",
+    fa: "\u0645\u0634\u06A9\u0644\u06CC \u067E\u06CC\u0634 \u0622\u0645\u062F. \u0644\u0637\u0641\u0627\u064B \u0628\u0639\u062F\u0627\u064B \u062F\u0648\u0628\u0627\u0631\u0647 \u062A\u0644\u0627\u0634 \u06A9\u0646\u06CC\u062F",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0114 - Theme success messages
+// ---------------------------------------------------------------------------
+export const SUCCESS_MESSAGES: Record<string, Record<string, string>> = {
+  added_to_cart: {
+    en: "Added to cart successfully",
+    ar: "\u062A\u0645\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u0629 \u0625\u0644\u0649 \u0627\u0644\u0633\u0644\u0629 \u0628\u0646\u062C\u0627\u062D",
+    he: "\u05E0\u05D5\u05E1\u05E3 \u05DC\u05E2\u05D2\u05DC\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4",
+    fa: "\u0628\u0627 \u0645\u0648\u0641\u0642\u06CC\u062A \u0628\u0647 \u0633\u0628\u062F \u0627\u0636\u0627\u0641\u0647 \u0634\u062F",
+  },
+  order_placed: {
+    en: "Your order has been placed successfully",
+    ar: "\u062A\u0645 \u062A\u0642\u062F\u064A\u0645 \u0637\u0644\u0628\u0643 \u0628\u0646\u062C\u0627\u062D",
+    he: "\u05D4\u05D4\u05D6\u05DE\u05E0\u05D4 \u05E9\u05DC\u05DA \u05D1\u05D5\u05E6\u05E2\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4",
+    fa: "\u0633\u0641\u0627\u0631\u0634 \u0634\u0645\u0627 \u0628\u0627 \u0645\u0648\u0641\u0642\u06CC\u062A \u062B\u0628\u062A \u0634\u062F",
+  },
+  subscribed: {
+    en: "You have been subscribed successfully",
+    ar: "\u062A\u0645 \u0627\u0634\u062A\u0631\u0627\u0643\u0643 \u0628\u0646\u062C\u0627\u062D",
+    he: "\u05E0\u05E8\u05E9\u05DE\u05EA \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4",
+    fa: "\u0627\u0634\u062A\u0631\u0627\u06A9 \u0634\u0645\u0627 \u0628\u0627 \u0645\u0648\u0641\u0642\u06CC\u062A \u0627\u0646\u062C\u0627\u0645 \u0634\u062F",
+  },
+  message_sent: {
+    en: "Your message has been sent",
+    ar: "\u062A\u0645 \u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u062A\u0643",
+    he: "\u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DC\u05DA \u05E0\u05E9\u05DC\u05D7\u05D4",
+    fa: "\u067E\u06CC\u0627\u0645 \u0634\u0645\u0627 \u0627\u0631\u0633\u0627\u0644 \u0634\u062F",
+  },
+  password_updated: {
+    en: "Your password has been updated",
+    ar: "\u062A\u0645 \u062A\u062D\u062F\u064A\u062B \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631",
+    he: "\u05D4\u05E1\u05D9\u05E1\u05DE\u05D4 \u05E9\u05DC\u05DA \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4",
+    fa: "\u0631\u0645\u0632 \u0639\u0628\u0648\u0631 \u0634\u0645\u0627 \u0628\u0647\u200C\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06CC \u0634\u062F",
+  },
+  address_saved: {
+    en: "Your address has been saved",
+    ar: "\u062A\u0645 \u062D\u0641\u0638 \u0639\u0646\u0648\u0627\u0646\u0643",
+    he: "\u05D4\u05DB\u05EA\u05D5\u05D1\u05EA \u05E9\u05DC\u05DA \u05E0\u05E9\u05DE\u05E8\u05D4",
+    fa: "\u0622\u062F\u0631\u0633 \u0634\u0645\u0627 \u0630\u062E\u06CC\u0631\u0647 \u0634\u062F",
+  },
+  review_submitted: {
+    en: "Your review has been submitted",
+    ar: "\u062A\u0645 \u062A\u0642\u062F\u064A\u0645 \u062A\u0642\u064A\u064A\u0645\u0643",
+    he: "\u05D4\u05D1\u05D9\u05E7\u05D5\u05E8\u05EA \u05E9\u05DC\u05DA \u05E0\u05E9\u05DC\u05D7\u05D4",
+    fa: "\u0646\u0638\u0631 \u0634\u0645\u0627 \u0627\u0631\u0633\u0627\u0644 \u0634\u062F",
+  },
+  account_created: {
+    en: "Your account has been created",
+    ar: "\u062A\u0645 \u0625\u0646\u0634\u0627\u0621 \u062D\u0633\u0627\u0628\u0643",
+    he: "\u05D4\u05D7\u05E9\u05D1\u05D5\u05DF \u05E9\u05DC\u05DA \u05E0\u05D5\u05E6\u05E8",
+    fa: "\u062D\u0633\u0627\u0628 \u06A9\u0627\u0631\u0628\u0631\u06CC \u0634\u0645\u0627 \u0627\u06CC\u062C\u0627\u062F \u0634\u062F",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// T0115 - Theme notification text
+// ---------------------------------------------------------------------------
+export const NOTIFICATION_TEXT: Record<string, Record<string, string>> = {
+  free_shipping_threshold: {
+    en: "Free shipping on orders over {amount}",
+    ar: "\u0634\u062D\u0646 \u0645\u062C\u0627\u0646\u064A \u0644\u0644\u0637\u0644\u0628\u0627\u062A \u0627\u0644\u062A\u064A \u062A\u0632\u064A\u062F \u0639\u0646 {amount}",
+    he: "\u05DE\u05E9\u05DC\u05D5\u05D7 \u05D7\u05D9\u05E0\u05DD \u05D1\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA \u05DE\u05E2\u05DC {amount}",
+    fa: "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06CC\u06AF\u0627\u0646 \u0628\u0631\u0627\u06CC \u0633\u0641\u0627\u0631\u0634\u200C\u0647\u0627\u06CC \u0628\u0627\u0644\u0627\u06CC {amount}",
+  },
+  sale_ending_soon: {
+    en: "Sale ending soon!",
+    ar: "\u0627\u0644\u062A\u062E\u0641\u064A\u0636\u0627\u062A \u062A\u0646\u062A\u0647\u064A \u0642\u0631\u064A\u0628\u064B\u0627!",
+    he: "\u05D4\u05DE\u05D1\u05E6\u05E2 \u05DE\u05E1\u05EA\u05D9\u05D9\u05DD \u05D1\u05E7\u05E8\u05D5\u05D1!",
+    fa: "\u062D\u0631\u0627\u062C \u0628\u0647 \u0632\u0648\u062F\u06CC \u067E\u0627\u06CC\u0627\u0646 \u0645\u06CC\u200C\u06CC\u0627\u0628\u062F!",
+  },
+  low_stock: {
+    en: "Only {count} left in stock",
+    ar: "\u0628\u0642\u064A {count} \u0641\u0642\u0637 \u0641\u064A \u0627\u0644\u0645\u062E\u0632\u0648\u0646",
+    he: "\u05E0\u05D5\u05EA\u05E8\u05D5 \u05E8\u05E7 {count} \u05D1\u05DE\u05DC\u05D0\u05D9",
+    fa: "\u0641\u0642\u0637 {count} \u0639\u062F\u062F \u062F\u0631 \u0627\u0646\u0628\u0627\u0631 \u0645\u0648\u062C\u0648\u062F \u0627\u0633\u062A",
+  },
+  back_in_stock: {
+    en: "Back in stock!",
+    ar: "\u0639\u0627\u062F \u0625\u0644\u0649 \u0627\u0644\u0645\u062E\u0632\u0648\u0646!",
+    he: "\u05D7\u05D6\u05E8 \u05DC\u05DE\u05DC\u05D0\u05D9!",
+    fa: "\u062F\u0648\u0628\u0627\u0631\u0647 \u0645\u0648\u062C\u0648\u062F \u0634\u062F!",
+  },
+  new_arrival: {
+    en: "New Arrival",
+    ar: "\u0648\u0635\u0644 \u062D\u062F\u064A\u062B\u064B\u0627",
+    he: "\u05DE\u05D5\u05E6\u05E8 \u05D7\u05D3\u05E9",
+    fa: "\u062A\u0627\u0632\u0647 \u0631\u0633\u06CC\u062F\u0647",
+  },
+  price_drop: {
+    en: "Price Drop!",
+    ar: "\u0627\u0646\u062E\u0641\u0627\u0636 \u0627\u0644\u0633\u0639\u0631!",
+    he: "\u05D4\u05D5\u05E8\u05D3\u05EA \u05DE\u05D7\u05D9\u05E8!",
+    fa: "\u06A9\u0627\u0647\u0634 \u0642\u06CC\u0645\u062A!",
+  },
+  wishlist_reminder: {
+    en: "Items in your wishlist are on sale!",
+    ar: "\u0639\u0646\u0627\u0635\u0631 \u0641\u064A \u0642\u0627\u0626\u0645\u0629 \u0623\u0645\u0646\u064A\u0627\u062A\u0643 \u0645\u0639\u0631\u0648\u0636\u0629 \u0644\u0644\u0628\u064A\u0639!",
+    he: "\u05E4\u05E8\u05D9\u05D8\u05D9\u05DD \u05D1\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05DE\u05E9\u05D0\u05DC\u05D5\u05EA \u05E9\u05DC\u05DA \u05D1\u05DE\u05D1\u05E6\u05E2!",
+    fa: "\u0627\u0642\u0644\u0627\u0645 \u0644\u06CC\u0633\u062A \u0639\u0644\u0627\u0642\u0647\u200C\u0645\u0646\u062F\u06CC\u200C\u0647\u0627\u06CC \u0634\u0645\u0627 \u062F\u0631 \u062D\u0631\u0627\u062C \u0647\u0633\u062A\u0646\u062F!",
+  },
+  cart_reminder: {
+    en: "You have items in your cart",
+    ar: "\u0644\u062F\u064A\u0643 \u0639\u0646\u0627\u0635\u0631 \u0641\u064A \u0633\u0644\u0629 \u0627\u0644\u062A\u0633\u0648\u0642",
+    he: "\u05D9\u05E9 \u05DC\u05DA \u05E4\u05E8\u05D9\u05D8\u05D9\u05DD \u05D1\u05E2\u05D2\u05DC\u05D4",
+    fa: "\u0634\u0645\u0627 \u0627\u0642\u0644\u0627\u0645\u06CC \u062F\u0631 \u0633\u0628\u062F \u062E\u0631\u06CC\u062F \u062F\u0627\u0631\u06CC\u062F",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+export type ThemeLabelCategory =
+  | "section_header"
+  | "button"
+  | "form"
+  | "placeholder"
+  | "error"
+  | "success"
+  | "notification";
+
+// ---------------------------------------------------------------------------
+// Internal mapping from category to dictionary
+// ---------------------------------------------------------------------------
+const CATEGORY_MAP: Record<ThemeLabelCategory, Record<string, Record<string, string>>> = {
+  section_header: SECTION_HEADERS,
+  button: BUTTON_LABELS,
+  form: FORM_LABELS,
+  placeholder: PLACEHOLDER_TEXT,
+  error: ERROR_MESSAGES,
+  success: SUCCESS_MESSAGES,
+  notification: NOTIFICATION_TEXT,
+};
+
+// ---------------------------------------------------------------------------
+// Utility functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Get a single translated theme label for a given category, key, and locale.
+ * Falls back to English if the locale is not found, or returns the key
+ * itself if neither locale nor English are available.
+ */
+export function getThemeLabel(
+  category: string,
+  key: string,
+  locale: string,
+): string {
+  const dict = CATEGORY_MAP[category as ThemeLabelCategory];
+  if (!dict) return key;
+  const entry = dict[key];
+  if (!entry) return key;
+  return entry[locale] ?? entry["en"] ?? key;
+}
+
+/**
+ * Get all translated labels for a given theme category in a specific locale.
+ * Returns a flat Record<key, translatedLabel>.
+ */
+export function getAllThemeLabels(
+  category: string,
+  locale: string,
+): Record<string, string> {
+  const dict = CATEGORY_MAP[category as ThemeLabelCategory];
+  if (!dict) return {};
+  const result: Record<string, string> = {};
+  for (const [key, translations] of Object.entries(dict)) {
+    result[key] = translations[locale] ?? translations["en"] ?? key;
+  }
+  return result;
+}
