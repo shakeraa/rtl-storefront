@@ -106,7 +106,7 @@ describe('Dialects Service - T0066', () => {
   describe('Vocabulary', () => {
     it('should have vocabulary entries', () => {
       expect(DIALECT_VOCABULARY['hello']).toBeDefined();
-      expect(DIALECT_VOCABULARY['how are you']).toBeDefined();
+      expect(DIALECT_VOCABULARY['how_are_you']).toBeDefined();
     });
 
     it('should have different translations per dialect', () => {
