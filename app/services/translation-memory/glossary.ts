@@ -50,18 +50,34 @@ export async function findTerms(
   targetLocale: string,
   text: string,
 ): Promise<GlossaryTerm[]> {
+  if (text.trim().length === 0) {
+    return [];
+  }
+
+  const normalizedText = text.toLowerCase();
   const allTerms = await prisma.glossaryEntry.findMany({
     where: {
       shop,
       sourceLocale,
       targetLocale,
     },
+    select: {
+      id: true,
+      sourceLocale: true,
+      targetLocale: true,
+      sourceTerm: true,
+      translatedTerm: true,
+      neverTranslate: true,
+      caseSensitive: true,
+      category: true,
+      notes: true,
+    },
   });
 
   const matches: GlossaryTerm[] = [];
 
   for (const term of allTerms) {
-    const sourceText = term.caseSensitive ? text : text.toLowerCase();
+    const sourceText = term.caseSensitive ? text : normalizedText;
     const sourceTerm = term.caseSensitive
       ? term.sourceTerm
       : term.sourceTerm.toLowerCase();
@@ -135,23 +151,40 @@ export async function importTerms(
   shop: string,
   terms: Array<Omit<GlossaryTerm, "id">>,
 ): Promise<{ imported: number; updated: number }> {
+  if (terms.length === 0) {
+    return { imported: 0, updated: 0 };
+  }
+
+  const groupedTerms = groupImportTerms(terms);
+  const existingTerms = await prisma.glossaryEntry.findMany({
+    where: {
+      shop,
+      OR: groupedTerms.map(({ term }) => ({
+        sourceLocale: term.sourceLocale,
+        targetLocale: term.targetLocale,
+        sourceTerm: term.sourceTerm,
+      })),
+    },
+    select: {
+      id: true,
+      sourceLocale: true,
+      targetLocale: true,
+      sourceTerm: true,
+    },
+  });
+  const existingByKey = new Map(
+    existingTerms.map((term) => [getGlossaryKey(term), term]),
+  );
+
   let imported = 0;
   let updated = 0;
-
-  for (const term of terms) {
-    const existing = await prisma.glossaryEntry.findUnique({
-      where: {
-        shop_sourceLocale_targetLocale_sourceTerm: {
-          shop,
-          sourceLocale: term.sourceLocale,
-          targetLocale: term.targetLocale,
-          sourceTerm: term.sourceTerm,
-        },
-      },
-    });
+  const operations = groupedTerms.map(({ term, occurrences }) => {
+    const existing = existingByKey.get(getGlossaryKey(term));
 
     if (existing) {
-      await prisma.glossaryEntry.update({
+      updated += occurrences;
+
+      return prisma.glossaryEntry.update({
         where: { id: existing.id },
         data: {
           translatedTerm: term.translatedTerm,
@@ -161,24 +194,27 @@ export async function importTerms(
           notes: term.notes ?? null,
         },
       });
-      updated++;
-    } else {
-      await prisma.glossaryEntry.create({
-        data: {
-          shop,
-          sourceLocale: term.sourceLocale,
-          targetLocale: term.targetLocale,
-          sourceTerm: term.sourceTerm,
-          translatedTerm: term.translatedTerm,
-          neverTranslate: term.neverTranslate,
-          caseSensitive: term.caseSensitive,
-          category: term.category ?? null,
-          notes: term.notes ?? null,
-        },
-      });
-      imported++;
     }
-  }
+
+    imported += 1;
+    updated += occurrences - 1;
+
+    return prisma.glossaryEntry.create({
+      data: {
+        shop,
+        sourceLocale: term.sourceLocale,
+        targetLocale: term.targetLocale,
+        sourceTerm: term.sourceTerm,
+        translatedTerm: term.translatedTerm,
+        neverTranslate: term.neverTranslate,
+        caseSensitive: term.caseSensitive,
+        category: term.category ?? null,
+        notes: term.notes ?? null,
+      },
+    });
+  });
+
+  await prisma.$transaction(operations);
 
   return { imported, updated };
 }
@@ -217,4 +253,40 @@ function toGlossaryTerm(record: {
     category: record.category ?? undefined,
     notes: record.notes ?? undefined,
   };
+}
+
+function groupImportTerms(terms: Array<Omit<GlossaryTerm, "id">>): Array<{
+  term: Omit<GlossaryTerm, "id">;
+  occurrences: number;
+}> {
+  const grouped = new Map<
+    string,
+    {
+      term: Omit<GlossaryTerm, "id">;
+      occurrences: number;
+    }
+  >();
+
+  for (const term of terms) {
+    const key = getGlossaryKey(term);
+    const existing = grouped.get(key);
+
+    if (existing) {
+      existing.term = term;
+      existing.occurrences += 1;
+      continue;
+    }
+
+    grouped.set(key, { term, occurrences: 1 });
+  }
+
+  return Array.from(grouped.values());
+}
+
+function getGlossaryKey(term: {
+  sourceLocale: string;
+  targetLocale: string;
+  sourceTerm: string;
+}): string {
+  return `${term.sourceLocale}\u0000${term.targetLocale}\u0000${term.sourceTerm}`;
 }

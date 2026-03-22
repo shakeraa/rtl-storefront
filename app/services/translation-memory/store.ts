@@ -1,5 +1,5 @@
 import prisma from "../../db.server";
-import { calculateSimilarity, normalizeForMatching } from "./matcher";
+import { calculateSimilarity } from "./matcher";
 import type { TMEntry, TMImportExportFormat, TMSearchResult } from "./types";
 
 const DEFAULT_FUZZY_THRESHOLD = 0.8;
@@ -19,37 +19,34 @@ export async function addEntry(
       targetLocale: entry.targetLocale,
       sourceText: entry.sourceText,
     },
+    select: { id: true },
   });
 
-  if (existing) {
-    const updated = await prisma.translationMemory.update({
-      where: { id: existing.id },
-      data: {
-        translatedText: entry.translatedText,
-        context: entry.context ?? null,
-        category: entry.category ?? null,
-        quality: entry.quality,
-        lastUsedAt: new Date(),
-      },
-    });
+  const record = existing
+    ? await prisma.translationMemory.update({
+        where: { id: existing.id },
+        data: {
+          translatedText: entry.translatedText,
+          context: entry.context ?? null,
+          category: entry.category ?? null,
+          quality: entry.quality,
+          lastUsedAt: new Date(),
+        },
+      })
+    : await prisma.translationMemory.create({
+        data: {
+          shop,
+          sourceLocale: entry.sourceLocale,
+          targetLocale: entry.targetLocale,
+          sourceText: entry.sourceText,
+          translatedText: entry.translatedText,
+          context: entry.context ?? null,
+          category: entry.category ?? null,
+          quality: entry.quality,
+        },
+      });
 
-    return toTMEntry(updated);
-  }
-
-  const created = await prisma.translationMemory.create({
-    data: {
-      shop,
-      sourceLocale: entry.sourceLocale,
-      targetLocale: entry.targetLocale,
-      sourceText: entry.sourceText,
-      translatedText: entry.translatedText,
-      context: entry.context ?? null,
-      category: entry.category ?? null,
-      quality: entry.quality,
-    },
-  });
-
-  return toTMEntry(created);
+  return toTMEntry(record);
 }
 
 /**
@@ -101,6 +98,17 @@ export async function findFuzzy(
       sourceLocale,
       targetLocale,
     },
+    select: {
+      id: true,
+      sourceLocale: true,
+      targetLocale: true,
+      sourceText: true,
+      translatedText: true,
+      context: true,
+      category: true,
+      quality: true,
+      usageCount: true,
+    },
   });
 
   const results: TMSearchResult[] = [];
@@ -136,26 +144,82 @@ export async function search(
   sourceText: string,
   threshold: number = DEFAULT_FUZZY_THRESHOLD,
 ): Promise<TMSearchResult[]> {
-  const results: TMSearchResult[] = [];
+  const candidates = await prisma.translationMemory.findMany({
+    where: {
+      shop,
+      sourceLocale,
+      targetLocale,
+    },
+    orderBy: { quality: "desc" },
+    select: {
+      id: true,
+      sourceLocale: true,
+      targetLocale: true,
+      sourceText: true,
+      translatedText: true,
+      context: true,
+      category: true,
+      quality: true,
+      usageCount: true,
+    },
+  });
 
-  const exact = await findExact(shop, sourceLocale, targetLocale, sourceText);
-  if (exact) {
-    results.push({
-      entry: exact,
-      similarity: 1,
-      matchType: "exact",
-    });
+  let exactRecord:
+    | {
+        id: string;
+        sourceLocale: string;
+        targetLocale: string;
+        sourceText: string;
+        translatedText: string;
+        context: string | null;
+        category: string | null;
+        quality: number;
+        usageCount: number;
+      }
+    | null = null;
+  const fuzzy: TMSearchResult[] = [];
+
+  for (const candidate of candidates) {
+    if (!exactRecord && candidate.sourceText === sourceText) {
+      exactRecord = candidate;
+      continue;
+    }
+
+    const similarity = calculateSimilarity(sourceText, candidate.sourceText);
+    if (similarity >= threshold && similarity < 1) {
+      fuzzy.push({
+        entry: toTMEntry(candidate),
+        similarity,
+        matchType: "fuzzy",
+      });
+    }
   }
 
-  const fuzzy = await findFuzzy(
-    shop,
-    sourceLocale,
-    targetLocale,
-    sourceText,
-    threshold,
-  );
+  fuzzy.sort((a, b) => {
+    if (b.similarity !== a.similarity) return b.similarity - a.similarity;
+    return b.entry.quality - a.entry.quality;
+  });
 
-  return [...results, ...fuzzy];
+  if (!exactRecord) {
+    return fuzzy;
+  }
+
+  const exact = await prisma.translationMemory.update({
+    where: { id: exactRecord.id },
+    data: {
+      usageCount: { increment: 1 },
+      lastUsedAt: new Date(),
+    },
+  });
+
+  return [
+    {
+      entry: toTMEntry(exact),
+      similarity: 1,
+      matchType: "exact",
+    },
+    ...fuzzy,
+  ];
 }
 
 /**
@@ -172,31 +236,23 @@ export async function getStats(shop: string): Promise<{
   totalEntries: number;
   languagePairs: Array<{ sourceLocale: string; targetLocale: string; count: number }>;
 }> {
-  const totalEntries = await prisma.translationMemory.count({ where: { shop } });
-
-  const entries = await prisma.translationMemory.findMany({
-    where: { shop },
-    select: { sourceLocale: true, targetLocale: true },
-  });
-
-  const pairMap = new Map<string, { sourceLocale: string; targetLocale: string; count: number }>();
-  for (const entry of entries) {
-    const key = `${entry.sourceLocale}:${entry.targetLocale}`;
-    const existing = pairMap.get(key);
-    if (existing) {
-      existing.count++;
-    } else {
-      pairMap.set(key, {
-        sourceLocale: entry.sourceLocale,
-        targetLocale: entry.targetLocale,
-        count: 1,
-      });
-    }
-  }
+  const [totalEntries, languagePairs] = await Promise.all([
+    prisma.translationMemory.count({ where: { shop } }),
+    prisma.translationMemory.groupBy({
+      by: ["sourceLocale", "targetLocale"],
+      where: { shop },
+      _count: { _all: true },
+      orderBy: [{ sourceLocale: "asc" }, { targetLocale: "asc" }],
+    }),
+  ]);
 
   return {
     totalEntries,
-    languagePairs: Array.from(pairMap.values()),
+    languagePairs: languagePairs.map((pair) => ({
+      sourceLocale: pair.sourceLocale,
+      targetLocale: pair.targetLocale,
+      count: pair._count._all,
+    })),
   };
 }
 
@@ -227,21 +283,40 @@ export async function importEntries(
   shop: string,
   data: TMImportExportFormat,
 ): Promise<{ imported: number; updated: number }> {
-  let imported = 0;
-  let updated = 0;
+  if (data.entries.length === 0) {
+    return { imported: 0, updated: 0 };
+  }
 
-  for (const entry of data.entries) {
-    const existing = await prisma.translationMemory.findFirst({
-      where: {
-        shop,
+  const groupedEntries = groupImportEntries(data.entries);
+  const existingEntries = await prisma.translationMemory.findMany({
+    where: {
+      shop,
+      OR: groupedEntries.map(({ entry }) => ({
         sourceLocale: entry.sourceLocale,
         targetLocale: entry.targetLocale,
         sourceText: entry.sourceText,
-      },
-    });
+      })),
+    },
+    select: {
+      id: true,
+      sourceLocale: true,
+      targetLocale: true,
+      sourceText: true,
+    },
+  });
+  const existingByKey = new Map(
+    existingEntries.map((entry) => [getEntryKey(entry), entry]),
+  );
+
+  let imported = 0;
+  let updated = 0;
+  const operations = groupedEntries.map(({ entry, occurrences }) => {
+    const existing = existingByKey.get(getEntryKey(entry));
 
     if (existing) {
-      await prisma.translationMemory.update({
+      updated += occurrences;
+
+      return prisma.translationMemory.update({
         where: { id: existing.id },
         data: {
           translatedText: entry.translatedText,
@@ -249,24 +324,63 @@ export async function importEntries(
           category: entry.category ?? null,
         },
       });
-      updated++;
-    } else {
-      await prisma.translationMemory.create({
-        data: {
-          shop,
-          sourceLocale: entry.sourceLocale,
-          targetLocale: entry.targetLocale,
-          sourceText: entry.sourceText,
-          translatedText: entry.translatedText,
-          context: entry.context ?? null,
-          category: entry.category ?? null,
-        },
-      });
-      imported++;
     }
-  }
+
+    imported += 1;
+    updated += occurrences - 1;
+
+    return prisma.translationMemory.create({
+      data: {
+        shop,
+        sourceLocale: entry.sourceLocale,
+        targetLocale: entry.targetLocale,
+        sourceText: entry.sourceText,
+        translatedText: entry.translatedText,
+        context: entry.context ?? null,
+        category: entry.category ?? null,
+      },
+    });
+  });
+
+  await prisma.$transaction(operations);
 
   return { imported, updated };
+}
+
+function groupImportEntries(entries: TMImportExportFormat["entries"]): Array<{
+  entry: TMImportExportFormat["entries"][number];
+  occurrences: number;
+}> {
+  const grouped = new Map<
+    string,
+    {
+      entry: TMImportExportFormat["entries"][number];
+      occurrences: number;
+    }
+  >();
+
+  for (const entry of entries) {
+    const key = getEntryKey(entry);
+    const existing = grouped.get(key);
+
+    if (existing) {
+      existing.entry = entry;
+      existing.occurrences += 1;
+      continue;
+    }
+
+    grouped.set(key, { entry, occurrences: 1 });
+  }
+
+  return Array.from(grouped.values());
+}
+
+function getEntryKey(entry: {
+  sourceLocale: string;
+  targetLocale: string;
+  sourceText: string;
+}): string {
+  return `${entry.sourceLocale}\u0000${entry.targetLocale}\u0000${entry.sourceText}`;
 }
 
 function toTMEntry(record: {
