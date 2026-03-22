@@ -1,10 +1,10 @@
 ---
-id: "T0185"
-title: "Security - CSRF Protection"
+id: "T0187"
+title: "Security - IP Blocking"
 priority: medium
 assigned: claude-sec
-branch: feature/t0185
-status: active
+branch: feature/t0187
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Implement CSRF tokens
+Block suspicious IPs
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0188"
-title: "Security - Audit Logging"
+id: "T0184"
+title: "Security - XSS Prevention"
 priority: medium
 assigned: claude-sec
-branch: feature/t0188
-status: active
+branch: feature/t0184
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Log security events
+Sanitize user inputs
 
 ## Acceptance criteria
 - [ ] Feature implemented

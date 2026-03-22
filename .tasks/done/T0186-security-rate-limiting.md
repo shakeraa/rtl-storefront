@@ -1,10 +1,10 @@
 ---
-id: "T0189"
-title: "GDPR - Data Export"
+id: "T0186"
+title: "Security - Rate Limiting"
 priority: medium
 assigned: claude-sec
-branch: feature/t0189
-status: active
+branch: feature/t0186
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Export all user data
+Rate limit API endpoints
 
 ## Acceptance criteria
 - [ ] Feature implemented

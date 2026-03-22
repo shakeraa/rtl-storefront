@@ -1,10 +1,10 @@
 ---
-id: "T0186"
-title: "Security - Rate Limiting"
+id: "T0183"
+title: "Security - Content Security Policy"
 priority: medium
 assigned: claude-sec
-branch: feature/t0186
-status: active
+branch: feature/t0183
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Rate limit API endpoints
+Implement CSP headers
 
 ## Acceptance criteria
 - [ ] Feature implemented

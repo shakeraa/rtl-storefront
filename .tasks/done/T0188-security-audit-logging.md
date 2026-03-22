@@ -1,10 +1,10 @@
 ---
-id: "T0187"
-title: "Security - IP Blocking"
+id: "T0188"
+title: "Security - Audit Logging"
 priority: medium
 assigned: claude-sec
-branch: feature/t0187
-status: active
+branch: feature/t0188
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Block suspicious IPs
+Log security events
 
 ## Acceptance criteria
 - [ ] Feature implemented

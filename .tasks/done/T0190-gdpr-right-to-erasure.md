@@ -1,10 +1,10 @@
 ---
-id: "T0197"
-title: "Compliance - Accessibility WCAG"
+id: "T0190"
+title: "GDPR - Right to Erasure"
 priority: medium
 assigned: claude-sec
-branch: feature/t0197
-status: active
+branch: feature/t0190
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Meet WCAG 2.1 AA standards
+Delete all user data on request
 
 ## Acceptance criteria
 - [ ] Feature implemented

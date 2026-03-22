@@ -1,10 +1,10 @@
 ---
-id: "T0190"
-title: "GDPR - Right to Erasure"
+id: "T0196"
+title: "Compliance - CCPA Support"
 priority: medium
 assigned: claude-sec
-branch: feature/t0190
-status: active
+branch: feature/t0196
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Delete all user data on request
+California privacy compliance
 
 ## Acceptance criteria
 - [ ] Feature implemented
