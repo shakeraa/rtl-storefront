@@ -1,0 +1,590 @@
+/**
+ * RTL Fashion Styles
+ * T0006: RTL-First Fashion Design - Pre-built Theme Sections
+ *
+ * Design principles:
+ * - RTL-first: logical CSS properties (inset-inline-start/end, margin-inline, etc.)
+ * - Arabic typography classes
+ * - Geometric / Islamic-inspired decorative patterns
+ * - No hardcoded directional float/position — use [dir="rtl"] overrides only where necessary
+ */
+
+/* ============================================================
+   1. FONTS & ARABIC TYPOGRAPHY
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+
+/**
+ * Arabic body text — applied when dir="rtl" is present on a parent element
+ */
+[dir="rtl"] {
+  font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+/**
+ * Display headings with a calligraphic feel (Amiri or Noto Sans Arabic Bold)
+ */
+.rtl-arabic-heading,
+[dir="rtl"] .rtl-fashion-heading {
+  font-family: 'Amiri', 'Noto Sans Arabic', Georgia, serif;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.rtl-arabic-body,
+[dir="rtl"] .rtl-fashion-body {
+  font-family: 'Noto Sans Arabic', 'Segoe UI', sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.rtl-arabic-label {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* ============================================================
+   2. LAYOUT UTILITIES — RTL-AWARE
+   ============================================================ */
+
+/* Logical margin helpers */
+.rtl-ms-auto  { margin-inline-start: auto; }
+.rtl-me-auto  { margin-inline-end: auto; }
+.rtl-ps-1     { padding-inline-start: 0.25rem; }
+.rtl-ps-2     { padding-inline-start: 0.5rem; }
+.rtl-ps-3     { padding-inline-start: 0.75rem; }
+.rtl-ps-4     { padding-inline-start: 1rem; }
+.rtl-pe-1     { padding-inline-end: 0.25rem; }
+.rtl-pe-2     { padding-inline-end: 0.5rem; }
+.rtl-pe-3     { padding-inline-end: 0.75rem; }
+.rtl-pe-4     { padding-inline-end: 1rem; }
+
+/* Text alignment helpers */
+.rtl-text-start { text-align: start; }
+.rtl-text-end   { text-align: end; }
+
+/* Flex row that reverses in RTL automatically using row-reverse on [dir=rtl] */
+.rtl-flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+[dir="rtl"] .rtl-flex-row {
+  flex-direction: row-reverse;
+}
+
+/* Border helpers using logical properties */
+.rtl-border-start {
+  border-inline-start: 3px solid currentColor;
+  padding-inline-start: 1rem;
+}
+
+/* ============================================================
+   3. GEOMETRIC / ISLAMIC PATTERN DECORATIONS
+   ============================================================ */
+
+/**
+ * Reusable geometric pattern overlay.
+ * Apply as a ::before or ::after pseudo-element, or as a div with this class.
+ * The SVG is an inline data URI of an 8-pointed star tessellation.
+ */
+.rtl-geometric-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%23c8a96e' stroke-width='0.8' opacity='0.35'%3E%3Cpolygon points='30,4 35,17 49,17 38,25 42,39 30,31 18,39 22,25 11,17 25,17' /%3E%3Crect x='10' y='10' width='40' height='40' rx='2' /%3E%3Ccircle cx='30' cy='30' r='12' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 60px 60px;
+}
+
+.rtl-geometric-pattern--gold {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%23c8a96e' stroke-width='1' opacity='0.5'%3E%3Cpolygon points='30,4 35,17 49,17 38,25 42,39 30,31 18,39 22,25 11,17 25,17' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 60px 60px;
+}
+
+.rtl-geometric-pattern--dark {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%231a1a1a' stroke-width='0.8' opacity='0.08'%3E%3Cpolygon points='30,4 35,17 49,17 38,25 42,39 30,31 18,39 22,25 11,17 25,17' /%3E%3Crect x='10' y='10' width='40' height='40' rx='2' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 60px 60px;
+}
+
+/**
+ * Decorative border strip using repeating arabesque motif
+ */
+.rtl-arabesque-border {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8'%3E%3Cpath d='M0 4 Q5 0 10 4 Q15 8 20 4 Q25 0 30 4 Q35 8 40 4' fill='none' stroke='%23c8a96e' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 40px 8px;
+  height: 8px;
+  width: 100%;
+}
+
+/**
+ * Section divider with centered ornament
+ */
+.rtl-ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.rtl-ornament-divider::before,
+.rtl-ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #c8a96e, transparent);
+}
+
+[dir="rtl"] .rtl-ornament-divider::before {
+  background: linear-gradient(to left, transparent, #c8a96e, transparent);
+}
+
+.rtl-ornament-divider__icon {
+  font-size: 1.25rem;
+  color: #c8a96e;
+  line-height: 1;
+}
+
+/* ============================================================
+   4. COLOR PALETTE — MENA FASHION TONES
+   ============================================================ */
+
+:root {
+  /* Brand greens */
+  --rtl-fashion-green-dark:   #1a5f2a;
+  --rtl-fashion-green-mid:    #2e7d44;
+  --rtl-fashion-green-light:  #4caf6e;
+
+  /* Gold / champagne */
+  --rtl-fashion-gold:         #c8a96e;
+  --rtl-fashion-gold-light:   #e8d5a3;
+  --rtl-fashion-champagne:    #f5edd6;
+
+  /* Neutrals */
+  --rtl-fashion-cream:        #faf7f2;
+  --rtl-fashion-sand:         #e8e0d0;
+  --rtl-fashion-taupe:        #8c7b6b;
+  --rtl-fashion-charcoal:     #2c2c2c;
+
+  /* Accents */
+  --rtl-fashion-burgundy:     #7b2d3e;
+  --rtl-fashion-navy:         #1e2f4d;
+  --rtl-fashion-rose:         #d4a0a7;
+}
+
+/* ============================================================
+   5. SECTION CONTAINERS
+   ============================================================ */
+
+.rtl-fashion-section {
+  padding: 4rem 1.5rem;
+}
+
+.rtl-fashion-section__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.rtl-fashion-section--cream {
+  background-color: var(--rtl-fashion-cream);
+}
+
+.rtl-fashion-section--champagne {
+  background-color: var(--rtl-fashion-champagne);
+}
+
+.rtl-fashion-section--dark {
+  background-color: var(--rtl-fashion-charcoal);
+  color: #fff;
+}
+
+/* ============================================================
+   6. SECTION HEADER
+   ============================================================ */
+
+.rtl-fashion-section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+[dir="rtl"] .rtl-fashion-section-header {
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
+
+.rtl-fashion-section-header__eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rtl-fashion-gold);
+  margin-bottom: 0.5rem;
+}
+
+[dir="rtl"] .rtl-fashion-section-header__eyebrow {
+  letter-spacing: 0;
+}
+
+.rtl-fashion-section-header__title {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 700;
+  color: inherit;
+  margin-bottom: 1rem;
+}
+
+.rtl-fashion-section-header__description {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  opacity: 0.75;
+}
+
+/* ============================================================
+   7. PRODUCT CARD BASE STYLES
+   ============================================================ */
+
+.rtl-fashion-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.07);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rtl-fashion-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+}
+
+.rtl-fashion-card__image-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: var(--rtl-fashion-cream);
+}
+
+.rtl-fashion-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s ease;
+}
+
+.rtl-fashion-card:hover .rtl-fashion-card__image {
+  transform: scale(1.06);
+}
+
+.rtl-fashion-card__body {
+  padding: 1.25rem;
+  text-align: start;
+}
+
+.rtl-fashion-card__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--rtl-fashion-charcoal);
+  margin-bottom: 0.375rem;
+  line-height: 1.35;
+}
+
+.rtl-fashion-card__price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--rtl-fashion-green-dark);
+}
+
+.rtl-fashion-card__price--sale { color: #d32f2f; }
+.rtl-fashion-card__price--compare {
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 0.5;
+  text-decoration: line-through;
+  margin-inline-start: 0.375rem;
+}
+
+/* Badge using inset-inline-start so it flips automatically */
+.rtl-fashion-badge {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rtl-fashion-badge--new      { background: var(--rtl-fashion-green-dark); color: #fff; }
+.rtl-fashion-badge--sale     { background: #d32f2f; color: #fff; }
+.rtl-fashion-badge--featured { background: var(--rtl-fashion-gold); color: var(--rtl-fashion-charcoal); }
+.rtl-fashion-badge--sold-out { background: #9e9e9e; color: #fff; }
+
+/* ============================================================
+   8. BUTTON STYLES
+   ============================================================ */
+
+.rtl-fashion-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+[dir="rtl"] .rtl-fashion-btn {
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
+
+.rtl-fashion-btn--primary {
+  background: var(--rtl-fashion-green-dark);
+  color: #fff;
+}
+
+.rtl-fashion-btn--primary:hover {
+  background: var(--rtl-fashion-green-mid);
+  transform: translateY(-1px);
+}
+
+.rtl-fashion-btn--outline {
+  background: transparent;
+  border-color: var(--rtl-fashion-green-dark);
+  color: var(--rtl-fashion-green-dark);
+}
+
+.rtl-fashion-btn--outline:hover {
+  background: var(--rtl-fashion-green-dark);
+  color: #fff;
+}
+
+.rtl-fashion-btn--gold {
+  background: var(--rtl-fashion-gold);
+  color: var(--rtl-fashion-charcoal);
+}
+
+.rtl-fashion-btn--gold:hover {
+  background: #b8943a;
+  color: #fff;
+}
+
+/* ============================================================
+   9. GRID UTILITIES
+   ============================================================ */
+
+.rtl-fashion-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.rtl-fashion-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.rtl-fashion-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.rtl-fashion-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1024px) {
+  .rtl-fashion-grid--4 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .rtl-fashion-grid--3,
+  .rtl-fashion-grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .rtl-fashion-grid--2,
+  .rtl-fashion-grid--3,
+  .rtl-fashion-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   10. HERO LAYOUT
+   ============================================================ */
+
+.rtl-fashion-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.rtl-fashion-hero__inner {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  width: 100%;
+}
+
+[dir="rtl"] .rtl-fashion-hero__inner {
+  flex-direction: row-reverse;
+}
+
+.rtl-fashion-hero__content {
+  flex: 1 1 50%;
+  text-align: start;
+}
+
+.rtl-fashion-hero__image {
+  flex: 1 1 50%;
+}
+
+.rtl-fashion-hero__image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .rtl-fashion-hero__inner,
+  [dir="rtl"] .rtl-fashion-hero__inner {
+    flex-direction: column;
+  }
+}
+
+/* ============================================================
+   11. PREVIEW COMPONENT (used by preview.ts generated HTML)
+   ============================================================ */
+
+.rtl-preview {
+  font-size: 0.875rem;
+  color: var(--rtl-fashion-charcoal);
+  background: var(--rtl-fashion-cream);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+.rtl-preview__hero-inner {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+[dir="rtl"] .rtl-preview__hero-inner {
+  flex-direction: row-reverse;
+}
+
+.rtl-preview__content { flex: 1; }
+
+.rtl-preview__heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.rtl-preview__subheading {
+  font-size: 0.875rem;
+  opacity: 0.75;
+  margin-bottom: 1rem;
+}
+
+.rtl-preview__cta {
+  background: var(--rtl-fashion-green-dark);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 3px;
+  cursor: default;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.rtl-preview__image-placeholder {
+  flex: 1;
+  aspect-ratio: 4/3;
+  background: var(--rtl-fashion-sand);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rtl-preview__geometric-pattern {
+  width: 100%;
+  height: 100%;
+}
+
+.rtl-preview__section-title {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--rtl-fashion-charcoal);
+}
+
+.rtl-preview__grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rtl-preview__grid--3col { grid-template-columns: repeat(3, 1fr); }
+.rtl-preview__grid--4col { grid-template-columns: repeat(4, 1fr); }
+
+.rtl-preview__card {
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.rtl-preview__card-image {
+  aspect-ratio: 3/4;
+  background: var(--rtl-fashion-sand);
+}
+
+.rtl-preview__card--compact .rtl-preview__card-image { display: none; }
+
+.rtl-preview__card-image--square {
+  aspect-ratio: 1/1;
+  display: block;
+  background: var(--rtl-fashion-sand);
+}
+
+.rtl-preview__card-body {
+  padding: 0.5rem;
+}
+
+.rtl-preview__card-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  text-align: start;
+}
+
+.rtl-preview__card-link {
+  display: block;
+  padding: 0.375rem;
+  background: var(--rtl-fashion-green-dark);
+  color: #fff;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.rtl-preview__add-btn {
+  display: block;
+  width: 100%;
+  padding: 0.375rem;
+  margin-top: 0.25rem;
+  background: var(--rtl-fashion-green-dark);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: default;
+  text-align: center;
+}
