@@ -1,5 +1,14 @@
 export type TranslationProviderName = "openai" | "deepl" | "google";
 
+// Supported locales for translation
+export type Locale = 
+  | 'ar' | 'en' | 'he' | 'ur' | 'fa' | 'fr' | 'de' | 'es' | 'it' | 'pt' | 'nl' | 'tr' | 'id';
+
+// Supported locales array
+export const SUPPORTED_LOCALES: Locale[] = [
+  'ar', 'en', 'he', 'ur', 'fa', 'fr', 'de', 'es', 'it', 'pt', 'nl', 'tr', 'id'
+];
+
 export interface TranslationRequest {
   text: string;
   sourceLocale: string;

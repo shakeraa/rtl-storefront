@@ -80,6 +80,12 @@ export const INTEGRATIONS: Integration[] = [
     status: 'available',
   },
   {
+    id: 'mailchimp',
+    name: 'Mailchimp',
+    category: 'email',
+    status: 'available',
+  },
+  {
     id: 'zendesk',
     name: 'Zendesk',
     category: 'support',
@@ -207,3 +213,5 @@ export async function checkIntegrationHealth(
 }
 
 export * from './constants';
+export * from './search-apps';
+export * from './mailchimp';
