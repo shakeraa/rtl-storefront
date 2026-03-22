@@ -5,6 +5,7 @@ import {
   trackConversion,
   trackPageView,
   trackLanguageChange,
+  getAnalyticsRetentionSettings,
   getEventsByType,
   getEventsByLocale,
   getTranslationVolumeByLanguage,
@@ -12,6 +13,8 @@ import {
   getAIConfidenceMetrics,
   clearEvents,
   getEventCount,
+  pruneRetainedEvents,
+  setAnalyticsRetentionSettings,
 } from '../../app/services/analytics/tracker';
 import {
   generateTranslationReport,
@@ -103,6 +106,13 @@ describe('Analytics Service - T0012', () => {
 
       const arEvents = getEventsByLocale('ar');
       expect(arEvents).toHaveLength(1);
+    });
+
+    it('should expose the total event count', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/' });
+      trackEvent('conversion', 'shop-1', 'session-2', { value: 100 }, 'ar');
+
+      expect(getEventCount()).toBe(2);
     });
   });
 
@@ -286,6 +296,50 @@ describe('Analytics Service - T0012', () => {
       expect(csv).toContain('locale,count,revenue');
       expect(csv).toContain('ar,100,5000');
       expect(csv).toContain('he,50,2500');
+    });
+  });
+
+  describe('Retention', () => {
+    it('should expose default analytics retention settings', () => {
+      expect(getAnalyticsRetentionSettings()).toEqual({
+        retentionDays: 90,
+        maxEvents: 10000,
+      });
+    });
+
+    it('should remove events older than the configured retention window', () => {
+      setAnalyticsRetentionSettings({ retentionDays: 7 });
+
+      const staleEvent = trackEvent('page_view', 'shop-1', 'session-1', { page: '/old' });
+      const freshEvent = trackEvent('page_view', 'shop-1', 'session-2', { page: '/fresh' });
+      staleEvent.timestamp = new Date('2026-03-01T12:00:00.000Z');
+      freshEvent.timestamp = new Date('2026-03-09T12:00:00.000Z');
+
+      const result = pruneRetainedEvents(new Date('2026-03-10T12:00:00.000Z'));
+      const retainedEvents = getEventsByType(
+        'page_view',
+        undefined,
+        new Date('2026-03-10T12:00:00.000Z')
+      );
+
+      expect(result).toEqual({ removedExpired: 1, removedOverflow: 0, remaining: 1 });
+      expect(getEventCount()).toBe(1);
+      expect(retainedEvents[0].metadata.page).toBe('/fresh');
+    });
+
+    it('should trim older events when the max event count is lowered', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/one' });
+      trackEvent('page_view', 'shop-1', 'session-2', { page: '/two' });
+      trackEvent('page_view', 'shop-1', 'session-3', { page: '/three' });
+
+      const result = setAnalyticsRetentionSettings({ maxEvents: 2 });
+
+      expect(result).toEqual({ retentionDays: 90, maxEvents: 2 });
+      expect(getEventCount()).toBe(2);
+      expect(getEventsByType('page_view').map((event) => event.metadata.page)).toEqual([
+        '/two',
+        '/three',
+      ]);
     });
   });
 });

@@ -1,231 +1,107 @@
-import { useState, useCallback } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Card,
-  BlockStack,
-  InlineStack,
-  Text,
-  IndexTable,
-  Badge,
-  Button,
-  Box,
-  Select,
-  Filters,
-  ChoiceList,
-  ProgressBar,
-  useIndexResourceState,
+  Page, Layout, Card, BlockStack, InlineStack, Text,
+  IndexTable, Badge, Button, Select, useIndexResourceState,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { useState } from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
-  return json({
-    items: [
-      { id: "1", title: "Premium Leather Handbag", type: "Product", sourceLang: "English", status: "Translated" },
-      { id: "2", title: "Silk Embroidered Scarf", type: "Product", sourceLang: "English", status: "Partial" },
-      { id: "3", title: "Summer Collection 2026", type: "Collection", sourceLang: "English", status: "Translated" },
-      { id: "4", title: "Cashmere Wool Cardigan", type: "Product", sourceLang: "English", status: "Untranslated" },
-      { id: "5", title: "Shipping & Returns", type: "Page", sourceLang: "English", status: "Translated" },
-      { id: "6", title: "Artisan Jewelry Box", type: "Product", sourceLang: "English", status: "Untranslated" },
-      { id: "7", title: "Style Tips & Trends", type: "Blog", sourceLang: "English", status: "Partial" },
-      { id: "8", title: "Winter Essentials", type: "Collection", sourceLang: "English", status: "Untranslated" },
-    ],
-    languageStats: {
-      arabic: { translated: 312, total: 400, coverage: 78 },
-      hebrew: { translated: 180, total: 400, coverage: 45 },
-      farsi: { translated: 92, total: 400, coverage: 23 },
-    },
-  });
+  const response = await admin.graphql(`#graphql
+    query getProducts {
+      products(first: 20) {
+        edges {
+          node {
+            id
+            title
+            handle
+            productType
+            status
+          }
+        }
+      }
+      collections(first: 10) {
+        edges {
+          node {
+            id
+            title
+            handle
+          }
+        }
+      }
+    }
+  `);
+
+  const data = await response.json();
+
+  const products = (data.data?.products?.edges ?? []).map((edge: any) => ({
+    id: edge.node.id,
+    title: edge.node.title,
+    type: edge.node.productType || "Product",
+    resourceType: "product" as const,
+    status: "untranslated" as const,
+  }));
+
+  const collections = (data.data?.collections?.edges ?? []).map((edge: any) => ({
+    id: edge.node.id,
+    title: edge.node.title,
+    type: "Collection",
+    resourceType: "collection" as const,
+    status: "untranslated" as const,
+  }));
+
+  return json({ items: [...products, ...collections], shop: session.shop });
 };
 
-function statusBadge(status: string) {
-  switch (status) {
-    case "Translated":
-      return <Badge tone="success">Translated</Badge>;
-    case "Partial":
-      return <Badge tone="warning">Partial</Badge>;
-    case "Untranslated":
-      return <Badge tone="critical">Untranslated</Badge>;
-    default:
-      return <Badge>{status}</Badge>;
-  }
-}
+export default function TranslatePage() {
+  const { items } = useLoaderData<typeof loader>();
+  const [locale, setLocale] = useState("ar");
+  const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(items);
 
-export default function Translate() {
-  const { items, languageStats } = useLoaderData<typeof loader>();
-  const [selectedLanguage, setSelectedLanguage] = useState("arabic");
-  const [typeFilter, setTypeFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string[]>([]);
-  const [queryValue, setQueryValue] = useState("");
+  const statusBadge = (status: string) => {
+    if (status === "translated") return <Badge tone="success">Translated</Badge>;
+    if (status === "partial") return <Badge tone="warning">Partial</Badge>;
+    return <Badge tone="critical">Untranslated</Badge>;
+  };
 
-  const resourceName = { singular: "content item", plural: "content items" };
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(items);
-
-  const handleLanguageChange = useCallback(
-    (value: string) => setSelectedLanguage(value),
-    [],
-  );
-
-  const handleTypeFilterChange = useCallback(
-    (value: string[]) => setTypeFilter(value),
-    [],
-  );
-
-  const handleStatusFilterChange = useCallback(
-    (value: string[]) => setStatusFilter(value),
-    [],
-  );
-
-  const handleQueryChange = useCallback(
-    (value: string) => setQueryValue(value),
-    [],
-  );
-
-  const handleQueryClear = useCallback(() => setQueryValue(""), []);
-
-  const handleFiltersClearAll = useCallback(() => {
-    setTypeFilter([]);
-    setStatusFilter([]);
-    setQueryValue("");
-  }, []);
-
-  const filters = [
-    {
-      key: "type",
-      label: "Resource Type",
-      filter: (
-        <ChoiceList
-          title="Resource Type"
-          titleHidden
-          choices={[
-            { label: "Products", value: "Product" },
-            { label: "Collections", value: "Collection" },
-            { label: "Pages", value: "Page" },
-            { label: "Blogs", value: "Blog" },
-          ]}
-          selected={typeFilter}
-          onChange={handleTypeFilterChange}
-          allowMultiple
-        />
-      ),
-      shortcut: true,
-    },
-    {
-      key: "status",
-      label: "Status",
-      filter: (
-        <ChoiceList
-          title="Status"
-          titleHidden
-          choices={[
-            { label: "Translated", value: "Translated" },
-            { label: "Partial", value: "Partial" },
-            { label: "Untranslated", value: "Untranslated" },
-          ]}
-          selected={statusFilter}
-          onChange={handleStatusFilterChange}
-          allowMultiple
-        />
-      ),
-      shortcut: true,
-    },
-  ];
-
-  const appliedFilters = [
-    ...(typeFilter.length > 0
-      ? [{ key: "type", label: `Type: ${typeFilter.join(", ")}`, onRemove: () => setTypeFilter([]) }]
-      : []),
-    ...(statusFilter.length > 0
-      ? [{ key: "status", label: `Status: ${statusFilter.join(", ")}`, onRemove: () => setStatusFilter([]) }]
-      : []),
-  ];
-
-  const filteredItems = items.filter((item) => {
-    if (typeFilter.length > 0 && !typeFilter.includes(item.type)) return false;
-    if (statusFilter.length > 0 && !statusFilter.includes(item.status)) return false;
-    if (queryValue && !item.title.toLowerCase().includes(queryValue.toLowerCase())) return false;
-    return true;
-  });
-
-  const currentStats =
-    languageStats[selectedLanguage as keyof typeof languageStats];
-
-  const rowMarkup = filteredItems.map((item, index) => (
-    <IndexTable.Row
-      id={item.id}
-      key={item.id}
-      selected={selectedResources.includes(item.id)}
-      position={index}
-    >
-      <IndexTable.Cell>
-        <Text as="span" variant="bodyMd" fontWeight="bold">
-          {item.title}
-        </Text>
-      </IndexTable.Cell>
-      <IndexTable.Cell>
-        <Badge>{item.type}</Badge>
-      </IndexTable.Cell>
-      <IndexTable.Cell>{item.sourceLang}</IndexTable.Cell>
+  const rowMarkup = items.map((item, index) => (
+    <IndexTable.Row id={item.id} key={item.id} position={index} selected={selectedResources.includes(item.id)}>
+      <IndexTable.Cell><Text as="span" variant="bodyMd" fontWeight="bold">{item.title}</Text></IndexTable.Cell>
+      <IndexTable.Cell>{item.type}</IndexTable.Cell>
       <IndexTable.Cell>{statusBadge(item.status)}</IndexTable.Cell>
-      <IndexTable.Cell>
-        <Button size="slim">Translate</Button>
-      </IndexTable.Cell>
+      <IndexTable.Cell><Button size="slim">Translate</Button></IndexTable.Cell>
     </IndexTable.Row>
   ));
 
   return (
-    <Page
-      backAction={{ content: "Home", url: "/app" }}
-      title="Translate Content"
-    >
+    <Page>
       <TitleBar title="Translate Content" />
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            <Card padding="0">
-              <BlockStack gap="0">
-                <Box padding="400">
-                  <InlineStack gap="400" align="start" blockAlign="center">
-                    <Select
-                      label="Language"
-                      labelInline
-                      options={[
-                        { label: "Arabic", value: "arabic" },
-                        { label: "Hebrew", value: "hebrew" },
-                        { label: "Farsi", value: "farsi" },
-                      ]}
-                      value={selectedLanguage}
-                      onChange={handleLanguageChange}
-                    />
-                  </InlineStack>
-                </Box>
-                <Filters
-                  queryValue={queryValue}
-                  queryPlaceholder="Search content..."
-                  filters={filters}
-                  appliedFilters={appliedFilters}
-                  onQueryChange={handleQueryChange}
-                  onQueryClear={handleQueryClear}
-                  onClearAll={handleFiltersClearAll}
-                />
+            <Card>
+              <BlockStack gap="400">
+                <InlineStack gap="300" align="start">
+                  <Select label="Target Language" labelInline options={[
+                    { label: "Arabic (العربية)", value: "ar" },
+                    { label: "Hebrew (עברית)", value: "he" },
+                    { label: "Farsi (فارسی)", value: "fa" },
+                    { label: "French (Français)", value: "fr" },
+                  ]} value={locale} onChange={setLocale} />
+                </InlineStack>
                 <IndexTable
-                  resourceName={resourceName}
-                  itemCount={filteredItems.length}
-                  selectedItemsCount={
-                    allResourcesSelected ? "All" : selectedResources.length
-                  }
+                  resourceName={{ singular: "item", plural: "items" }}
+                  itemCount={items.length}
+                  selectedItemsCount={allResourcesSelected ? "All" : selectedResources.length}
                   onSelectionChange={handleSelectionChange}
                   headings={[
                     { title: "Content" },
                     { title: "Type" },
-                    { title: "Source Language" },
                     { title: "Status" },
                     { title: "Actions" },
                   ]}
@@ -235,43 +111,12 @@ export default function Translate() {
               </BlockStack>
             </Card>
           </Layout.Section>
-
           <Layout.Section variant="oneThird">
             <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Translation Stats
-                </Text>
-                <Text as="p" variant="bodyMd" tone="subdued">
-                  {selectedLanguage.charAt(0).toUpperCase() +
-                    selectedLanguage.slice(1)}
-                </Text>
-                {currentStats && (
-                  <BlockStack gap="300">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Translated
-                      </Text>
-                      <Text as="span" variant="bodyMd">
-                        {currentStats.translated} / {currentStats.total}
-                      </Text>
-                    </InlineStack>
-                    <ProgressBar
-                      progress={currentStats.coverage}
-                      size="small"
-                      tone={
-                        currentStats.coverage >= 75
-                          ? "success"
-                          : currentStats.coverage >= 50
-                            ? "highlight"
-                            : "critical"
-                      }
-                    />
-                    <Text as="p" variant="headingLg">
-                      {currentStats.coverage}% Coverage
-                    </Text>
-                  </BlockStack>
-                )}
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Translation Stats</Text>
+                <Text as="p" variant="bodyMd">{items.length} items found</Text>
+                <Text as="p" variant="bodyMd">Target: {locale === "ar" ? "Arabic" : locale === "he" ? "Hebrew" : locale === "fa" ? "Farsi" : "French"}</Text>
               </BlockStack>
             </Card>
           </Layout.Section>

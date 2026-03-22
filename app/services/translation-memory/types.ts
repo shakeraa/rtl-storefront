@@ -28,6 +28,14 @@ export interface GlossaryTerm {
   notes?: string;
 }
 
+export interface GlossaryLanguageBucket {
+  sourceLocale: string;
+  targetLocale: string;
+  termCount: number;
+  neverTranslateCount: number;
+  terms: GlossaryTerm[];
+}
+
 export interface TMImportExportFormat {
   version: string;
   entries: Array<{

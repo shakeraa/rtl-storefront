@@ -27,7 +27,12 @@ vi.mock("../../app/db.server", () => ({
 const { getStats, importEntries, search } = await import(
   "../../app/services/translation-memory/store"
 );
-const { importTerms } = await import(
+const {
+  exportTermsByLanguage,
+  getGlossariesByLanguage,
+  getGlossaryTargetLocales,
+  importTerms,
+} = await import(
   "../../app/services/translation-memory/glossary"
 );
 
@@ -304,5 +309,175 @@ describe("translation-memory query optimization", () => {
       },
     });
     expect(result).toEqual({ imported: 1, updated: 2 });
+  });
+
+  it("lists glossary target locales in ascending order", async () => {
+    mockPrisma.glossaryEntry.findMany.mockResolvedValue([
+      { targetLocale: "ar" },
+      { targetLocale: "fr" },
+      { targetLocale: "he" },
+    ]);
+
+    const locales = await getGlossaryTargetLocales("shop-one", "en");
+
+    expect(mockPrisma.glossaryEntry.findMany).toHaveBeenCalledWith({
+      where: {
+        shop: "shop-one",
+        sourceLocale: "en",
+      },
+      select: { targetLocale: true },
+      distinct: ["targetLocale"],
+      orderBy: { targetLocale: "asc" },
+    });
+    expect(locales).toEqual(["ar", "fr", "he"]);
+  });
+
+  it("groups glossary terms into separate buckets per target language", async () => {
+    mockPrisma.glossaryEntry.findMany.mockResolvedValue([
+      {
+        id: "gl-1",
+        sourceLocale: "en",
+        targetLocale: "ar",
+        sourceTerm: "Shopify",
+        translatedTerm: "شوبيفاي",
+        neverTranslate: true,
+        caseSensitive: false,
+        category: "brand",
+        notes: null,
+      },
+      {
+        id: "gl-2",
+        sourceLocale: "en",
+        targetLocale: "ar",
+        sourceTerm: "Storefront",
+        translatedTerm: "واجهة المتجر",
+        neverTranslate: false,
+        caseSensitive: false,
+        category: null,
+        notes: null,
+      },
+      {
+        id: "gl-3",
+        sourceLocale: "en",
+        targetLocale: "he",
+        sourceTerm: "Storefront",
+        translatedTerm: "חזית החנות",
+        neverTranslate: false,
+        caseSensitive: false,
+        category: null,
+        notes: "Preferred retail wording",
+      },
+    ]);
+
+    const glossaries = await getGlossariesByLanguage("shop-one", "en");
+
+    expect(mockPrisma.glossaryEntry.findMany).toHaveBeenCalledWith({
+      where: {
+        shop: "shop-one",
+        sourceLocale: "en",
+      },
+      orderBy: [{ targetLocale: "asc" }, { sourceTerm: "asc" }],
+    });
+    expect(glossaries).toEqual([
+      {
+        sourceLocale: "en",
+        targetLocale: "ar",
+        termCount: 2,
+        neverTranslateCount: 1,
+        terms: [
+          {
+            id: "gl-1",
+            sourceLocale: "en",
+            targetLocale: "ar",
+            sourceTerm: "Shopify",
+            translatedTerm: "شوبيفاي",
+            neverTranslate: true,
+            caseSensitive: false,
+            category: "brand",
+          },
+          {
+            id: "gl-2",
+            sourceLocale: "en",
+            targetLocale: "ar",
+            sourceTerm: "Storefront",
+            translatedTerm: "واجهة المتجر",
+            neverTranslate: false,
+            caseSensitive: false,
+          },
+        ],
+      },
+      {
+        sourceLocale: "en",
+        targetLocale: "he",
+        termCount: 1,
+        neverTranslateCount: 0,
+        terms: [
+          {
+            id: "gl-3",
+            sourceLocale: "en",
+            targetLocale: "he",
+            sourceTerm: "Storefront",
+            translatedTerm: "חזית החנות",
+            neverTranslate: false,
+            caseSensitive: false,
+            notes: "Preferred retail wording",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("exports glossary terms grouped by target language", async () => {
+    mockPrisma.glossaryEntry.findMany.mockResolvedValue([
+      {
+        id: "gl-1",
+        sourceLocale: "en",
+        targetLocale: "ar",
+        sourceTerm: "Shopify",
+        translatedTerm: "شوبيفاي",
+        neverTranslate: true,
+        caseSensitive: false,
+        category: null,
+        notes: null,
+      },
+      {
+        id: "gl-2",
+        sourceLocale: "en",
+        targetLocale: "he",
+        sourceTerm: "Storefront",
+        translatedTerm: "חזית החנות",
+        neverTranslate: false,
+        caseSensitive: false,
+        category: null,
+        notes: null,
+      },
+    ]);
+
+    const exported = await exportTermsByLanguage("shop-one", "en");
+
+    expect(exported).toEqual({
+      ar: [
+        {
+          id: "gl-1",
+          sourceLocale: "en",
+          targetLocale: "ar",
+          sourceTerm: "Shopify",
+          translatedTerm: "شوبيفاي",
+          neverTranslate: true,
+          caseSensitive: false,
+        },
+      ],
+      he: [
+        {
+          id: "gl-2",
+          sourceLocale: "en",
+          targetLocale: "he",
+          sourceTerm: "Storefront",
+          translatedTerm: "חזית החנות",
+          neverTranslate: false,
+          caseSensitive: false,
+        },
+      ],
+    });
   });
 });

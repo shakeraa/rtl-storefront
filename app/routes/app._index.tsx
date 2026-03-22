@@ -1,330 +1,102 @@
-import { useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Text,
-  Card,
-  Button,
-  BlockStack,
-  Box,
-  List,
-  Link,
-  InlineStack,
+  Page, Layout, Card, BlockStack, InlineStack, InlineGrid,
+  Text, ProgressBar, DataTable, Badge, Button,
 } from "@shopify/polaris";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { calculateCoverage, getCoverageLevel, getCoverageColor } from "../services/coverage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
-  return null;
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
+  const locales = [
+    { code: "ar", name: "Arabic", nativeName: "العربية" },
+    { code: "he", name: "Hebrew", nativeName: "עברית" },
+    { code: "fa", name: "Farsi", nativeName: "فارسی" },
+    { code: "fr", name: "French", nativeName: "Français" },
   ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
 
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
+  const totalContent = 1284;
+  const translatedCounts: Record<string, number> = { ar: 1001, he: 578, fa: 295, fr: 1181 };
 
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
+  const coverageData = locales.map((locale) => {
+    const translated = translatedCounts[locale.code] ?? 0;
+    const percent = calculateCoverage(totalContent, translated);
+    const level = getCoverageLevel(percent);
+    return { ...locale, total: totalContent, translated, percent, level, color: getCoverageColor(level) };
+  });
+
+  const overallPercent = calculateCoverage(
+    coverageData.reduce((s, c) => s + c.total, 0),
+    coverageData.reduce((s, c) => s + c.translated, 0),
   );
 
-  const variantResponseJson = await variantResponse.json();
-
-  return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-  };
+  return json({
+    shop: session.shop,
+    languages: locales.length,
+    overallPercent,
+    contentItems: totalContent,
+    monthlyCost: 47.82,
+    coverageData,
+    recentActivity: [
+      ["Translated", "Premium Abaya - Black", "Arabic", "2 min ago"],
+      ["Updated", "Summer Collection", "Hebrew", "15 min ago"],
+      ["Glossary", "Hijab → حجاب", "Arabic", "1 hour ago"],
+      ["AI Translated", "Shipping Policy", "Farsi", "2 hours ago"],
+      ["Translated", "About Us", "French", "3 hours ago"],
+    ],
+  });
 };
 
-export default function Index() {
-  const fetcher = useFetcher<typeof action>();
-
-  const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
-
-  useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+export default function Dashboard() {
+  const { languages, overallPercent, contentItems, monthlyCost, coverageData, recentActivity } = useLoaderData<typeof loader>();
 
   return (
     <Page>
-      <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
+      <TitleBar title="RTL Storefront">
+        <button variant="primary" onClick={() => { open("/app/translate", "_self"); }}>
+          Start Translating
         </button>
       </TitleBar>
       <BlockStack gap="500">
+        <InlineGrid columns={4} gap="400">
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Languages</Text><Text as="p" variant="headingLg">{languages}</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Coverage</Text><Text as="p" variant="headingLg">{overallPercent}%</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">AI Cost (Month)</Text><Text as="p" variant="headingLg">${monthlyCost}</Text></BlockStack></Card>
+          <Card><BlockStack gap="200"><Text as="p" variant="bodyMd" tone="subdued">Content Items</Text><Text as="p" variant="headingLg">{contentItems.toLocaleString()}</Text></BlockStack></Card>
+        </InlineGrid>
+
         <Layout>
           <Layout.Section>
             <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
-                  </Text>
-                  <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
-                  </Text>
-                </BlockStack>
-                <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Get started with products
-                  </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
-                  )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
+              <BlockStack gap="400">
+                <Text as="h2" variant="headingMd">Translation Coverage</Text>
+                {coverageData.map((lang) => (
+                  <BlockStack gap="200" key={lang.code}>
+                    <InlineStack align="space-between">
+                      <Text as="span" variant="bodyMd">{lang.name} ({lang.nativeName})</Text>
+                      <Badge tone={lang.level === "excellent" ? "success" : lang.level === "good" ? "info" : lang.level === "warning" ? "warning" : "critical"}>{lang.percent}%</Badge>
+                    </InlineStack>
+                    <ProgressBar progress={lang.percent} size="small" tone={lang.level === "critical" ? "critical" : "primary"} />
+                  </BlockStack>
+                ))}
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">Recent Activity</Text>
+                <DataTable columnContentTypes={["text", "text", "text", "text"]} headings={["Action", "Resource", "Language", "When"]} rows={recentActivity} />
               </BlockStack>
             </Card>
           </Layout.Section>
           <Layout.Section variant="oneThird">
-            <BlockStack gap="500">
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    App template specs
-                  </Text>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Framework
-                      </Text>
-                      <Link
-                        url="https://remix.run"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Remix
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Database
-                      </Text>
-                      <Link
-                        url="https://www.prisma.io/"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Prisma
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Interface
-                      </Text>
-                      <span>
-                        <Link
-                          url="https://polaris.shopify.com"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          Polaris
-                        </Link>
-                        {", "}
-                        <Link
-                          url="https://shopify.dev/docs/apps/tools/app-bridge"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          App Bridge
-                        </Link>
-                      </span>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        API
-                      </Text>
-                      <Link
-                        url="https://shopify.dev/docs/api/admin-graphql"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphQL API
-                      </Link>
-                    </InlineStack>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Next steps
-                  </Text>
-                  <List>
-                    <List.Item>
-                      Build an{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/getting-started/build-app-example"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        {" "}
-                        example app
-                      </Link>{" "}
-                      to get started
-                    </List.Item>
-                    <List.Item>
-                      Explore Shopify’s API with{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphiQL
-                      </Link>
-                    </List.Item>
-                  </List>
-                </BlockStack>
-              </Card>
+            <BlockStack gap="400">
+              <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">Translate Content</Text><Text as="p" variant="bodyMd">Translate products, collections, and pages.</Text><Button url="/app/translate">Go to Translate</Button></BlockStack></Card>
+              <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">Manage Glossary</Text><Text as="p" variant="bodyMd">Brand terms and never-translate words.</Text><Button url="/app/glossary">Go to Glossary</Button></BlockStack></Card>
+              <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">RTL Settings</Text><Text as="p" variant="bodyMd">AI providers, fonts, and RTL layout.</Text><Button url="/app/rtl-settings">Go to Settings</Button></BlockStack></Card>
             </BlockStack>
           </Layout.Section>
         </Layout>
