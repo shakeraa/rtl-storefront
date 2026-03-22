@@ -8,3 +8,5 @@ export * from "./cost-monitor";
 export * from "./connection-pool";
 export * from "./asset-optimizer";
 export * from "./isr";
+export * from "./background-sync";
+export * from "./code-splitting";
