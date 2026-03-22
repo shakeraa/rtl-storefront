@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add a public `/status` page that surfaces system component availability for the storefront app.
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
 <<<<<<< HEAD
 <<<<<<< HEAD
