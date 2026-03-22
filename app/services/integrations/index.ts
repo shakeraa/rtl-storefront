@@ -41,6 +41,23 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface EventAgendaItem {
+  itemId: string;
+  title: string;
+  description?: string;
+  speakerName?: string;
+}
+
+export interface EventAppContent {
+  eventId: string;
+  title: string;
+  description?: string;
+  venueName?: string;
+  callToActionLabel?: string;
+  agenda: EventAgendaItem[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +194,36 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Event app integration
+export async function translateEventAppContent(
+  event: EventAppContent,
+  targetLocale: string
+): Promise<EventAppContent> {
+  return {
+    ...event,
+    title: `[${targetLocale}] ${event.title}`,
+    description: event.description
+      ? `[${targetLocale}] ${event.description}`
+      : undefined,
+    venueName: event.venueName
+      ? `[${targetLocale}] ${event.venueName}`
+      : undefined,
+    callToActionLabel: event.callToActionLabel
+      ? `[${targetLocale}] ${event.callToActionLabel}`
+      : undefined,
+    agenda: event.agenda.map((item) => ({
+      ...item,
+      title: `[${targetLocale}] ${item.title}`,
+      description: item.description
+        ? `[${targetLocale}] ${item.description}`
+        : undefined,
+      speakerName: item.speakerName
+        ? `[${targetLocale}] ${item.speakerName}`
+        : undefined,
     })),
   };
 }

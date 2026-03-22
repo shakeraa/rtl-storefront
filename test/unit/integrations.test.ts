@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateEventAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,54 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Event App Integration', () => {
+    it('should translate event content and preserve metadata', async () => {
+      const event = {
+        eventId: 'event-1',
+        title: 'Spring Launch Event',
+        description: 'Preview the latest collection',
+        venueName: 'Flagship Store',
+        callToActionLabel: 'Reserve your seat',
+        agenda: [
+          {
+            itemId: 'agenda-1',
+            title: 'Opening Remarks',
+            description: 'Welcome and store vision',
+            speakerName: 'Maya Hassan',
+          },
+          {
+            itemId: 'agenda-2',
+            title: 'Collection Walkthrough',
+          },
+        ],
+        metadata: {
+          provider: 'event-app',
+        },
+      };
+
+      const result = await translateEventAppContent(event, 'ar');
+      expect(result.title).toBe('[ar] Spring Launch Event');
+      expect(result.description).toBe('[ar] Preview the latest collection');
+      expect(result.venueName).toBe('[ar] Flagship Store');
+      expect(result.callToActionLabel).toBe('[ar] Reserve your seat');
+      expect(result.agenda[0]).toEqual({
+        itemId: 'agenda-1',
+        title: '[ar] Opening Remarks',
+        description: '[ar] Welcome and store vision',
+        speakerName: '[ar] Maya Hassan',
+      });
+      expect(result.agenda[1]).toEqual({
+        itemId: 'agenda-2',
+        title: '[ar] Collection Walkthrough',
+        description: undefined,
+        speakerName: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'event-app',
       });
     });
   });
