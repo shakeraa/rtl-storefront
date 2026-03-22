@@ -41,6 +41,23 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface CompareAttribute {
+  key: string;
+  label: string;
+  values: Record<string, string>;
+}
+
+export interface CompareAppContent {
+  compareId: string;
+  title: string;
+  emptyState: string;
+  products: Array<{
+    productId: string;
+    title: string;
+  }>;
+  attributes: CompareAttribute[];
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -94,6 +111,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'comparefox',
+    name: 'Compare Fox',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +200,32 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Compare app integration
+export async function translateCompareAppContent(
+  comparison: CompareAppContent,
+  targetLocale: string
+): Promise<CompareAppContent> {
+  return {
+    ...comparison,
+    title: `[${targetLocale}] ${comparison.title}`,
+    emptyState: `[${targetLocale}] ${comparison.emptyState}`,
+    products: comparison.products.map((product) => ({
+      ...product,
+      title: `[${targetLocale}] ${product.title}`,
+    })),
+    attributes: comparison.attributes.map((attribute) => ({
+      ...attribute,
+      label: `[${targetLocale}] ${attribute.label}`,
+      values: Object.fromEntries(
+        Object.entries(attribute.values).map(([productId, value]) => [
+          productId,
+          `[${targetLocale}] ${value}`,
+        ]),
+      ),
     })),
   };
 }

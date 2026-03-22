@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateCompareAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('comparefox');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Compare App Integration', () => {
+    it('should translate comparison titles, product names, and attribute labels', async () => {
+      const comparison = {
+        compareId: 'compare-1',
+        title: 'Compare Products',
+        emptyState: 'No products selected',
+        products: [
+          { productId: 'p1', title: 'Linen Shirt' },
+          { productId: 'p2', title: 'Cotton Pants' },
+        ],
+        attributes: [
+          {
+            key: 'material',
+            label: 'Material',
+            values: {
+              p1: 'Linen',
+              p2: 'Cotton',
+            },
+          },
+        ],
+      };
+
+      const result = await translateCompareAppContent(comparison, 'ar');
+      expect(result).toEqual({
+        compareId: 'compare-1',
+        title: '[ar] Compare Products',
+        emptyState: '[ar] No products selected',
+        products: [
+          { productId: 'p1', title: '[ar] Linen Shirt' },
+          { productId: 'p2', title: '[ar] Cotton Pants' },
+        ],
+        attributes: [
+          {
+            key: 'material',
+            label: '[ar] Material',
+            values: {
+              p1: '[ar] Linen',
+              p2: '[ar] Cotton',
+            },
+          },
+        ],
       });
     });
   });

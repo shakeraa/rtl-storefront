@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add reusable API response caching with deterministic request keys, ETag support, and tag invalidation helpers.
+- Add compare-app translation helpers for comparison titles, empty states, product names, and attribute labels.
 <<<<<<< HEAD
 <<<<<<< HEAD
 - Add a reusable virtualized translation-list component so long translation queues render only the visible window of rows.
