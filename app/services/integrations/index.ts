@@ -26,6 +26,19 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface SizeChartRow {
+  label: string;
+  values: string[];
+}
+
+export interface SizeChartContent {
+  chartId: string;
+  title: string;
+  measurementUnit: string;
+  headers: string[];
+  rows: SizeChartRow[];
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +107,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'easysize',
+    name: 'EasySize',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +196,24 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Size chart app integration
+export async function translateSizeChartContent(
+  chart: SizeChartContent,
+  targetLocale: string
+): Promise<SizeChartContent> {
+  return {
+    ...chart,
+    title: `[${targetLocale}] ${chart.title}`,
+    measurementUnit: `[${targetLocale}] ${chart.measurementUnit}`,
+    headers: chart.headers.map((header) => `[${targetLocale}] ${header}`),
+    rows: chart.rows.map((row) => ({
+      ...row,
+      label: `[${targetLocale}] ${row.label}`,
+      values: row.values.map((value) => `[${targetLocale}] ${value}`),
     })),
   };
 }

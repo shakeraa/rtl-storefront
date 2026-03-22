@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateSizeChartContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('easysize');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,37 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Size Chart Integration', () => {
+    it('should translate size chart headers and rows', async () => {
+      const chart = {
+        chartId: 'chart-1',
+        title: 'Size Guide',
+        measurementUnit: 'Centimeters',
+        headers: ['Size', 'Chest', 'Waist'],
+        rows: [
+          {
+            label: 'Small',
+            values: ['86', '74'],
+          },
+        ],
+      };
+
+      const result = await translateSizeChartContent(chart, 'ar');
+      expect(result).toEqual({
+        chartId: 'chart-1',
+        title: '[ar] Size Guide',
+        measurementUnit: '[ar] Centimeters',
+        headers: ['[ar] Size', '[ar] Chest', '[ar] Waist'],
+        rows: [
+          {
+            label: '[ar] Small',
+            values: ['[ar] 86', '[ar] 74'],
+          },
+        ],
       });
     });
   });
