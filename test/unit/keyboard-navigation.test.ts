@@ -1,0 +1,548 @@
+import { describe, it, expect, vi } from 'vitest';
+import {
+  KEYBOARD_SHORTCUTS,
+  NAVIGATION_INSTRUCTIONS,
+  FOCUS_MANAGEMENT_LABELS,
+  KEYBOARD_HELP_SECTIONS,
+  getKeyboardShortcutLabel,
+  getKeyboardShortcut,
+  getAllKeyboardShortcuts,
+  getShortcutsByCategory,
+  getNavigationInstructions,
+  getNavigationInstructionById,
+  getFocusManagementLabels,
+  getFocusManagementLabel,
+  getKeyboardHelpText,
+  getKeyboardHelpSection,
+  formatShortcutKeys,
+  getKeySymbol,
+  getRTLArrowInstructions,
+  matchesShortcut,
+  getAccessibleShortcutLabel,
+  getSupportedLocales,
+  normalizeLocale,
+  isRTL,
+  type KeyboardShortcut,
+  type ShortcutCategory,
+} from '../../app/services/translation-features/keyboard-navigation';
+
+describe('Keyboard Navigation Service - T0347', () => {
+  describe('Keyboard Shortcuts Data', () => {
+    it('should have shortcuts defined for ar locale', () => {
+      expect(KEYBOARD_SHORTCUTS.ar).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.ar['nav-next']).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.ar['action-select']).toBeDefined();
+    });
+
+    it('should have shortcuts defined for he locale', () => {
+      expect(KEYBOARD_SHORTCUTS.he).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.he['nav-next']).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.he['edit-undo']).toBeDefined();
+    });
+
+    it('should have shortcuts defined for en locale', () => {
+      expect(KEYBOARD_SHORTCUTS.en).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.en['nav-next']).toBeDefined();
+      expect(KEYBOARD_SHORTCUTS.en['help-shortcuts']).toBeDefined();
+    });
+
+    it('should have Arabic shortcut actions in Arabic language', () => {
+      const shortcut = KEYBOARD_SHORTCUTS.ar['nav-next'];
+      expect(shortcut.action).toBe('الانتقال للعنصر التالي');
+    });
+
+    it('should have Hebrew shortcut actions in Hebrew language', () => {
+      const shortcut = KEYBOARD_SHORTCUTS.he['nav-next'];
+      expect(shortcut.action).toBe('מעבר לפריט הבא');
+    });
+
+    it('should have consistent shortcut IDs across all locales', () => {
+      const arIds = Object.keys(KEYBOARD_SHORTCUTS.ar);
+      const heIds = Object.keys(KEYBOARD_SHORTCUTS.he);
+      const enIds = Object.keys(KEYBOARD_SHORTCUTS.en);
+      
+      expect(arIds.sort()).toEqual(heIds.sort());
+      expect(heIds.sort()).toEqual(enIds.sort());
+    });
+
+    it('should include RTL-specific arrow key descriptions', () => {
+      const arLeft = KEYBOARD_SHORTCUTS.ar['nav-left'];
+      const heLeft = KEYBOARD_SHORTCUTS.he['nav-left'];
+      const enLeft = KEYBOARD_SHORTCUTS.en['nav-left'];
+      
+      expect(arLeft.description).toContain('RTL');
+      expect(heLeft.description).toContain('RTL');
+      expect(enLeft.description).toContain('RTL');
+    });
+  });
+
+  describe('getKeyboardShortcutLabel', () => {
+    it('should return formatted label for shortcut by ID', () => {
+      const label = getKeyboardShortcutLabel('nav-next', 'en');
+      expect(label).toContain('Tab');
+      expect(label).toContain('Next Item');
+    });
+
+    it('should return formatted label for Arabic locale', () => {
+      const label = getKeyboardShortcutLabel('nav-next', 'ar');
+      expect(label).toContain('Tab');
+      expect(label).toContain('الانتقال للعنصر التالي');
+    });
+
+    it('should return formatted label for Hebrew locale', () => {
+      const label = getKeyboardShortcutLabel('nav-next', 'he');
+      expect(label).toContain('Tab');
+      expect(label).toContain('מעבר לפריט הבא');
+    });
+
+    it('should handle shortcut object as input', () => {
+      const shortcut: KeyboardShortcut = {
+        id: 'test',
+        keys: ['Ctrl', 'S'],
+        action: 'Save',
+        category: 'action',
+      };
+      const label = getKeyboardShortcutLabel(shortcut, 'en');
+      expect(label).toBe('Ctrl + S: Save');
+    });
+
+    it('should return original string if shortcut ID not found', () => {
+      const label = getKeyboardShortcutLabel('non-existent', 'en');
+      expect(label).toBe('non-existent');
+    });
+  });
+
+  describe('getKeyboardShortcut', () => {
+    it('should return full shortcut object by ID', () => {
+      const shortcut = getKeyboardShortcut('nav-next', 'en');
+      expect(shortcut).not.toBeNull();
+      expect(shortcut?.id).toBe('nav-next');
+      expect(shortcut?.keys).toContain('Tab');
+    });
+
+    it('should return null for non-existent shortcut', () => {
+      const shortcut = getKeyboardShortcut('does-not-exist', 'en');
+      expect(shortcut).toBeNull();
+    });
+
+    it('should return Arabic shortcut for ar locale', () => {
+      const shortcut = getKeyboardShortcut('action-select', 'ar');
+      expect(shortcut?.action).toBe('تحديد');
+    });
+
+    it('should handle locale case insensitively', () => {
+      const shortcut = getKeyboardShortcut('nav-next', 'EN');
+      expect(shortcut).not.toBeNull();
+    });
+  });
+
+  describe('getAllKeyboardShortcuts', () => {
+    it('should return all shortcuts for English locale', () => {
+      const shortcuts = getAllKeyboardShortcuts('en');
+      expect(shortcuts.length).toBeGreaterThan(10);
+      expect(shortcuts.some(s => s.id === 'nav-next')).toBe(true);
+      expect(shortcuts.some(s => s.id === 'edit-copy')).toBe(true);
+    });
+
+    it('should return all shortcuts for Arabic locale', () => {
+      const shortcuts = getAllKeyboardShortcuts('ar');
+      expect(shortcuts.length).toBeGreaterThan(10);
+    });
+
+    it('should return shortcuts with proper categories', () => {
+      const shortcuts = getAllKeyboardShortcuts('en');
+      const categories = new Set(shortcuts.map(s => s.category));
+      expect(categories.has('navigation')).toBe(true);
+      expect(categories.has('action')).toBe(true);
+      expect(categories.has('editing')).toBe(true);
+    });
+  });
+
+  describe('getShortcutsByCategory', () => {
+    it('should return only navigation shortcuts', () => {
+      const shortcuts = getShortcutsByCategory('navigation', 'en');
+      expect(shortcuts.every(s => s.category === 'navigation')).toBe(true);
+      expect(shortcuts.length).toBeGreaterThan(5);
+    });
+
+    it('should return only editing shortcuts', () => {
+      const shortcuts = getShortcutsByCategory('editing', 'en');
+      expect(shortcuts.every(s => s.category === 'editing')).toBe(true);
+      expect(shortcuts.length).toBeGreaterThanOrEqual(4);
+    });
+
+    it('should return empty array for unknown category', () => {
+      const shortcuts = getShortcutsByCategory('unknown' as ShortcutCategory, 'en');
+      expect(shortcuts).toEqual([]);
+    });
+
+    it('should work for Arabic locale', () => {
+      const shortcuts = getShortcutsByCategory('action', 'ar');
+      expect(shortcuts.every(s => s.category === 'action')).toBe(true);
+      expect(shortcuts[0].action).toContain('تحديد');
+    });
+  });
+
+  describe('getNavigationInstructions', () => {
+    it('should return all instructions for English locale', () => {
+      const instructions = getNavigationInstructions('en');
+      expect(instructions.length).toBeGreaterThanOrEqual(5);
+    });
+
+    it('should return sorted instructions by order', () => {
+      const instructions = getNavigationInstructions('en');
+      for (let i = 1; i < instructions.length; i++) {
+        expect(instructions[i].order).toBeGreaterThanOrEqual(instructions[i - 1].order);
+      }
+    });
+
+    it('should filter instructions by context', () => {
+      const instructions = getNavigationInstructions('en', 'basic');
+      expect(instructions.every(i => i.context === 'basic')).toBe(true);
+    });
+
+    it('should return RTL-specific instructions', () => {
+      const instructions = getNavigationInstructions('en', 'rtl');
+      expect(instructions.length).toBeGreaterThan(0);
+      expect(instructions[0].instruction).toContain('RTL');
+    });
+
+    it('should return Arabic instructions for ar locale', () => {
+      const instructions = getNavigationInstructions('ar');
+      expect(instructions[0].instruction).toContain('يمكنك');
+    });
+
+    it('should return Hebrew instructions for he locale', () => {
+      const instructions = getNavigationInstructions('he');
+      expect(instructions[0].instruction).toContain('ניתן');
+    });
+  });
+
+  describe('getNavigationInstructionById', () => {
+    it('should return specific instruction by ID', () => {
+      const instruction = getNavigationInstructionById('tab-nav', 'en');
+      expect(instruction).not.toBeNull();
+      expect(instruction?.id).toBe('tab-nav');
+    });
+
+    it('should return null for non-existent instruction ID', () => {
+      const instruction = getNavigationInstructionById('does-not-exist', 'en');
+      expect(instruction).toBeNull();
+    });
+
+    it('should work across different locales', () => {
+      const enInstruction = getNavigationInstructionById('intro', 'en');
+      const arInstruction = getNavigationInstructionById('intro', 'ar');
+      
+      expect(enInstruction?.instruction).not.toBe(arInstruction?.instruction);
+    });
+  });
+
+  describe('getFocusManagementLabels', () => {
+    it('should return all focus labels for English locale', () => {
+      const labels = getFocusManagementLabels('en');
+      expect(Object.keys(labels).length).toBeGreaterThan(5);
+      expect(labels['skip-link']).toBeDefined();
+      expect(labels['focus-indicator']).toBeDefined();
+    });
+
+    it('should return Arabic labels for ar locale', () => {
+      const labels = getFocusManagementLabels('ar');
+      expect(labels['skip-link'].label).toContain('المحتوى');
+    });
+
+    it('should return Hebrew labels for he locale', () => {
+      const labels = getFocusManagementLabels('he');
+      expect(labels['skip-link'].label).toContain('תוכן');
+    });
+
+    it('should include aria labels for accessibility', () => {
+      const labels = getFocusManagementLabels('en');
+      expect(labels['skip-link'].ariaLabel).toBeDefined();
+      expect(labels['skip-link'].ariaLabel?.length).toBeGreaterThan(0);
+    });
+
+    it('should include role attributes', () => {
+      const labels = getFocusManagementLabels('en');
+      expect(labels['skip-link'].role).toBeDefined();
+    });
+  });
+
+  describe('getFocusManagementLabel', () => {
+    it('should return specific label by ID', () => {
+      const label = getFocusManagementLabel('skip-link', 'en');
+      expect(label).not.toBeNull();
+      expect(label?.id).toBe('skip-link');
+    });
+
+    it('should return null for non-existent label', () => {
+      const label = getFocusManagementLabel('does-not-exist', 'en');
+      expect(label).toBeNull();
+    });
+
+    it('should return localized label', () => {
+      const enLabel = getFocusManagementLabel('skip-link', 'en');
+      const arLabel = getFocusManagementLabel('skip-link', 'ar');
+      
+      expect(enLabel?.label).toBe('Skip to Main Content');
+      expect(arLabel?.label).not.toBe(enLabel?.label);
+    });
+  });
+
+  describe('getKeyboardHelpText', () => {
+    it('should return help sections for English locale', () => {
+      const sections = getKeyboardHelpText('en');
+      expect(sections.length).toBeGreaterThanOrEqual(4);
+      expect(sections.some(s => s.id === 'basics')).toBe(true);
+    });
+
+    it('should return help sections for Arabic locale', () => {
+      const sections = getKeyboardHelpText('ar');
+      expect(sections[0].title).toContain('أساسيات');
+    });
+
+    it('should return help sections for Hebrew locale', () => {
+      const sections = getKeyboardHelpText('he');
+      expect(sections[0].title).toContain('יסודות');
+    });
+
+    it('should include shortcuts in each section', () => {
+      const sections = getKeyboardHelpText('en');
+      sections.forEach(section => {
+        expect(section.shortcuts.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should include section titles and descriptions', () => {
+      const sections = getKeyboardHelpText('en');
+      sections.forEach(section => {
+        expect(section.title).toBeDefined();
+        expect(section.description).toBeDefined();
+      });
+    });
+  });
+
+  describe('getKeyboardHelpSection', () => {
+    it('should return specific help section by ID', () => {
+      const section = getKeyboardHelpSection('basics', 'en');
+      expect(section).not.toBeNull();
+      expect(section?.id).toBe('basics');
+    });
+
+    it('should return null for non-existent section', () => {
+      const section = getKeyboardHelpSection('does-not-exist', 'en');
+      expect(section).toBeNull();
+    });
+
+    it('should return localized section titles', () => {
+      const enSection = getKeyboardHelpSection('basics', 'en');
+      const arSection = getKeyboardHelpSection('basics', 'ar');
+      
+      expect(enSection?.title).toBe('Navigation Basics');
+      expect(arSection?.title).not.toBe(enSection?.title);
+    });
+  });
+
+  describe('formatShortcutKeys', () => {
+    it('should format keys with plus separator for LTR', () => {
+      const formatted = formatShortcutKeys(['Ctrl', 'C'], 'en');
+      expect(formatted).toBe('Ctrl + C');
+    });
+
+    it('should reverse key order for RTL locales', () => {
+      const ltrFormatted = formatShortcutKeys(['Ctrl', 'Shift', 'A'], 'en');
+      const rtlFormatted = formatShortcutKeys(['Ctrl', 'Shift', 'A'], 'ar');
+      
+      expect(ltrFormatted).not.toBe(rtlFormatted);
+    });
+
+    it('should work for Hebrew locale', () => {
+      const formatted = formatShortcutKeys(['Ctrl', 'V'], 'he');
+      expect(formatted).toContain('+');
+    });
+  });
+
+  describe('getKeySymbol', () => {
+    it('should return symbol for common keys', () => {
+      expect(getKeySymbol('Enter')).toBe('↵');
+      expect(getKeySymbol('Tab')).toBe('⇥');
+      expect(getKeySymbol('Shift')).toBe('⇧/Shift');
+    });
+
+    it('should return original key if no symbol defined', () => {
+      expect(getKeySymbol('CustomKey')).toBe('CustomKey');
+    });
+
+    it('should return command symbol for Ctrl', () => {
+      expect(getKeySymbol('Ctrl')).toBe('⌘/Ctrl');
+    });
+  });
+
+  describe('getRTLArrowInstructions', () => {
+    it('should return English RTL instructions', () => {
+      const instructions = getRTLArrowInstructions('en');
+      expect(instructions).toContain('RTL');
+      expect(instructions).toContain('Right arrow');
+      expect(instructions).toContain('Left arrow');
+    });
+
+    it('should return Arabic RTL instructions', () => {
+      const instructions = getRTLArrowInstructions('ar');
+      expect(instructions).toContain('من اليمين لليسار');
+    });
+
+    it('should return Hebrew RTL instructions', () => {
+      const instructions = getRTLArrowInstructions('he');
+      expect(instructions).toContain('RTL');
+    });
+
+    it('should default to English for unknown locale', () => {
+      const instructions = getRTLArrowInstructions('xx');
+      expect(instructions).toContain('RTL');
+    });
+  });
+
+  describe('matchesShortcut', () => {
+    it('should match simple key press', () => {
+      const event = { key: 'Tab', ctrlKey: false, shiftKey: false, altKey: false } as KeyboardEvent;
+      expect(matchesShortcut(event, 'nav-next', 'en')).toBe(true);
+    });
+
+    it('should match key with modifiers', () => {
+      const event = { key: 'z', ctrlKey: true, shiftKey: false, altKey: false } as KeyboardEvent;
+      expect(matchesShortcut(event, 'edit-undo', 'en')).toBe(true);
+    });
+
+    it('should not match when modifiers differ', () => {
+      const event = { key: 'z', ctrlKey: false, shiftKey: false, altKey: false } as KeyboardEvent;
+      expect(matchesShortcut(event, 'edit-undo', 'en')).toBe(false);
+    });
+
+    it('should return false for non-existent shortcut', () => {
+      const event = { key: 'Tab', ctrlKey: false, shiftKey: false, altKey: false } as KeyboardEvent;
+      expect(matchesShortcut(event, 'does-not-exist', 'en')).toBe(false);
+    });
+
+    it('should handle uppercase keys', () => {
+      const event = { key: 'Enter', ctrlKey: false, shiftKey: false, altKey: false } as KeyboardEvent;
+      expect(matchesShortcut(event, 'action-select', 'en')).toBe(true);
+    });
+  });
+
+  describe('getAccessibleShortcutLabel', () => {
+    it('should return accessible label for screen readers', () => {
+      const label = getAccessibleShortcutLabel('nav-next', 'en');
+      expect(label).toContain('⇥');
+      expect(label).toContain('next');
+    });
+
+    it('should include description in accessible label', () => {
+      const label = getAccessibleShortcutLabel('nav-next', 'en');
+      expect(label).toContain('next');
+    });
+
+    it('should return empty string for non-existent shortcut', () => {
+      const label = getAccessibleShortcutLabel('does-not-exist', 'en');
+      expect(label).toBe('');
+    });
+  });
+
+  describe('normalizeLocale', () => {
+    it('should normalize locale to base code', () => {
+      expect(normalizeLocale('en-US')).toBe('en');
+      expect(normalizeLocale('ar-SA')).toBe('ar');
+      expect(normalizeLocale('he-IL')).toBe('he');
+    });
+
+    it('should handle lowercase locales', () => {
+      expect(normalizeLocale('en-us')).toBe('en');
+    });
+
+    it('should return en for unknown locale', () => {
+      expect(normalizeLocale('xx')).toBe('en');
+    });
+  });
+
+  describe('isRTL', () => {
+    it('should return true for Arabic locale', () => {
+      expect(isRTL('ar')).toBe(true);
+      expect(isRTL('ar-SA')).toBe(true);
+    });
+
+    it('should return true for Hebrew locale', () => {
+      expect(isRTL('he')).toBe(true);
+      expect(isRTL('he-IL')).toBe(true);
+    });
+
+    it('should return false for English locale', () => {
+      expect(isRTL('en')).toBe(false);
+      expect(isRTL('en-US')).toBe(false);
+    });
+
+    it('should return false for unknown locale', () => {
+      expect(isRTL('xx')).toBe(false);
+    });
+  });
+
+  describe('getSupportedLocales', () => {
+    it('should return supported locales array', () => {
+      const locales = getSupportedLocales();
+      expect(locales).toContain('ar');
+      expect(locales).toContain('he');
+      expect(locales).toContain('en');
+      expect(locales.length).toBe(3);
+    });
+  });
+
+  describe('Navigation Instructions Data', () => {
+    it('should have consistent instruction IDs across locales', () => {
+      const arIds = NAVIGATION_INSTRUCTIONS.ar.map(i => i.id);
+      const heIds = NAVIGATION_INSTRUCTIONS.he.map(i => i.id);
+      const enIds = NAVIGATION_INSTRUCTIONS.en.map(i => i.id);
+      
+      expect(arIds.sort()).toEqual(heIds.sort());
+      expect(heIds.sort()).toEqual(enIds.sort());
+    });
+
+    it('should have RTL-specific instruction', () => {
+      const arRTL = NAVIGATION_INSTRUCTIONS.ar.find(i => i.id === 'rtl-note');
+      expect(arRTL).toBeDefined();
+      expect(arRTL?.context).toBe('rtl');
+    });
+  });
+
+  describe('Focus Management Labels Data', () => {
+    it('should have skip-link label in all locales', () => {
+      expect(FOCUS_MANAGEMENT_LABELS.ar['skip-link']).toBeDefined();
+      expect(FOCUS_MANAGEMENT_LABELS.he['skip-link']).toBeDefined();
+      expect(FOCUS_MANAGEMENT_LABELS.en['skip-link']).toBeDefined();
+    });
+
+    it('should have proper ARIA labels', () => {
+      Object.values(FOCUS_MANAGEMENT_LABELS.en).forEach(label => {
+        expect(label.ariaLabel).toBeDefined();
+        expect(label.ariaLabel?.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Keyboard Help Sections Data', () => {
+    it('should have consistent section IDs across locales', () => {
+      const arIds = KEYBOARD_HELP_SECTIONS.ar.map(s => s.id);
+      const heIds = KEYBOARD_HELP_SECTIONS.he.map(s => s.id);
+      const enIds = KEYBOARD_HELP_SECTIONS.en.map(s => s.id);
+      
+      expect(arIds.sort()).toEqual(heIds.sort());
+      expect(heIds.sort()).toEqual(enIds.sort());
+    });
+
+    it('should have all required sections', () => {
+      const enSections = KEYBOARD_HELP_SECTIONS.en;
+      const requiredSections = ['basics', 'navigation', 'editing', 'accessibility', 'view'];
+      
+      requiredSections.forEach(sectionId => {
+        expect(enSections.some(s => s.id === sectionId)).toBe(true);
+      });
+    });
+  });
+});
