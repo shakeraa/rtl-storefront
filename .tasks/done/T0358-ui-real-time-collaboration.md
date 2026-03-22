@@ -1,0 +1,20 @@
+---
+id: "T0358"
+title: "UI - Real-time Collaboration"
+priority: low
+assigned: claude-sec
+branch: feature/t0358
+status: done
+created: 2026-03-22
+depends_on: []
+locks: []
+test_command: ""
+---
+
+## Description
+Multi-user editing
+
+## Acceptance criteria
+- [ ] Feature implemented
+- [ ] Tests passing
+- [ ] Documentation updated
