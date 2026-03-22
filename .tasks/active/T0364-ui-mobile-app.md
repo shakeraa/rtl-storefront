@@ -1,0 +1,20 @@
+---
+id: "T0364"
+title: "UI - Mobile App"
+priority: low
+assigned: kimi
+branch: feature/t0364
+status: active
+created: 2026-03-22
+depends_on: []
+locks: []
+test_command: ""
+---
+
+## Description
+iOS/Android app
+
+## Acceptance criteria
+- [ ] Feature implemented
+- [ ] Tests passing
+- [ ] Documentation updated
