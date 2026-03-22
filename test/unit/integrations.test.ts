@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateGdprComplianceAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,52 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('GDPR Compliance App Integration', () => {
+    it('should translate GDPR app content and preserve metadata', async () => {
+      const compliance = {
+        complianceId: 'gdpr-1',
+        title: 'Privacy controls',
+        consentLabel: 'Manage cookie consent',
+        privacyRequestLabel: 'Request my data',
+        controls: [
+          {
+            controlId: 'control-1',
+            title: 'Essential cookies',
+            description: 'Required for secure checkout and account access',
+          },
+          {
+            controlId: 'control-2',
+            title: 'Marketing cookies',
+          },
+        ],
+        metadata: {
+          provider: 'gdpr-compliance-app',
+        },
+      };
+
+      const result = await translateGdprComplianceAppContent(
+        compliance,
+        'ar'
+      );
+      expect(result.title).toBe('[ar] Privacy controls');
+      expect(result.consentLabel).toBe('[ar] Manage cookie consent');
+      expect(result.privacyRequestLabel).toBe('[ar] Request my data');
+      expect(result.controls[0]).toEqual({
+        controlId: 'control-1',
+        title: '[ar] Essential cookies',
+        description: '[ar] Required for secure checkout and account access',
+      });
+      expect(result.controls[1]).toEqual({
+        controlId: 'control-2',
+        title: '[ar] Marketing cookies',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'gdpr-compliance-app',
       });
     });
   });

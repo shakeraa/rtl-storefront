@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface GdprControlContent {
+  controlId: string;
+  title: string;
+  description?: string;
+}
+
+export interface GdprComplianceAppContent {
+  complianceId: string;
+  title: string;
+  consentLabel?: string;
+  privacyRequestLabel?: string;
+  controls: GdprControlContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// GDPR compliance app integration
+export async function translateGdprComplianceAppContent(
+  compliance: GdprComplianceAppContent,
+  targetLocale: string
+): Promise<GdprComplianceAppContent> {
+  return {
+    ...compliance,
+    title: `[${targetLocale}] ${compliance.title}`,
+    consentLabel: compliance.consentLabel
+      ? `[${targetLocale}] ${compliance.consentLabel}`
+      : undefined,
+    privacyRequestLabel: compliance.privacyRequestLabel
+      ? `[${targetLocale}] ${compliance.privacyRequestLabel}`
+      : undefined,
+    controls: compliance.controls.map((control) => ({
+      ...control,
+      title: `[${targetLocale}] ${control.title}`,
+      description: control.description
+        ? `[${targetLocale}] ${control.description}`
+        : undefined,
     })),
   };
 }
