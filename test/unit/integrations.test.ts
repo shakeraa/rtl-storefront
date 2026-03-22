@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateReturnAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,53 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Return App Integration', () => {
+    it('should translate return portal content and preserve metadata', async () => {
+      const returnPortal = {
+        returnId: 'return-1',
+        portalTitle: 'Start a return',
+        instructions: 'Select the items and choose a return method',
+        statusMessage: 'Your return request is under review',
+        reasons: [
+          {
+            reasonId: 'reason-1',
+            label: 'Wrong size',
+            description: 'Item did not fit as expected',
+          },
+          {
+            reasonId: 'reason-2',
+            label: 'Changed my mind',
+          },
+        ],
+        metadata: {
+          provider: 'return-app',
+        },
+      };
+
+      const result = await translateReturnAppContent(returnPortal, 'ar');
+      expect(result.portalTitle).toBe('[ar] Start a return');
+      expect(result.instructions).toBe(
+        '[ar] Select the items and choose a return method'
+      );
+      expect(result.statusMessage).toBe(
+        '[ar] Your return request is under review'
+      );
+      expect(result.reasons[0]).toEqual({
+        reasonId: 'reason-1',
+        label: '[ar] Wrong size',
+        description: '[ar] Item did not fit as expected',
+      });
+      expect(result.reasons[1]).toEqual({
+        reasonId: 'reason-2',
+        label: '[ar] Changed my mind',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'return-app',
       });
     });
   });

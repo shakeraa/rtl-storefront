@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface ReturnReasonContent {
+  reasonId: string;
+  label: string;
+  description?: string;
+}
+
+export interface ReturnAppContent {
+  returnId: string;
+  portalTitle: string;
+  instructions?: string;
+  statusMessage?: string;
+  reasons: ReturnReasonContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Return app integration
+export async function translateReturnAppContent(
+  returnContent: ReturnAppContent,
+  targetLocale: string
+): Promise<ReturnAppContent> {
+  return {
+    ...returnContent,
+    portalTitle: `[${targetLocale}] ${returnContent.portalTitle}`,
+    instructions: returnContent.instructions
+      ? `[${targetLocale}] ${returnContent.instructions}`
+      : undefined,
+    statusMessage: returnContent.statusMessage
+      ? `[${targetLocale}] ${returnContent.statusMessage}`
+      : undefined,
+    reasons: returnContent.reasons.map((reason) => ({
+      ...reason,
+      label: `[${targetLocale}] ${reason.label}`,
+      description: reason.description
+        ? `[${targetLocale}] ${reason.description}`
+        : undefined,
     })),
   };
 }
