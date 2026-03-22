@@ -4,7 +4,7 @@ title: "Visual In-Context Editor"
 priority: medium
 assigned: claude-sec
 branch: feature/visual-editor
-status: done
+status: active
 created: 2026-03-22
 depends_on: ["T0009"]
 locks: ["app/components/visual-editor/"]
