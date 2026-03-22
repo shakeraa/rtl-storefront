@@ -2,7 +2,7 @@
 id: "T0043"
 title: "Language Switcher - Native Script Display (العربية, עברית)"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/native-script
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0075"
 title: "SEO - Breadcrumb Schema Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/breadcrumb-schema
 status: active
 created: 2026-03-22

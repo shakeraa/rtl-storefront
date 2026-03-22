@@ -2,7 +2,7 @@
 id: "T0040"
 title: "Automation - Geolocation & Browser Language Detection"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/geolocation
 status: active
 created: 2026-03-22

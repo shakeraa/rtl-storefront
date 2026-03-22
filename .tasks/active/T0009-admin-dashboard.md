@@ -2,7 +2,7 @@
 id: "T0009"
 title: "Admin Dashboard - Translation Management UI"
 priority: high
-assigned: unassigned
+assigned: claude-sec
 branch: feature/admin-dashboard
 status: active
 created: 2026-03-22

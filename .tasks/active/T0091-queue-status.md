@@ -2,7 +2,7 @@
 id: "T0091"
 title: "Admin - Translation Queue Status"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/queue-status
 status: active
 created: 2026-03-22

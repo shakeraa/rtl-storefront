@@ -2,7 +2,7 @@
 id: "T0071"
 title: "RTL Fashion - Mixed Arabic+English Product Cards"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/mixed-cards
 status: active
 created: 2026-03-22

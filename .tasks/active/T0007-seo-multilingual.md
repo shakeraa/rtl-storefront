@@ -2,7 +2,7 @@
 id: "T0007"
 title: "SEO & Discoverability - Multilingual SEO Infrastructure"
 priority: high
-assigned: unassigned
+assigned: claude-sec
 branch: feature/multilingual-seo
 status: active
 created: 2026-03-22

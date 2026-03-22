@@ -2,7 +2,7 @@
 id: "T0015"
 title: "Performance - CDN, Caching & Optimization"
 priority: high
-assigned: unassigned
+assigned: claude-sec
 branch: feature/performance
 status: active
 created: 2026-03-22

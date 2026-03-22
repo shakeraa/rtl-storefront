@@ -2,7 +2,7 @@
 id: "T0068"
 title: "RTL Fashion - Islamic Geometric Pattern Backgrounds"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/islamic-patterns
 status: active
 created: 2026-03-22

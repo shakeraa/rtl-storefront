@@ -2,7 +2,7 @@
 id: "T0096"
 title: "Product - Custom Fields Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0096
 status: active
 created: 2026-03-22

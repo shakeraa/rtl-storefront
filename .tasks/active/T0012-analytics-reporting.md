@@ -2,7 +2,7 @@
 id: "T0012"
 title: "Analytics - Translation & Conversion Tracking"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/analytics
 status: active
 created: 2026-03-22

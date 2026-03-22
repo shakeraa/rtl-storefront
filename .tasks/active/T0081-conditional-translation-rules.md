@@ -2,7 +2,7 @@
 id: "T0081"
 title: "Automation - Conditional Translation Rules"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/conditional-rules
 status: active
 created: 2026-03-22

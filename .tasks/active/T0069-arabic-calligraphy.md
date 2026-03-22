@@ -2,7 +2,7 @@
 id: "T0069"
 title: "RTL Fashion - Arabic Calligraphy Typography"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/calligraphy
 status: active
 created: 2026-03-22

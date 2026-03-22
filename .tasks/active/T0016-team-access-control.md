@@ -2,7 +2,7 @@
 id: "T0016"
 title: "Team & Access Control - Role-Based Permissions"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/team-access
 status: active
 created: 2026-03-22

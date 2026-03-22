@@ -2,7 +2,7 @@
 id: "T0008"
 title: "Content Coverage - Product & Collection Translation"
 priority: high
-assigned: unassigned
+assigned: claude-sec
 branch: feature/product-translation
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0064"
 title: "MENA - Cultural Consultant Marketplace Foundation"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/consultant-marketplace
 status: active
 created: 2026-03-22

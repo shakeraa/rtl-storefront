@@ -2,7 +2,7 @@
 id: "T0070"
 title: "RTL Fashion - Right-Aligned Product Gallery"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/rtl-gallery
 status: active
 created: 2026-03-22

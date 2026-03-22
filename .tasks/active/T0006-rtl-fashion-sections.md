@@ -2,7 +2,7 @@
 id: "T0006"
 title: "RTL-First Fashion Design - Pre-built Theme Sections"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/rtl-fashion-sections
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0078"
 title: "SEO - Language-specific Robots.txt"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/robots-txt
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0010"
 title: "Language Switcher - Storefront Widget"
 priority: high
-assigned: unassigned
+assigned: claude-sec
 branch: feature/language-switcher
 status: active
 created: 2026-03-22

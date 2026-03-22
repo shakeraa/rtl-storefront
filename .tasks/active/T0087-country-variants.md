@@ -2,7 +2,7 @@
 id: "T0087"
 title: "Language Switcher - Country-Specific Variants (FR-FR vs FR-CA)"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/country-variants
 status: active
 created: 2026-03-22

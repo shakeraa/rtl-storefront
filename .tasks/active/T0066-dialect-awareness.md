@@ -2,7 +2,7 @@
 id: "T0066"
 title: "Cultural AI - Dialect Awareness (Gulf vs Levant vs Maghreb)"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/dialects
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0038"
 title: "URL Structure - Translated URL Slugs"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/translated-slugs
 status: active
 created: 2026-03-22

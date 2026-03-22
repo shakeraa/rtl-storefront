@@ -2,7 +2,7 @@
 id: "T0017"
 title: "Import/Export - Translation Portability"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/import-export
 status: active
 created: 2026-03-22

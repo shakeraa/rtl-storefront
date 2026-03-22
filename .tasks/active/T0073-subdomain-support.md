@@ -2,7 +2,7 @@
 id: "T0073"
 title: "URL Structure - Subdomain (ar.example.com) Support"
 priority: low
-assigned: kimi
+assigned: claude-sec
 branch: feature/subdomain
 status: active
 created: 2026-03-22
