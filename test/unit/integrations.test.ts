@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateProductTabsContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -17,6 +18,7 @@ describe('Integrations Service', () => {
       expect(INTEGRATIONS.map((i) => i.id)).toContain('pagefly');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('klaviyo');
       expect(INTEGRATIONS.map((i) => i.id)).toContain('fastbundle');
+      expect(INTEGRATIONS.map((i) => i.id)).toContain('tabsstudio');
     });
 
     it('should get integration by ID', () => {
@@ -112,6 +114,43 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Product Tabs Integration', () => {
+    it('should translate tab titles and bodies', async () => {
+      const content = {
+        productId: 'product-1',
+        tabs: [
+          {
+            tabId: 'details',
+            title: 'Details',
+            content: 'Made from premium cotton.',
+          },
+          {
+            tabId: 'shipping',
+            title: 'Shipping',
+            content: 'Ships within 2 business days.',
+          },
+        ],
+      };
+
+      const result = await translateProductTabsContent(content, 'ar');
+      expect(result).toEqual({
+        productId: 'product-1',
+        tabs: [
+          {
+            tabId: 'details',
+            title: '[ar] Details',
+            content: '[ar] Made from premium cotton.',
+          },
+          {
+            tabId: 'shipping',
+            title: '[ar] Shipping',
+            content: '[ar] Ships within 2 business days.',
+          },
+        ],
       });
     });
   });

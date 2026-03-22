@@ -26,6 +26,17 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface ProductTab {
+  tabId: string;
+  title: string;
+  content: string;
+}
+
+export interface ProductTabsAppContent {
+  productId: string;
+  tabs: ProductTab[];
+}
+
 export interface BundleItemContent {
   productId: string;
   title: string;
@@ -94,6 +105,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: 'fastbundle',
     name: 'Fast Bundle',
+    category: 'other',
+    status: 'available',
+  },
+  {
+    id: 'tabsstudio',
+    name: 'Tabs Studio',
     category: 'other',
     status: 'available',
   },
@@ -177,6 +194,21 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Product tabs integration
+export async function translateProductTabsContent(
+  content: ProductTabsAppContent,
+  targetLocale: string
+): Promise<ProductTabsAppContent> {
+  return {
+    ...content,
+    tabs: content.tabs.map((tab) => ({
+      ...tab,
+      title: `[${targetLocale}] ${tab.title}`,
+      content: `[${targetLocale}] ${tab.content}`,
     })),
   };
 }
