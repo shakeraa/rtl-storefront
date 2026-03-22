@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateAccessibilityAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,52 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Accessibility App Integration', () => {
+    it('should translate accessibility app content and preserve metadata', async () => {
+      const accessibility = {
+        accessibilityId: 'accessibility-1',
+        title: 'Accessibility tools',
+        toolbarLabel: 'Open accessibility toolbar',
+        resetLabel: 'Reset adjustments',
+        controls: [
+          {
+            controlId: 'control-1',
+            title: 'Increase text size',
+            description: 'Make text easier to read',
+          },
+          {
+            controlId: 'control-2',
+            title: 'High contrast mode',
+          },
+        ],
+        metadata: {
+          provider: 'accessibility-app',
+        },
+      };
+
+      const result = await translateAccessibilityAppContent(
+        accessibility,
+        'ar'
+      );
+      expect(result.title).toBe('[ar] Accessibility tools');
+      expect(result.toolbarLabel).toBe('[ar] Open accessibility toolbar');
+      expect(result.resetLabel).toBe('[ar] Reset adjustments');
+      expect(result.controls[0]).toEqual({
+        controlId: 'control-1',
+        title: '[ar] Increase text size',
+        description: '[ar] Make text easier to read',
+      });
+      expect(result.controls[1]).toEqual({
+        controlId: 'control-2',
+        title: '[ar] High contrast mode',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'accessibility-app',
       });
     });
   });

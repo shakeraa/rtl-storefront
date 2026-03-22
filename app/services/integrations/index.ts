@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface AccessibilityControlContent {
+  controlId: string;
+  title: string;
+  description?: string;
+}
+
+export interface AccessibilityAppContent {
+  accessibilityId: string;
+  title: string;
+  toolbarLabel?: string;
+  resetLabel?: string;
+  controls: AccessibilityControlContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Accessibility app integration
+export async function translateAccessibilityAppContent(
+  accessibility: AccessibilityAppContent,
+  targetLocale: string
+): Promise<AccessibilityAppContent> {
+  return {
+    ...accessibility,
+    title: `[${targetLocale}] ${accessibility.title}`,
+    toolbarLabel: accessibility.toolbarLabel
+      ? `[${targetLocale}] ${accessibility.toolbarLabel}`
+      : undefined,
+    resetLabel: accessibility.resetLabel
+      ? `[${targetLocale}] ${accessibility.resetLabel}`
+      : undefined,
+    controls: accessibility.controls.map((control) => ({
+      ...control,
+      title: `[${targetLocale}] ${control.title}`,
+      description: control.description
+        ? `[${targetLocale}] ${control.description}`
+        : undefined,
     })),
   };
 }
