@@ -10,3 +10,4 @@ export * from "./asset-optimizer";
 export * from "./isr";
 export * from "./tree-shaking";
 export * from "./lazy-loading";
+export * from "./font-loader";
