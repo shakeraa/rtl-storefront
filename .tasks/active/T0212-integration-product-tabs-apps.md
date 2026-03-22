@@ -2,7 +2,7 @@
 id: "T0212"
 title: "Integration - Product Tabs Apps"
 priority: medium
-assigned: codex
+assigned: claude-sec
 branch: feature/t0212
 status: active
 created: 2026-03-22

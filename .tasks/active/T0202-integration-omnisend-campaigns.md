@@ -2,7 +2,7 @@
 id: "T0202"
 title: "Integration - Omnisend Campaigns"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0202
 status: active
 created: 2026-03-22

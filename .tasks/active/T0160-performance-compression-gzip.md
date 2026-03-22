@@ -2,7 +2,7 @@
 id: "T0160"
 title: "Performance - Compression Gzip"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0160
 status: active
 created: 2026-03-22

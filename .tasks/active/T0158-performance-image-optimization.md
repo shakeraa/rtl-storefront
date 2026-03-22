@@ -2,7 +2,7 @@
 id: "T0158"
 title: "Performance - Image Optimization"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0158
 status: active
 created: 2026-03-22

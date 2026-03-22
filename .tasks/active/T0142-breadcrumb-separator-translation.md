@@ -2,7 +2,7 @@
 id: "T0142"
 title: "Breadcrumb - Separator Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0142
 status: active
 created: 2026-03-22

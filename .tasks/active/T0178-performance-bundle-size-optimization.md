@@ -2,7 +2,7 @@
 id: "T0178"
 title: "Performance - Bundle Size Optimization"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0178
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0200"
 title: "Security - Penetration Testing"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0200
 status: active
 created: 2026-03-22

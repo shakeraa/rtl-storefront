@@ -2,7 +2,7 @@
 id: "T0150"
 title: "Popup - Content Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0150
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0207"
 title: "Integration - Bold Subscriptions"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0207
 status: active
 created: 2026-03-22

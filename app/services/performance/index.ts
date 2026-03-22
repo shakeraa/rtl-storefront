@@ -8,3 +8,4 @@ export * from "./cost-monitor";
 export * from "./connection-pool";
 export * from "./asset-optimizer";
 export * from "./isr";
+export * from "./lazy-loading";

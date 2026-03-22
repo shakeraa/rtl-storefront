@@ -2,7 +2,7 @@
 id: "T0209"
 title: "Integration - Wishlist Apps"
 priority: medium
-assigned: codex
+assigned: claude-sec
 branch: feature/t0209
 status: active
 created: 2026-03-22

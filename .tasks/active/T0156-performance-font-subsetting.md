@@ -2,7 +2,7 @@
 id: "T0156"
 title: "Performance - Font Subsetting"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0156
 status: active
 created: 2026-03-22
