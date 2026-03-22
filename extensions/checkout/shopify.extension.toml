@@ -1,5 +1,6 @@
 api_version = "2025-01"
 [[extensions]]
+uid = "a5258291-c9f1-7f5d-867f-9dfd53080689231a7dbc"
 type = "ui_extension"
 name = "RTL Checkout"
 handle = "rtl-checkout"
