@@ -24,7 +24,13 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
-        <Link to="/app/additional">RTL settings</Link>
+        <Link to="/app/translate">Translate</Link>
+        <Link to="/app/glossary">Glossary</Link>
+        <Link to="/app/analytics">Analytics</Link>
+        <Link to="/app/rtl-settings">RTL Settings</Link>
+        <Link to="/app/payments">Payments</Link>
+        <Link to="/app/coverage">Coverage</Link>
+        <Link to="/app/onboarding">Onboarding</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
