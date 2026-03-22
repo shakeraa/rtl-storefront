@@ -101,3 +101,41 @@ export async function hasConsent(
 
   return record?.granted ?? false;
 }
+
+/**
+ * Grant consent for a specific purpose.
+ * Convenience wrapper around `updateConsent`.
+ */
+export async function grantConsent(
+  shop: string,
+  purpose: string,
+  ipAddress?: string,
+): Promise<void> {
+  await updateConsent({ shop, purpose, granted: true, ipAddress });
+}
+
+/**
+ * Revoke consent for a specific purpose.
+ * Convenience wrapper around `updateConsent`.
+ */
+export async function revokeConsent(
+  shop: string,
+  purpose: string,
+): Promise<void> {
+  await updateConsent({ shop, purpose, granted: false });
+}
+
+/**
+ * Return a map of purpose → boolean indicating whether consent is granted.
+ * Only purposes with an existing record are included.
+ */
+export async function getConsentStatus(
+  shop: string,
+): Promise<Record<string, boolean>> {
+  const records = await prisma.consentRecord.findMany({
+    where: { shop },
+    select: { purpose: true, granted: true },
+  });
+
+  return Object.fromEntries(records.map((r) => [r.purpose, r.granted]));
+}

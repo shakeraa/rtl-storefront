@@ -7,13 +7,16 @@ export type {
   PrivacyDashboardData,
 } from "./types";
 
-export { exportShopData } from "./data-export";
-export { deleteShopData } from "./data-deletion";
+export { exportShopData, formatExportAsJson, formatExportAsCsv } from "./data-export";
+export { deleteShopData, scheduleDataDeletion } from "./data-deletion";
 export {
   updateConsent,
   getConsent,
   getAllConsents,
   hasConsent,
+  grantConsent,
+  revokeConsent,
+  getConsentStatus,
 } from "./consent";
 export {
   setRetentionPolicy,
