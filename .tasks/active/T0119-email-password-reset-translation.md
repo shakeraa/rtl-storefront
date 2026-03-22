@@ -2,7 +2,7 @@
 id: "T0119"
 title: "Email - Password Reset Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0119
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0132"
 title: "Discount - Description Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0132
 status: active
 created: 2026-03-22

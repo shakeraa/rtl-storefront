@@ -2,7 +2,7 @@
 id: "T0125"
 title: "Checkout - Payment Method Labels"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0125
 status: active
 created: 2026-03-22

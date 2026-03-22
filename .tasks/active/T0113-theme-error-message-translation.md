@@ -2,7 +2,7 @@
 id: "T0113"
 title: "Theme - Error Message Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0113
 status: active
 created: 2026-03-22

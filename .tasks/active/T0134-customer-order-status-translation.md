@@ -2,7 +2,7 @@
 id: "T0134"
 title: "Customer - Order Status Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0134
 status: active
 created: 2026-03-22

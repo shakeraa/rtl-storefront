@@ -2,7 +2,7 @@
 id: "T0137"
 title: "Search - Results Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0137
 status: active
 created: 2026-03-22

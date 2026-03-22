@@ -2,7 +2,7 @@
 id: "T0129"
 title: "Gift Card - Description Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0129
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0100"
 title: "Collection - Sort Order Labels"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0100
 status: active
 created: 2026-03-22

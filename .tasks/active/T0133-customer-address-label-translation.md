@@ -2,7 +2,7 @@
 id: "T0133"
 title: "Customer - Address Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0133
 status: active
 created: 2026-03-22

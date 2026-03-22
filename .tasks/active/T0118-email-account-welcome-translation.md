@@ -2,7 +2,7 @@
 id: "T0118"
 title: "Email - Account Welcome Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0118
 status: active
 created: 2026-03-22

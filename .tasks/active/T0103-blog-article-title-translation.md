@@ -2,7 +2,7 @@
 id: "T0103"
 title: "Blog - Article Title Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0103
 status: active
 created: 2026-03-22

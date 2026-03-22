@@ -2,7 +2,7 @@
 id: "T0135"
 title: "Customer - Account Tab Labels"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0135
 status: active
 created: 2026-03-22

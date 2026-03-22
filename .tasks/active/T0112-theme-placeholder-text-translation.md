@@ -2,7 +2,7 @@
 id: "T0112"
 title: "Theme - Placeholder Text Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0112
 status: active
 created: 2026-03-22

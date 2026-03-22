@@ -2,7 +2,7 @@
 id: "T0116"
 title: "Email - Order Confirmation Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0116
 status: active
 created: 2026-03-22

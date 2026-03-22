@@ -2,7 +2,7 @@
 id: "T0117"
 title: "Email - Shipping Confirmation Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0117
 status: active
 created: 2026-03-22

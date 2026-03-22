@@ -2,7 +2,7 @@
 id: "T0115"
 title: "Theme - Notification Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0115
 status: active
 created: 2026-03-22

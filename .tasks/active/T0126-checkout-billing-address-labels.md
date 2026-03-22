@@ -2,7 +2,7 @@
 id: "T0126"
 title: "Checkout - Billing Address Labels"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0126
 status: active
 created: 2026-03-22

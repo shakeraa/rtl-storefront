@@ -2,7 +2,7 @@
 id: "T0131"
 title: "Discount - Code Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0131
 status: active
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0122"
 title: "Cart - Gift Message Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0122
 status: active
 created: 2026-03-22

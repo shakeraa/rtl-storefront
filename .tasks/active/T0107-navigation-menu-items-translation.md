@@ -2,7 +2,7 @@
 id: "T0107"
 title: "Navigation - Menu Items Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0107
 status: active
 created: 2026-03-22

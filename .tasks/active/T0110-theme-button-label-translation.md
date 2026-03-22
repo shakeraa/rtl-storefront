@@ -2,7 +2,7 @@
 id: "T0110"
 title: "Theme - Button Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0110
 status: active
 created: 2026-03-22

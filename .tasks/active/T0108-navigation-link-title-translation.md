@@ -2,7 +2,7 @@
 id: "T0108"
 title: "Navigation - Link Title Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0108
 status: active
 created: 2026-03-22

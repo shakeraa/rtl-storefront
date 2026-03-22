@@ -2,7 +2,7 @@
 id: "T0111"
 title: "Theme - Form Label Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0111
 status: active
 created: 2026-03-22

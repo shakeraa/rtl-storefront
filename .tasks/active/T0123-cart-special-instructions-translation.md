@@ -2,7 +2,7 @@
 id: "T0123"
 title: "Cart - Special Instructions Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0123
 status: active
 created: 2026-03-22

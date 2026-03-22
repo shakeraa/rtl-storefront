@@ -2,7 +2,7 @@
 id: "T0124"
 title: "Checkout - Shipping Method Names"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0124
 status: active
 created: 2026-03-22

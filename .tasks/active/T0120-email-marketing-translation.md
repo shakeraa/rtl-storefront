@@ -2,7 +2,7 @@
 id: "T0120"
 title: "Email - Marketing Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0120
 status: active
 created: 2026-03-22
