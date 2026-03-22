@@ -66,3 +66,6 @@ temp/
 
 # TypeScript
 *.tsbuildinfo
+
+# Internal docs
+docs-internal/

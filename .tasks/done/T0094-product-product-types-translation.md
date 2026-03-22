@@ -1,9 +1,9 @@
 ---
-id: "T0347"
-title: "Translation - Keyboard Navigation"
-priority: low
+id: "T0094"
+title: "Product - Product Types Translation"
+priority: medium
 assigned: claude
-branch: feature/t0347
+branch: feature/t0094
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keyboard shortcut labels
+Translate product type categories
 
 ## Acceptance criteria
 - [ ] Feature implemented

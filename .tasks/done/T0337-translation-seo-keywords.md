@@ -1,9 +1,9 @@
 ---
-id: "T0347"
-title: "Translation - Keyboard Navigation"
+id: "T0337"
+title: "Translation - SEO Keywords"
 priority: low
 assigned: claude
-branch: feature/t0347
+branch: feature/t0337
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keyboard shortcut labels
+Keyword optimization
 
 ## Acceptance criteria
 - [ ] Feature implemented

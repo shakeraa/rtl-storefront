@@ -1,9 +1,9 @@
 ---
-id: "T0347"
-title: "Translation - Keyboard Navigation"
-priority: low
+id: "T0093"
+title: "Product - Vendor Names Translation"
+priority: medium
 assigned: claude
-branch: feature/t0347
+branch: feature/t0093
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keyboard shortcut labels
+Translate vendor/brand names with preservation option
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,9 +1,9 @@
 ---
-id: "T0347"
-title: "Translation - Keyboard Navigation"
+id: "T0309"
+title: "Translation - Emoji Handling"
 priority: low
 assigned: claude
-branch: feature/t0347
+branch: feature/t0309
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keyboard shortcut labels
+Handle emojis correctly
 
 ## Acceptance criteria
 - [ ] Feature implemented

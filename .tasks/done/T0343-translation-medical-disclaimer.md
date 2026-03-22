@@ -1,9 +1,9 @@
 ---
-id: "T0347"
-title: "Translation - Keyboard Navigation"
+id: "T0343"
+title: "Translation - Medical Disclaimer"
 priority: low
 assigned: claude
-branch: feature/t0347
+branch: feature/t0343
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Keyboard shortcut labels
+Medical content warnings
 
 ## Acceptance criteria
 - [ ] Feature implemented
