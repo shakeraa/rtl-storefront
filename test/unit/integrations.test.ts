@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateShippingInsuranceAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Shipping Insurance App Integration', () => {
+    it('should translate insurance options and preserve metadata', async () => {
+      const insurance = {
+        insuranceId: 'insurance-1',
+        title: 'Shipping protection',
+        summary: 'Protect your order against loss, theft, and damage',
+        claimLabel: 'File a claim',
+        options: [
+          {
+            optionId: 'option-1',
+            title: 'Basic coverage',
+            description: 'Covers lost packages up to the order total',
+          },
+          {
+            optionId: 'option-2',
+            title: 'Premium coverage',
+          },
+        ],
+        metadata: {
+          provider: 'shipping-insurance-app',
+        },
+      };
+
+      const result = await translateShippingInsuranceAppContent(insurance, 'ar');
+      expect(result.title).toBe('[ar] Shipping protection');
+      expect(result.summary).toBe(
+        '[ar] Protect your order against loss, theft, and damage'
+      );
+      expect(result.claimLabel).toBe('[ar] File a claim');
+      expect(result.options[0]).toEqual({
+        optionId: 'option-1',
+        title: '[ar] Basic coverage',
+        description: '[ar] Covers lost packages up to the order total',
+      });
+      expect(result.options[1]).toEqual({
+        optionId: 'option-2',
+        title: '[ar] Premium coverage',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'shipping-insurance-app',
       });
     });
   });

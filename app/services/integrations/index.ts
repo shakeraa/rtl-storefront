@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface ShippingInsuranceOptionContent {
+  optionId: string;
+  title: string;
+  description?: string;
+}
+
+export interface ShippingInsuranceAppContent {
+  insuranceId: string;
+  title: string;
+  summary?: string;
+  claimLabel?: string;
+  options: ShippingInsuranceOptionContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,28 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Shipping insurance app integration
+export async function translateShippingInsuranceAppContent(
+  insurance: ShippingInsuranceAppContent,
+  targetLocale: string
+): Promise<ShippingInsuranceAppContent> {
+  return {
+    ...insurance,
+    title: `[${targetLocale}] ${insurance.title}`,
+    summary: insurance.summary ? `[${targetLocale}] ${insurance.summary}` : undefined,
+    claimLabel: insurance.claimLabel
+      ? `[${targetLocale}] ${insurance.claimLabel}`
+      : undefined,
+    options: insurance.options.map((option) => ({
+      ...option,
+      title: `[${targetLocale}] ${option.title}`,
+      description: option.description
+        ? `[${targetLocale}] ${option.description}`
+        : undefined,
     })),
   };
 }
