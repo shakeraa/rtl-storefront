@@ -9,6 +9,8 @@ import {
   getEventsByLocale,
   getTranslationVolumeByLanguage,
   getConversionMetricsByLanguage,
+  classifyBrowser,
+  getBrowserBreakdownByLanguage,
   getAIConfidenceMetrics,
   clearEvents,
   getEventCount,
@@ -66,9 +68,31 @@ describe('Analytics Service - T0012', () => {
     });
 
     it('should track page views', () => {
+      const originalWindow = globalThis.window;
+      Object.defineProperty(globalThis, 'window', {
+        value: {
+          location: { href: 'http://localhost:3000/' },
+          navigator: {
+            userAgent:
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36',
+          },
+        },
+        configurable: true,
+      });
+
       const event = trackPageView('shop-1', 'session-1', '/products', 'ar');
       expect(event.type).toBe('page_view');
       expect(event.locale).toBe('ar');
+      expect(event.metadata.userAgent).toContain('Chrome/122');
+
+      if (originalWindow) {
+        Object.defineProperty(globalThis, 'window', {
+          value: originalWindow,
+          configurable: true,
+        });
+      } else {
+        Reflect.deleteProperty(globalThis, 'window');
+      }
     });
 
     it('should track language changes', () => {
@@ -103,6 +127,13 @@ describe('Analytics Service - T0012', () => {
 
       const arEvents = getEventsByLocale('ar');
       expect(arEvents).toHaveLength(1);
+    });
+
+    it('should expose the total event count', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/' });
+      trackEvent('conversion', 'shop-1', 'session-2', { value: 100 }, 'ar');
+
+      expect(getEventCount()).toBe(2);
     });
   });
 
@@ -190,6 +221,68 @@ describe('Analytics Service - T0012', () => {
       expect(metrics.ar.count).toBe(2);
       expect(metrics.ar.totalValue).toBe(300);
       expect(metrics.ar.avgValue).toBe(150);
+    });
+
+    it('should classify browsers', () => {
+      expect(
+        classifyBrowser(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36'
+        )
+      ).toBe('chrome');
+      expect(
+        classifyBrowser(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15'
+        )
+      ).toBe('safari');
+      expect(classifyBrowser('Mozilla/5.0 Firefox/123.0')).toBe('firefox');
+      expect(classifyBrowser('Mozilla/5.0 Edg/122.0.0.0')).toBe('edge');
+      expect(classifyBrowser('Mozilla/5.0 OPR/106.0.0.0')).toBe('opera');
+      expect(classifyBrowser('')).toBe('unknown');
+    });
+
+    it('should calculate browser breakdown by language', () => {
+      trackEvent(
+        'page_view',
+        'shop-1',
+        'session-1',
+        {
+          page: '/',
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36',
+        },
+        'ar'
+      );
+      trackConversion('shop-1', 'session-2', {
+        locale: 'ar',
+        productId: 'prod-1',
+        value: 120,
+        currency: 'USD',
+        referrer: 'google',
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15',
+      });
+      trackEvent(
+        'page_view',
+        'shop-1',
+        'session-3',
+        { page: '/', userAgent: 'Mozilla/5.0 Firefox/123.0' },
+        'en'
+      );
+      trackConversion('shop-1', 'session-4', {
+        locale: 'en',
+        productId: 'prod-2',
+        value: 80,
+        currency: 'USD',
+        referrer: 'email',
+        userAgent: 'Mozilla/5.0 Edg/122.0.0.0',
+      });
+
+      const breakdown = getBrowserBreakdownByLanguage();
+
+      expect(breakdown.ar.chrome).toBe(1);
+      expect(breakdown.ar.safari).toBe(1);
+      expect(breakdown.en.firefox).toBe(1);
+      expect(breakdown.en.edge).toBe(1);
     });
   });
 

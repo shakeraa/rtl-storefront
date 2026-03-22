@@ -134,7 +134,14 @@ export function trackPageView(
     'page_view',
     shopId,
     sessionId,
-    { page, url: typeof window !== 'undefined' ? window.location.href : '' },
+    {
+      page,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      userAgent:
+        typeof window !== 'undefined' && 'navigator' in window
+          ? window.navigator.userAgent
+          : '',
+    },
     locale
   );
 }
@@ -244,6 +251,59 @@ export function getConversionMetricsByLanguage(
   }
 
   return result;
+}
+
+export type BrowserType = 'chrome' | 'safari' | 'firefox' | 'edge' | 'opera' | 'unknown';
+
+export function classifyBrowser(userAgent: string): BrowserType {
+  const normalized = userAgent.toLowerCase();
+
+  if (!normalized) return 'unknown';
+  if (/edg\//.test(normalized)) return 'edge';
+  if (/opr\/|opera/.test(normalized)) return 'opera';
+  if (/firefox|fxios/.test(normalized)) return 'firefox';
+  if (/(chrome|crios)/.test(normalized) && !/edg\/|opr\/|opera/.test(normalized)) {
+    return 'chrome';
+  }
+  if (/safari/.test(normalized) && !/(chrome|crios|android)/.test(normalized)) {
+    return 'safari';
+  }
+
+  return 'unknown';
+}
+
+/**
+ * Get browser usage breakdown by language from page views and conversions
+ */
+export function getBrowserBreakdownByLanguage(
+  startDate?: Date,
+  endDate?: Date
+): Record<string, Record<BrowserType, number>> {
+  const pageViews = getEventsByType('page_view', startDate, endDate);
+  const conversions = getEventsByType('conversion', startDate, endDate);
+  const events = [...pageViews, ...conversions];
+  const breakdown: Record<string, Record<BrowserType, number>> = {};
+
+  for (const event of events) {
+    const locale = event.locale || 'unknown';
+    const userAgent = String(event.metadata.userAgent || '');
+    const browser = classifyBrowser(userAgent);
+
+    if (!breakdown[locale]) {
+      breakdown[locale] = {
+        chrome: 0,
+        safari: 0,
+        firefox: 0,
+        edge: 0,
+        opera: 0,
+        unknown: 0,
+      };
+    }
+
+    breakdown[locale][browser]++;
+  }
+
+  return breakdown;
 }
 
 /**
