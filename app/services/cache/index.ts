@@ -1,12 +1,13 @@
+import type { CacheConfig, CacheStore } from "./types";
+import { MemoryCacheStore } from "./memory-store";
+import { RedisCacheStore } from "./redis-store";
+
 export type { CacheConfig, CacheMetrics, CacheStore } from "./types";
 export { MemoryCacheStore } from "./memory-store";
 export { RedisCacheStore } from "./redis-store";
 export type { RedisStoreConfig } from "./redis-store";
+export { ApiResponseCache } from "./api-response-cache";
 export { TranslationCache } from "./translation-cache";
-
-import type { CacheConfig, CacheStore } from "./types";
-import { MemoryCacheStore } from "./memory-store";
-import { RedisCacheStore } from "./redis-store";
 
 /**
  * Factory that returns a CacheStore instance.
