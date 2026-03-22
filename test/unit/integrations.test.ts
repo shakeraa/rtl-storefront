@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateExchangeAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,53 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Exchange App Integration', () => {
+    it('should translate exchange portal content and preserve metadata', async () => {
+      const exchange = {
+        exchangeId: 'exchange-1',
+        portalTitle: 'Choose an exchange',
+        instructions: 'Select a replacement item before shipping the return',
+        confirmationMessage: 'Your exchange request has been submitted',
+        options: [
+          {
+            optionId: 'option-1',
+            title: 'Swap for another size',
+            description: 'Choose the same item in a different size',
+          },
+          {
+            optionId: 'option-2',
+            title: 'Swap for store credit',
+          },
+        ],
+        metadata: {
+          provider: 'exchange-app',
+        },
+      };
+
+      const result = await translateExchangeAppContent(exchange, 'ar');
+      expect(result.portalTitle).toBe('[ar] Choose an exchange');
+      expect(result.instructions).toBe(
+        '[ar] Select a replacement item before shipping the return'
+      );
+      expect(result.confirmationMessage).toBe(
+        '[ar] Your exchange request has been submitted'
+      );
+      expect(result.options[0]).toEqual({
+        optionId: 'option-1',
+        title: '[ar] Swap for another size',
+        description: '[ar] Choose the same item in a different size',
+      });
+      expect(result.options[1]).toEqual({
+        optionId: 'option-2',
+        title: '[ar] Swap for store credit',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'exchange-app',
       });
     });
   });

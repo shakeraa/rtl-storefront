@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface ExchangeOptionContent {
+  optionId: string;
+  title: string;
+  description?: string;
+}
+
+export interface ExchangeAppContent {
+  exchangeId: string;
+  portalTitle: string;
+  instructions?: string;
+  confirmationMessage?: string;
+  options: ExchangeOptionContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Exchange app integration
+export async function translateExchangeAppContent(
+  exchange: ExchangeAppContent,
+  targetLocale: string
+): Promise<ExchangeAppContent> {
+  return {
+    ...exchange,
+    portalTitle: `[${targetLocale}] ${exchange.portalTitle}`,
+    instructions: exchange.instructions
+      ? `[${targetLocale}] ${exchange.instructions}`
+      : undefined,
+    confirmationMessage: exchange.confirmationMessage
+      ? `[${targetLocale}] ${exchange.confirmationMessage}`
+      : undefined,
+    options: exchange.options.map((option) => ({
+      ...option,
+      title: `[${targetLocale}] ${option.title}`,
+      description: option.description
+        ? `[${targetLocale}] ${option.description}`
+        : undefined,
     })),
   };
 }
