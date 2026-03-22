@@ -44,6 +44,9 @@ export default function App() {
         <Link to="/app/glossary">Glossary</Link>
         <Link to="/app/coverage">Coverage</Link>
         <Link to="/app/analytics">Analytics</Link>
+        <Link to="/app/export">Export</Link>
+        <Link to="/app/rtl-preview">RTL Preview</Link>
+        <Link to="/app/locales">Languages</Link>
         <Link to="/app/payments">MENA Payments</Link>
         <Link to="/app/billing">Plans & Billing</Link>
       </NavMenu>
