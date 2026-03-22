@@ -1,10 +1,10 @@
 ---
-id: "T0356"
-title: "UI - Custom Columns"
+id: "T0363"
+title: "UI - Notifications Center"
 priority: low
-assigned: codex
-branch: feature/t0356
-status: active
+assigned: kimi
+branch: feature/t0363
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Configurable table columns
+In-app notifications
 
 ## Acceptance criteria
 - [ ] Feature implemented

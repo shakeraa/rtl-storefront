@@ -1,10 +1,10 @@
 ---
-id: "T0360"
-title: "UI - Comment Threads"
+id: "T0362"
+title: "UI - Activity Feed"
 priority: low
-assigned: codex
-branch: feature/t0360
-status: active
+assigned: kimi
+branch: feature/t0362
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Discussion on translations
+Recent activity log
 
 ## Acceptance criteria
 - [ ] Feature implemented

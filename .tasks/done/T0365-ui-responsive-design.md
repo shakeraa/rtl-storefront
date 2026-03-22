@@ -1,10 +1,10 @@
 ---
-id: "T0351"
-title: "UI - Dark Mode Support"
+id: "T0365"
+title: "UI - Responsive Design"
 priority: low
-assigned: codex
-branch: feature/t0351
-status: active
+assigned: kimi
+branch: feature/t0365
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Dark mode for admin
+Mobile-optimized admin
 
 ## Acceptance criteria
 - [ ] Feature implemented

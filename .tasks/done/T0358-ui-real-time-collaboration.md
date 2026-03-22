@@ -1,10 +1,10 @@
 ---
-id: "T0366"
-title: "UI - Offline Mode"
+id: "T0358"
+title: "UI - Real-time Collaboration"
 priority: low
-assigned: kimi
-branch: feature/t0366
-status: active
+assigned: codex
+branch: feature/t0358
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Work without internet
+Multi-user editing
 
 ## Acceptance criteria
 - [ ] Feature implemented

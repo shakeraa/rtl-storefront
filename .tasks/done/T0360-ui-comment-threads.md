@@ -1,10 +1,10 @@
 ---
-id: "T0365"
-title: "UI - Responsive Design"
+id: "T0360"
+title: "UI - Comment Threads"
 priority: low
-assigned: kimi
-branch: feature/t0365
-status: active
+assigned: codex
+branch: feature/t0360
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Mobile-optimized admin
+Discussion on translations
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0359"
-title: "UI - Change Notifications"
+id: "T0364"
+title: "UI - Mobile App"
 priority: low
-assigned: codex
-branch: feature/t0359
-status: active
+assigned: kimi
+branch: feature/t0364
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Real-time updates
+iOS/Android app
 
 ## Acceptance criteria
 - [ ] Feature implemented

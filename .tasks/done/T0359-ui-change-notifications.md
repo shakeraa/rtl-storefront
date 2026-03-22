@@ -1,10 +1,10 @@
 ---
-id: "T0355"
-title: "UI - Advanced Filtering"
+id: "T0359"
+title: "UI - Change Notifications"
 priority: low
 assigned: codex
-branch: feature/t0355
-status: active
+branch: feature/t0359
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Filter by status, date
+Real-time updates
 
 ## Acceptance criteria
 - [ ] Feature implemented

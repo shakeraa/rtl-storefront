@@ -1,10 +1,10 @@
 ---
-id: "T0354"
-title: "UI - Drag and Drop"
+id: "T0356"
+title: "UI - Custom Columns"
 priority: low
 assigned: codex
-branch: feature/t0354
-status: active
+branch: feature/t0356
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Reorder translations
+Configurable table columns
 
 ## Acceptance criteria
 - [ ] Feature implemented

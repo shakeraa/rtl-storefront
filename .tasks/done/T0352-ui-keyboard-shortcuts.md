@@ -1,10 +1,10 @@
 ---
-id: "T0362"
-title: "UI - Activity Feed"
+id: "T0352"
+title: "UI - Keyboard Shortcuts"
 priority: low
-assigned: kimi
-branch: feature/t0362
-status: active
+assigned: codex
+branch: feature/t0352
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Recent activity log
+Keyboard navigation
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,10 +1,10 @@
 ---
-id: "T0363"
-title: "UI - Notifications Center"
+id: "T0357"
+title: "UI - Saved Views"
 priority: low
-assigned: kimi
-branch: feature/t0363
-status: active
+assigned: codex
+branch: feature/t0357
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-In-app notifications
+Save filter configurations
 
 ## Acceptance criteria
 - [ ] Feature implemented

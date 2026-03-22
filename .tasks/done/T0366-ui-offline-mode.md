@@ -1,10 +1,10 @@
 ---
-id: "T0353"
-title: "UI - Bulk Actions"
+id: "T0366"
+title: "UI - Offline Mode"
 priority: low
-assigned: codex
-branch: feature/t0353
-status: active
+assigned: kimi
+branch: feature/t0366
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Bulk operations UI
+Work without internet
 
 ## Acceptance criteria
 - [ ] Feature implemented
