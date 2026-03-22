@@ -8,6 +8,15 @@ export { RedisCacheStore } from "./redis-store";
 export type { RedisStoreConfig } from "./redis-store";
 export { ApiResponseCache } from "./api-response-cache";
 export { TranslationCache } from "./translation-cache";
+export type { CacheClient } from "./redis";
+export { createCacheClient, resetCacheClient } from "./redis";
+export {
+  getEdgeCacheHeaders,
+  getNoCacheHeaders,
+  getBrowserCacheHeaders,
+  shouldCache,
+  getCacheKey,
+} from "./edge";
 
 /**
  * Factory that returns a CacheStore instance.
