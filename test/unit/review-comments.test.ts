@@ -14,7 +14,6 @@ import {
   clearAllComments,
   getTotalCommentCount,
   CommentCategory,
-  CommentInput,
 } from '../../app/services/translation-features/review-comments';
 
 describe('Translation Review Comments Service', () => {
@@ -214,7 +213,6 @@ describe('Translation Review Comments Service', () => {
       const newDate = new Date('2024-06-01');
 
       const comment1 = addComment('item-1', { author: 'user1', content: 'Old' });
-      // Manually modify createdAt for testing
       Object.assign(comment1, { createdAt: oldDate });
 
       const comment2 = addComment('item-1', { author: 'user2', content: 'New' });
@@ -273,18 +271,17 @@ describe('Translation Review Comments Service', () => {
       const nestedReply = addComment('item-1', { author: 'user3', content: 'Nested', parentId: reply1.id });
 
       const threads = getCommentThreads('item-1');
-      expect(threads[0].replies).toHaveLength(2); // Both reply1 and nestedReply
+      expect(threads[0].replies).toHaveLength(2);
     });
 
     it('sorts threads by last activity', () => {
       const thread1 = addComment('item-1', { author: 'user1', content: 'Thread 1' });
       const thread2 = addComment('item-1', { author: 'user2', content: 'Thread 2' });
       
-      // Add reply to thread1 to make it more recent
       addComment('item-1', { author: 'user3', content: 'Reply', parentId: thread1.id });
 
       const threads = getCommentThreads('item-1');
-      expect(threads[0].id).toBe(thread1.id); // Most recent first
+      expect(threads[0].id).toBe(thread1.id);
       expect(threads[1].id).toBe(thread2.id);
     });
 
@@ -579,14 +576,12 @@ describe('Translation Review Comments Service', () => {
 
     it('sorts mentions by date (most recent first)', () => {
       const comment1 = addComment('item-1', { author: 'user1', content: '@alice first' });
-      // Add small delay to ensure different timestamps
       const start = Date.now();
       while (Date.now() - start < 5) { /* busy wait */ }
       const comment2 = addComment('item-1', { author: 'user2', content: '@alice second' });
 
       const mentions = getMentionsForUser('alice');
       expect(mentions.length).toBe(2);
-      // Verify sorted by date descending
       expect(mentions[0].createdAt.getTime()).toBeGreaterThanOrEqual(mentions[1].createdAt.getTime());
     });
   });
