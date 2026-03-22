@@ -1,4 +1,8 @@
+import { createHyperPayGateway } from "./hyperpay";
 import { createMadaGateway } from "./mada";
+import { createNetworkInternationalGateway } from "./network-international";
+import { createPayFortGateway } from "./payfort";
+import { createSadadGateway } from "./sadad";
 import { createStcPayGateway } from "./stc-pay";
 import { createTabbyGateway } from "./tabby";
 import { createTamaraGateway } from "./tamara";
@@ -20,6 +24,10 @@ export { createTabbyGateway } from "./tabby";
 export { createMadaGateway } from "./mada";
 export { createStcPayGateway } from "./stc-pay";
 export { createTelrGateway } from "./telr";
+export { createPayFortGateway } from "./payfort";
+export { createHyperPayGateway } from "./hyperpay";
+export { createNetworkInternationalGateway } from "./network-international";
+export { createSadadGateway } from "./sadad";
 
 interface MENAPaymentOrchestratorConfig {
   tamara?: MENAPaymentConfig;
@@ -27,6 +35,10 @@ interface MENAPaymentOrchestratorConfig {
   mada?: MENAPaymentConfig;
   stc_pay?: MENAPaymentConfig;
   telr?: MENAPaymentConfig;
+  payfort?: MENAPaymentConfig;
+  hyperpay?: MENAPaymentConfig;
+  network_international?: MENAPaymentConfig;
+  sadad?: MENAPaymentConfig;
 }
 
 /**
@@ -150,6 +162,25 @@ export class MENAPaymentOrchestrator {
 /**
  * Create a MENA payment orchestrator from environment variables.
  */
+// COD and Installments
+export {
+  isCODAvailable,
+  calculateCODSurcharge,
+  getCODLabel,
+  getCODTerms,
+  getDefaultCODConfig,
+} from "./cod";
+export type { CODConfig } from "./cod";
+
+export {
+  getAvailablePlans,
+  calculateInstallmentSchedule,
+  formatInstallmentLabel,
+  getInstallmentWidget,
+  INSTALLMENT_PLANS,
+} from "./installments";
+export type { InstallmentPlan } from "./installments";
+
 export function createMENAPaymentOrchestrator(env: Record<string, string | undefined> = process.env as Record<string, string | undefined>): MENAPaymentOrchestrator {
   const sandbox = env.NODE_ENV !== "production";
 

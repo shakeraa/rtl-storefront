@@ -1,4 +1,4 @@
-export type MENAPaymentProvider = "tamara" | "tabby" | "mada" | "stc_pay" | "telr";
+export type MENAPaymentProvider = "tamara" | "tabby" | "mada" | "stc_pay" | "telr" | "payfort" | "hyperpay" | "network_international" | "sadad";
 
 export type PaymentStatus =
   | "pending"
@@ -10,7 +10,7 @@ export type PaymentStatus =
   | "cancelled"
   | "expired";
 
-export type SupportedCurrency = "SAR" | "AED" | "KWD" | "BHD" | "QAR" | "OMR" | "USD" | "EGP";
+export type SupportedCurrency = "SAR" | "AED" | "KWD" | "BHD" | "QAR" | "OMR" | "USD" | "EGP" | "JOD";
 
 export interface MENAPaymentConfig {
   provider: MENAPaymentProvider;
