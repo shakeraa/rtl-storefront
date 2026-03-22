@@ -1,5 +1,6 @@
 export * from "./prefetch";
 export * from "./font-preload";
+export * from "./font-subsetting";
 export * from "./critical-css";
 export * from "./translation-cache-strategy";
 export * from "./batch-translator";
