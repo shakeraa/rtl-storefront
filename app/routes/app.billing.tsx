@@ -10,6 +10,7 @@ import { authenticate } from "../shopify.server";
 import {
   getActivePlans,
   getSubscription,
+  getPlanById,
   formatPriceForShopify,
   getTrialDaysRemaining,
 } from "../services/billing/index";
