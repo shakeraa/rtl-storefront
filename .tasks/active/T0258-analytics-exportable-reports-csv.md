@@ -1,0 +1,20 @@
+---
+id: "T0258"
+title: "Analytics - Exportable Reports CSV"
+priority: medium
+assigned: claude-sec
+branch: feature/t0258
+status: active
+created: 2026-03-22
+depends_on: []
+locks: []
+test_command: ""
+---
+
+## Description
+Export data as CSV
+
+## Acceptance criteria
+- [ ] Feature implemented
+- [ ] Tests passing
+- [ ] Documentation updated
