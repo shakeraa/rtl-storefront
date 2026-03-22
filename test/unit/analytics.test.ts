@@ -9,6 +9,8 @@ import {
   getEventsByLocale,
   getTranslationVolumeByLanguage,
   getConversionMetricsByLanguage,
+  classifyDevice,
+  getDeviceBreakdownByLanguage,
   getAIConfidenceMetrics,
   clearEvents,
   getEventCount,
@@ -66,9 +68,28 @@ describe('Analytics Service - T0012', () => {
     });
 
     it('should track page views', () => {
+      const originalWindow = globalThis.window;
+      Object.defineProperty(globalThis, 'window', {
+        value: {
+          location: { href: 'http://localhost:3000/' },
+          navigator: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' },
+        },
+        configurable: true,
+      });
+
       const event = trackPageView('shop-1', 'session-1', '/products', 'ar');
       expect(event.type).toBe('page_view');
       expect(event.locale).toBe('ar');
+      expect(event.metadata.userAgent).toContain('iPhone');
+
+      if (originalWindow) {
+        Object.defineProperty(globalThis, 'window', {
+          value: originalWindow,
+          configurable: true,
+        });
+      } else {
+        Reflect.deleteProperty(globalThis, 'window');
+      }
     });
 
     it('should track language changes', () => {
@@ -103,6 +124,13 @@ describe('Analytics Service - T0012', () => {
 
       const arEvents = getEventsByLocale('ar');
       expect(arEvents).toHaveLength(1);
+    });
+
+    it('should expose the total event count', () => {
+      trackEvent('page_view', 'shop-1', 'session-1', { page: '/' });
+      trackEvent('conversion', 'shop-1', 'session-2', { value: 100 }, 'ar');
+
+      expect(getEventCount()).toBe(2);
     });
   });
 
@@ -190,6 +218,60 @@ describe('Analytics Service - T0012', () => {
       expect(metrics.ar.count).toBe(2);
       expect(metrics.ar.totalValue).toBe(300);
       expect(metrics.ar.avgValue).toBe(150);
+    });
+
+    it('should classify device types', () => {
+      expect(classifyDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')).toBe('mobile');
+      expect(classifyDevice('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)')).toBe('tablet');
+      expect(classifyDevice('Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0)')).toBe('desktop');
+      expect(classifyDevice('')).toBe('unknown');
+    });
+
+    it('should calculate device breakdown by language', () => {
+      trackEvent(
+        'page_view',
+        'shop-1',
+        'session-1',
+        { page: '/', userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' },
+        'ar'
+      );
+      trackConversion('shop-1', 'session-2', {
+        locale: 'ar',
+        productId: 'prod-1',
+        value: 120,
+        currency: 'USD',
+        referrer: 'google',
+        userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8)',
+      });
+      trackEvent(
+        'page_view',
+        'shop-1',
+        'session-3',
+        { page: '/', userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0)' },
+        'en'
+      );
+      trackConversion('shop-1', 'session-4', {
+        locale: 'en',
+        productId: 'prod-2',
+        value: 80,
+        currency: 'USD',
+        referrer: 'email',
+        userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)',
+      });
+
+      const breakdown = getDeviceBreakdownByLanguage();
+      expect(breakdown.ar).toEqual({
+        mobile: 2,
+        tablet: 0,
+        desktop: 0,
+        unknown: 0,
+      });
+      expect(breakdown.en).toEqual({
+        mobile: 0,
+        tablet: 1,
+        desktop: 1,
+        unknown: 0,
+      });
     });
   });
 

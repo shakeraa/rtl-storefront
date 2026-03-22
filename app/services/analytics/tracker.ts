@@ -134,7 +134,14 @@ export function trackPageView(
     'page_view',
     shopId,
     sessionId,
-    { page, url: typeof window !== 'undefined' ? window.location.href : '' },
+    {
+      page,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      userAgent:
+        typeof window !== 'undefined' && 'navigator' in window
+          ? window.navigator.userAgent
+          : '',
+    },
     locale
   );
 }
@@ -244,6 +251,51 @@ export function getConversionMetricsByLanguage(
   }
 
   return result;
+}
+
+export type DeviceType = 'mobile' | 'tablet' | 'desktop' | 'unknown';
+
+export function classifyDevice(userAgent: string): DeviceType {
+  const normalized = userAgent.toLowerCase();
+
+  if (!normalized) return 'unknown';
+  if (/ipad|tablet|playbook|silk/.test(normalized)) return 'tablet';
+  if (/mobi|iphone|android/.test(normalized)) return 'mobile';
+  if (/windows|macintosh|linux|x11/.test(normalized)) return 'desktop';
+
+  return 'unknown';
+}
+
+/**
+ * Get device usage breakdown by language from page views and conversions
+ */
+export function getDeviceBreakdownByLanguage(
+  startDate?: Date,
+  endDate?: Date
+): Record<string, Record<DeviceType, number>> {
+  const pageViews = getEventsByType('page_view', startDate, endDate);
+  const conversions = getEventsByType('conversion', startDate, endDate);
+  const events = [...pageViews, ...conversions];
+  const breakdown: Record<string, Record<DeviceType, number>> = {};
+
+  for (const event of events) {
+    const locale = event.locale || 'unknown';
+    const userAgent = String(event.metadata.userAgent || '');
+    const device = classifyDevice(userAgent);
+
+    if (!breakdown[locale]) {
+      breakdown[locale] = {
+        mobile: 0,
+        tablet: 0,
+        desktop: 0,
+        unknown: 0,
+      };
+    }
+
+    breakdown[locale][device]++;
+  }
+
+  return breakdown;
 }
 
 /**
