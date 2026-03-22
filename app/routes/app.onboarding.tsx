@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import {
   Badge,
   Banner,
@@ -20,10 +20,57 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import {
+  createOnboardingState,
+  completeStep,
+  getCurrentStep,
+} from "../services/onboarding/manager";
+import {
+  getDefaultSteps,
+  calculateProgress,
+} from "../services/onboarding/steps";
+import type { OnboardingState, OnboardingStepId } from "../services/onboarding/types";
+
+// In-memory store for onboarding state (in production, persist to DB)
+const onboardingStates = new Map<string, OnboardingState>();
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
-  return json({});
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
+
+  // Create or retrieve onboarding state from the service
+  if (!onboardingStates.has(shop)) {
+    onboardingStates.set(shop, createOnboardingState(shop));
+  }
+  const state = onboardingStates.get(shop)!;
+  const steps = state.steps;
+  const progress = calculateProgress(steps);
+  const current = getCurrentStep(state);
+
+  return json({
+    onboardingState: state,
+    progress,
+    currentStepId: current.id,
+    totalSteps: steps.length,
+    isComplete: state.isComplete,
+  });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
+  const formData = await request.formData();
+  const intent = formData.get("intent") as string;
+  const stepId = formData.get("stepId") as OnboardingStepId | null;
+
+  let state = onboardingStates.get(shop) ?? createOnboardingState(shop);
+
+  if (intent === "completeStep" && stepId) {
+    state = completeStep(state, stepId);
+    onboardingStates.set(shop, state);
+  }
+
+  return json({ success: true });
 };
 
 const TOTAL_STEPS = 5;

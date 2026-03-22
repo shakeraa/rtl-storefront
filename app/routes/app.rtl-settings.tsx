@@ -8,12 +8,24 @@ import {
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { SUPPORTED_LANGUAGES } from "../services/language-switcher/options";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
 
+  // Build language options from the language-switcher service
+  const availableLanguages = Object.entries(SUPPORTED_LANGUAGES).map(
+    ([code, info]) => ({
+      code,
+      name: info.name,
+      nativeName: info.nativeName,
+      direction: info.direction,
+    }),
+  );
+
   return json({
     shop: session.shop,
+    availableLanguages,
     providers: {
       openai: { configured: Boolean(process.env.OPENAI_API_KEY), name: "OpenAI" },
       deepl: { configured: Boolean(process.env.DEEPL_API_KEY), name: "DeepL" },
@@ -23,7 +35,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function SettingsPage() {
-  const { shop, providers } = useLoaderData<typeof loader>();
+  const { shop, providers, availableLanguages } = useLoaderData<typeof loader>();
   const shopify = useAppBridge();
 
   const [provider, setProvider] = useState("openai");
@@ -76,9 +88,16 @@ export default function SettingsPage() {
                 ]} value={sourceLocale} onChange={setSourceLocale} />
                 <Text as="p" variant="bodyMd">Target Languages:</Text>
                 <InlineStack gap="300" wrap>
-                  {Object.entries({ ar: "Arabic (العربية)", he: "Hebrew (עברית)", fa: "Farsi (فارسی)", fr: "French", tr: "Turkish", ur: "Urdu (اردو)" }).map(([code, label]) => (
-                    <Checkbox key={code} label={label} checked={targetLocales[code as keyof typeof targetLocales]} onChange={(v) => setTargetLocales({ ...targetLocales, [code]: v })} />
-                  ))}
+                  {availableLanguages
+                    .filter((lang) => lang.code !== sourceLocale)
+                    .map((lang) => (
+                      <Checkbox
+                        key={lang.code}
+                        label={`${lang.name} (${lang.nativeName})`}
+                        checked={targetLocales[lang.code as keyof typeof targetLocales] ?? false}
+                        onChange={(v) => setTargetLocales({ ...targetLocales, [lang.code]: v })}
+                      />
+                    ))}
                 </InlineStack>
               </BlockStack>
             </Card>

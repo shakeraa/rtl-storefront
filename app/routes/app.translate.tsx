@@ -21,9 +21,21 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { getStats as getTMStats } from "../services/translation-memory/store";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+
+  // Fetch translation memory stats from the TM store service
+  let tmStats: { totalEntries: number; languagePairs: Array<{ sourceLocale: string; targetLocale: string; count: number }> } = {
+    totalEntries: 0,
+    languagePairs: [],
+  };
+  try {
+    tmStats = await getTMStats(session.shop);
+  } catch {
+    // TM stats unavailable (e.g. DB not connected) — fall back to defaults
+  }
 
   return json({
     items: [
@@ -41,6 +53,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       hebrew: { translated: 180, total: 400, coverage: 45 },
       farsi: { translated: 92, total: 400, coverage: 23 },
     },
+    tmStats,
   });
 };
 
@@ -58,7 +71,7 @@ function statusBadge(status: string) {
 }
 
 export default function Translate() {
-  const { items, languageStats } = useLoaderData<typeof loader>();
+  const { items, languageStats, tmStats } = useLoaderData<typeof loader>();
   const [selectedLanguage, setSelectedLanguage] = useState("arabic");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -270,6 +283,44 @@ export default function Translate() {
                     <Text as="p" variant="headingLg">
                       {currentStats.coverage}% Coverage
                     </Text>
+                  </BlockStack>
+                )}
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">
+                  Translation Memory
+                </Text>
+                <InlineStack align="space-between">
+                  <Text as="span" variant="bodyMd">
+                    Total Entries
+                  </Text>
+                  <Text as="span" variant="bodyMd" fontWeight="bold">
+                    {tmStats.totalEntries.toLocaleString()}
+                  </Text>
+                </InlineStack>
+                <InlineStack align="space-between">
+                  <Text as="span" variant="bodyMd">
+                    Language Pairs
+                  </Text>
+                  <Text as="span" variant="bodyMd" fontWeight="bold">
+                    {tmStats.languagePairs.length}
+                  </Text>
+                </InlineStack>
+                {tmStats.languagePairs.length > 0 && (
+                  <BlockStack gap="100">
+                    {tmStats.languagePairs.map((pair) => (
+                      <InlineStack
+                        key={`${pair.sourceLocale}-${pair.targetLocale}`}
+                        align="space-between"
+                      >
+                        <Text as="span" variant="bodySm" tone="subdued">
+                          {pair.sourceLocale} → {pair.targetLocale}
+                        </Text>
+                        <Badge>{String(pair.count)}</Badge>
+                      </InlineStack>
+                    ))}
                   </BlockStack>
                 )}
               </BlockStack>

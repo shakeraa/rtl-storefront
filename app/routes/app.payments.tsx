@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   Badge,
   BlockStack,
@@ -18,10 +19,29 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import {
+  createMENAPaymentOrchestrator,
+  getDefaultCODConfig,
+  isCODAvailable,
+} from "../services/payments/mena";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
-  return json({});
+
+  // Initialize the MENA payment orchestrator from env vars
+  const orchestrator = createMENAPaymentOrchestrator();
+  const configuredProviders = orchestrator.getConfiguredProviders();
+  const codConfig = getDefaultCODConfig();
+
+  return json({
+    configuredProviders,
+    codDefaults: {
+      enabled: codConfig.enabled,
+      maxAmount: codConfig.maxAmount,
+      surcharge: codConfig.surcharge,
+      countries: codConfig.countries,
+    },
+  });
 };
 
 interface PaymentProvider {

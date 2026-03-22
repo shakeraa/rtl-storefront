@@ -7,12 +7,21 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import {
+  getTranslationVolumeByLanguage,
+  getConversionMetricsByLanguage,
+  getAIConfidenceMetrics,
+  getEventCount,
+} from "../services/analytics/tracker";
+import { CostMonitor } from "../services/performance/cost-monitor";
 
+// ROI calculation — see also ../services/analytics/tracker for conversion metrics
 function calculateROI(cost: number, revenue: number): number {
   if (cost === 0) return 0;
   return ((revenue - cost) / cost) * 100;
 }
 
+// Trend direction — see also ../services/analytics/tracker for event-based trends
 function calculateTrendDirection(values: number[]): "up" | "down" | "stable" {
   if (values.length < 2) return "stable";
   const first = values.slice(0, Math.floor(values.length / 2));
@@ -27,16 +36,32 @@ function calculateTrendDirection(values: number[]): "up" | "down" | "stable" {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
 
-  const providers = [
-    { name: "OpenAI", requests: 2847, characters: 1284000, cost: 25.68 },
-    { name: "DeepL", requests: 1203, characters: 542000, cost: 13.55 },
-    { name: "Google", requests: 891, characters: 401000, cost: 4.01 },
-  ];
+  // Pull live data from analytics and cost-monitor services when events exist
+  const translationVolume = getTranslationVolumeByLanguage();
+  const conversionMetrics = getConversionMetricsByLanguage();
+  const confidenceMetrics = getAIConfidenceMetrics();
+  const trackedEventCount = getEventCount();
+  const costMonitor = new CostMonitor();
+
+  // Fall back to seed data when the in-memory event store is empty
+  const providers = trackedEventCount > 0
+    ? Object.entries(costMonitor.getCostByProvider()).map(([name, cost]) => ({
+        name,
+        requests: translationVolume[name]?.count ?? 0,
+        characters: translationVolume[name]?.chars ?? 0,
+        cost,
+      }))
+    : [
+        { name: "OpenAI", requests: 2847, characters: 1284000, cost: 25.68 },
+        { name: "DeepL", requests: 1203, characters: 542000, cost: 13.55 },
+        { name: "Google", requests: 891, characters: 401000, cost: 4.01 },
+      ];
 
   const totalCost = providers.reduce((s, p) => s + p.cost, 0);
   const totalRequests = providers.reduce((s, p) => s + p.requests, 0);
   const totalCharacters = providers.reduce((s, p) => s + p.characters, 0);
-  const roi = calculateROI(totalCost, 12500);
+  const estimatedRevenue = Object.values(conversionMetrics).reduce((s, m) => s + m.totalValue, 0) || 12500;
+  const roi = calculateROI(totalCost, estimatedRevenue);
 
   const weeklyVolume = [
     { day: "Mon", count: 340 }, { day: "Tue", count: 520 },

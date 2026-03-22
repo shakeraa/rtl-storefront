@@ -16,10 +16,33 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import {
+  buildCoverageData,
+  calculateCoverage,
+  getCoverageLevel,
+  getCoverageSummary,
+  sortByPriority,
+} from "../services/coverage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
-  return json({});
+
+  // Build coverage data from the coverage service for each locale
+  const localeCoverageList = LANGUAGE_COVERAGE.map((lang) => {
+    return buildCoverageData(
+      lang.code,
+      CONTENT_TYPE_COVERAGE.map((c) => ({
+        type: c.type,
+        total: c.total,
+        translated: Math.round(c.translated * (lang.translated / lang.total)),
+      })),
+    );
+  });
+
+  const summary = getCoverageSummary(localeCoverageList);
+  const prioritized = sortByPriority(localeCoverageList);
+
+  return json({ summary, prioritized });
 };
 
 interface LanguageCoverage {
