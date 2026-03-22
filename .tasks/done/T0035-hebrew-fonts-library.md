@@ -4,7 +4,7 @@ title: "Typography - Hebrew Font Library"
 priority: medium
 assigned: kimi
 branch: feature/hebrew-fonts
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0002"]
 locks: []
