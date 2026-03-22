@@ -4,7 +4,7 @@ title: "Commerce Localization - Multi-Currency Support"
 priority: medium
 assigned: kimi
 branch: feature/multi-currency
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/currency/"]

@@ -4,7 +4,7 @@ title: "Typography - Arabic Font Library"
 priority: medium
 assigned: kimi
 branch: feature/arabic-fonts
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0002"]
 locks: []
