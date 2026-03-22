@@ -3,6 +3,7 @@ import type {
   OnboardingCompletionData,
   OnboardingStep,
   OnboardingStepId,
+  OnboardingStatus,
 } from "./types";
 
 /**
@@ -106,6 +107,121 @@ export function calculateProgress(steps: OnboardingStep[]): number {
 }
 
 /**
+ * Get detailed progress information.
+ */
+export function getProgressDetails(steps: OnboardingStep[]): {
+  total: number;
+  completed: number;
+  skipped: number;
+  remaining: number;
+  inProgress: number;
+  percentage: number;
+} {
+  const total = steps.length;
+  const completed = steps.filter((s) => s.status === "completed").length;
+  const skipped = steps.filter((s) => s.status === "skipped").length;
+  const inProgress = steps.filter((s) => s.status === "in_progress").length;
+  const remaining = total - completed - skipped;
+  const percentage = Math.round(((completed + skipped) / total) * 100);
+
+  return { total, completed, skipped, remaining, inProgress, percentage };
+}
+
+/**
+ * Get the current step number (1-indexed).
+ */
+export function getCurrentStepNumber(
+  steps: OnboardingStep[],
+  currentStepId: OnboardingStepId,
+): number {
+  const index = steps.findIndex((s) => s.id === currentStepId);
+  return index === -1 ? 1 : index + 1;
+}
+
+/**
+ * Get completed steps.
+ */
+export function getCompletedSteps(steps: OnboardingStep[]): OnboardingStep[] {
+  return steps.filter((s) => s.status === "completed");
+}
+
+/**
+ * Get remaining steps.
+ */
+export function getRemainingSteps(steps: OnboardingStep[]): OnboardingStep[] {
+  return steps.filter((s) => s.status !== "completed" && s.status !== "skipped");
+}
+
+/**
+ * Check if a step is the first step.
+ */
+export function isFirstStep(stepId: OnboardingStepId): boolean {
+  return stepId === "welcome";
+}
+
+/**
+ * Check if a step is the last step.
+ */
+export function isLastStep(stepId: OnboardingStepId): boolean {
+  return stepId === "completion";
+}
+
+/**
+ * Check if a step can be skipped.
+ */
+export function canSkipStep(stepId: OnboardingStepId): boolean {
+  // Required steps cannot be skipped
+  const requiredSteps: OnboardingStepId[] = ["language_selection", "ai_provider_setup"];
+  return !requiredSteps.includes(stepId);
+}
+
+/**
+ * Update step status.
+ */
+export function updateStepStatus(
+  steps: OnboardingStep[],
+  stepId: OnboardingStepId,
+  status: OnboardingStatus,
+): OnboardingStep[] {
+  return steps.map((step) => {
+    if (step.id === stepId) {
+      return { ...step, status };
+    }
+    return step;
+  });
+}
+
+/**
+ * Mark a step as in progress.
+ */
+export function markStepInProgress(
+  steps: OnboardingStep[],
+  stepId: OnboardingStepId,
+): OnboardingStep[] {
+  return updateStepStatus(steps, stepId, "in_progress");
+}
+
+/**
+ * Get step by ID.
+ */
+export function getStepById(
+  steps: OnboardingStep[],
+  stepId: OnboardingStepId,
+): OnboardingStep | undefined {
+  return steps.find((s) => s.id === stepId);
+}
+
+/**
+ * Check if all required steps are completed.
+ */
+export function areRequiredStepsCompleted(steps: OnboardingStep[]): boolean {
+  const requiredSteps: OnboardingStepId[] = ["language_selection", "ai_provider_setup"];
+  return requiredSteps.every(
+    (requiredId) => steps.find((s) => s.id === requiredId)?.status === "completed",
+  );
+}
+
+/**
  * Build the completion checklist based on onboarding state.
  */
 export function buildCompletionChecklist(
@@ -143,4 +259,60 @@ export function buildCompletionChecklist(
     .every((item) => item.completed);
 
   return { checklist, allRequiredComplete };
+}
+
+/**
+ * Get step order index.
+ */
+export function getStepOrderIndex(stepId: OnboardingStepId): number {
+  const order: OnboardingStepId[] = [
+    "welcome",
+    "language_selection",
+    "ai_provider_setup",
+    "first_translation",
+    "storefront_preview",
+    "completion",
+  ];
+  return order.indexOf(stepId);
+}
+
+/**
+ * Compare two steps to determine which comes first.
+ * Returns negative if stepA comes before stepB, positive if after, 0 if same.
+ */
+export function compareSteps(stepA: OnboardingStepId, stepB: OnboardingStepId): number {
+  return getStepOrderIndex(stepA) - getStepOrderIndex(stepB);
+}
+
+/**
+ * Check if a step comes before another.
+ */
+export function isStepBefore(currentStepId: OnboardingStepId, targetStepId: OnboardingStepId): boolean {
+  return compareSteps(currentStepId, targetStepId) < 0;
+}
+
+/**
+ * Check if a step comes after another.
+ */
+export function isStepAfter(currentStepId: OnboardingStepId, targetStepId: OnboardingStepId): boolean {
+  return compareSteps(currentStepId, targetStepId) > 0;
+}
+
+/**
+ * Get step summary for display.
+ */
+export function getStepSummary(steps: OnboardingStep[]): {
+  id: string;
+  title: string;
+  status: OnboardingStatus;
+  isRequired: boolean;
+}[] {
+  const requiredSteps: OnboardingStepId[] = ["language_selection", "ai_provider_setup"];
+  
+  return steps.map((step) => ({
+    id: step.id,
+    title: step.title,
+    status: step.status,
+    isRequired: requiredSteps.includes(step.id),
+  }));
 }
