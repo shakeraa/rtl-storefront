@@ -1,18 +1,18 @@
 ---
-id: "T0139"
-title: "Filter - Availability Label Translation"
+id: "T0141"
+title: "Pagination - Label Translation"
 priority: medium
 assigned: kimi
-branch: feature/t0139
+branch: feature/t0141
 status: active
 created: 2026-03-22
 depends_on: []
 locks: []
-test_command: ""
+test_command: "npx vitest run test/unit/filter-labels.test.ts --reporter=verbose"
 ---
 
 ## Description
-Translate in/out of stock labels
+Translate page navigation labels
 
 ## Acceptance criteria
 - [ ] Feature implemented
