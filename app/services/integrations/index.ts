@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface TaxLabelContent {
+  labelId: string;
+  title: string;
+  description?: string;
+}
+
+export interface TaxAppContent {
+  taxId: string;
+  title: string;
+  summary?: string;
+  exemptionLabel?: string;
+  labels: TaxLabelContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,28 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Tax app integration
+export async function translateTaxAppContent(
+  tax: TaxAppContent,
+  targetLocale: string
+): Promise<TaxAppContent> {
+  return {
+    ...tax,
+    title: `[${targetLocale}] ${tax.title}`,
+    summary: tax.summary ? `[${targetLocale}] ${tax.summary}` : undefined,
+    exemptionLabel: tax.exemptionLabel
+      ? `[${targetLocale}] ${tax.exemptionLabel}`
+      : undefined,
+    labels: tax.labels.map((label) => ({
+      ...label,
+      title: `[${targetLocale}] ${label.title}`,
+      description: label.description
+        ? `[${targetLocale}] ${label.description}`
+        : undefined,
     })),
   };
 }

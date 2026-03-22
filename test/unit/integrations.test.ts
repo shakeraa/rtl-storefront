@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateTaxAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,49 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Tax App Integration', () => {
+    it('should translate tax labels and preserve metadata', async () => {
+      const tax = {
+        taxId: 'tax-1',
+        title: 'Tax settings',
+        summary: 'Regional tax rules for checkout',
+        exemptionLabel: 'Apply tax exemption',
+        labels: [
+          {
+            labelId: 'label-1',
+            title: 'VAT included',
+            description: 'Tax is included in the displayed price',
+          },
+          {
+            labelId: 'label-2',
+            title: 'Import duties',
+          },
+        ],
+        metadata: {
+          provider: 'tax-app',
+        },
+      };
+
+      const result = await translateTaxAppContent(tax, 'ar');
+      expect(result.title).toBe('[ar] Tax settings');
+      expect(result.summary).toBe('[ar] Regional tax rules for checkout');
+      expect(result.exemptionLabel).toBe('[ar] Apply tax exemption');
+      expect(result.labels[0]).toEqual({
+        labelId: 'label-1',
+        title: '[ar] VAT included',
+        description: '[ar] Tax is included in the displayed price',
+      });
+      expect(result.labels[1]).toEqual({
+        labelId: 'label-2',
+        title: '[ar] Import duties',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'tax-app',
       });
     });
   });
