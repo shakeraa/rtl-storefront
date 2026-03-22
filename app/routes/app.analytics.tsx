@@ -7,8 +7,22 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { calculateROI } from "../services/analytics/roi";
-import { calculateTrendDirection } from "../services/analytics/trends";
+
+function calculateROI(cost: number, revenue: number): number {
+  if (cost === 0) return 0;
+  return ((revenue - cost) / cost) * 100;
+}
+
+function calculateTrendDirection(values: number[]): "up" | "down" | "stable" {
+  if (values.length < 2) return "stable";
+  const first = values.slice(0, Math.floor(values.length / 2));
+  const second = values.slice(Math.floor(values.length / 2));
+  const avgFirst = first.reduce((s, v) => s + v, 0) / first.length;
+  const avgSecond = second.reduce((s, v) => s + v, 0) / second.length;
+  if (avgSecond > avgFirst * 1.05) return "up";
+  if (avgSecond < avgFirst * 0.95) return "down";
+  return "stable";
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
