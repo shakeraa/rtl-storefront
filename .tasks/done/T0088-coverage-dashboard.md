@@ -2,9 +2,9 @@
 id: "T0088"
 title: "Admin - Translation Coverage Percentage Dashboard"
 priority: high
-assigned: kimi
+assigned: claude
 branch: feature/coverage-dash
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0009"]
 locks: []

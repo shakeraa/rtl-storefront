@@ -1,10 +1,10 @@
 ---
-id: "T0261"
-title: "Analytics - Real-time Dashboard"
+id: "T0207"
+title: "Integration - Bold Subscriptions"
 priority: medium
-assigned: kimi
-branch: feature/t0261
-status: active
+assigned: claude
+branch: feature/t0207
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Live translation metrics
+Translate Bold app content
 
 ## Acceptance criteria
 - [ ] Feature implemented

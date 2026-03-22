@@ -2,9 +2,9 @@
 id: "T0085"
 title: "Language Switcher - Inline Dropdown"
 priority: high
-assigned: kimi
+assigned: claude
 branch: feature/inline-switcher
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0010"]
 locks: []

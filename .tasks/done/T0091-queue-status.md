@@ -2,9 +2,9 @@
 id: "T0091"
 title: "Admin - Translation Queue Status"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/queue-status
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0009", "T0013"]
 locks: []

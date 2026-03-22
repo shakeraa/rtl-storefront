@@ -2,9 +2,9 @@
 id: "T0074"
 title: "SEO - Product Schema.org Translation"
 priority: high
-assigned: kimi
+assigned: claude
 branch: feature/product-schema
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0007"]
 locks: []

@@ -2,9 +2,9 @@
 id: "T0076"
 title: "SEO - Multilingual SEO Audit Tool"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/seo-audit
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0007"]
 locks: []

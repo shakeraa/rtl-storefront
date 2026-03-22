@@ -1,10 +1,10 @@
 ---
-id: "T0203"
-title: "Integration - Mailchimp Templates"
+id: "T0179"
+title: "Performance - Tree Shaking"
 priority: medium
-assigned: kimi
-branch: feature/t0203
-status: active
+assigned: claude
+branch: feature/t0179
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate Mailchimp emails
+Remove unused code
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -2,7 +2,7 @@
 id: "T0059"
 title: "Regional Calendar - Hijri Date Display"
 priority: low
-assigned: claude-sec
+assigned: kimi
 branch: feature/hijri-dates
 status: active
 created: 2026-03-22

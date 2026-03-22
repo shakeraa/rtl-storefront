@@ -1,10 +1,10 @@
 ---
-id: "T0262"
-title: "Analytics - Historical Trends"
+id: "T0203"
+title: "Integration - Mailchimp Templates"
 priority: medium
-assigned: kimi
-branch: feature/t0262
-status: active
+assigned: claude
+branch: feature/t0203
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Show trends over time
+Translate Mailchimp emails
 
 ## Acceptance criteria
 - [ ] Feature implemented

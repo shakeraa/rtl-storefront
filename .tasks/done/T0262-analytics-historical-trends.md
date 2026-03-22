@@ -1,10 +1,10 @@
 ---
-id: "T0180"
-title: "Performance - Code Splitting"
+id: "T0262"
+title: "Analytics - Historical Trends"
 priority: medium
-assigned: kimi
-branch: feature/t0180
-status: active
+assigned: claude
+branch: feature/t0262
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Split code by language/route
+Show trends over time
 
 ## Acceptance criteria
 - [ ] Feature implemented

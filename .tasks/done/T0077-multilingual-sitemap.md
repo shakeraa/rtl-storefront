@@ -2,9 +2,9 @@
 id: "T0077"
 title: "SEO - Multi-language XML Sitemap"
 priority: high
-assigned: kimi
+assigned: claude
 branch: feature/sitemap
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0007"]
 locks: []

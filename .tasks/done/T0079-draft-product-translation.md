@@ -2,9 +2,9 @@
 id: "T0079"
 title: "Automation - Draft Product Translation"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/draft-translation
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0013"]
 locks: []

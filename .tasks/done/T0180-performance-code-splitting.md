@@ -1,10 +1,10 @@
 ---
-id: "T0179"
-title: "Performance - Tree Shaking"
+id: "T0180"
+title: "Performance - Code Splitting"
 priority: medium
-assigned: kimi
-branch: feature/t0179
-status: active
+assigned: claude
+branch: feature/t0180
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Remove unused code
+Split code by language/route
 
 ## Acceptance criteria
 - [ ] Feature implemented

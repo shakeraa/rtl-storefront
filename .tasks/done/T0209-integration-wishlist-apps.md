@@ -1,10 +1,10 @@
 ---
-id: "T0279"
-title: "Analytics - Custom Date Ranges"
+id: "T0209"
+title: "Integration - Wishlist Apps"
 priority: medium
-assigned: kimi
-branch: feature/t0279
-status: active
+assigned: claude
+branch: feature/t0209
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Flexible date filtering
+Translate wishlist labels
 
 ## Acceptance criteria
 - [ ] Feature implemented

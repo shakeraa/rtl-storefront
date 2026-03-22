@@ -1,10 +1,10 @@
 ---
-id: "T0207"
-title: "Integration - Bold Subscriptions"
+id: "T0206"
+title: "Integration - Recharge Subscriptions"
 priority: medium
-assigned: kimi
-branch: feature/t0207
-status: active
+assigned: claude
+branch: feature/t0206
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate Bold app content
+Translate subscription content
 
 ## Acceptance criteria
 - [ ] Feature implemented

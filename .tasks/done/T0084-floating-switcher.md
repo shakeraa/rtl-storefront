@@ -2,9 +2,9 @@
 id: "T0084"
 title: "Language Switcher - Floating Widget"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/floating-switcher
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0010"]
 locks: []

@@ -1,10 +1,10 @@
 ---
-id: "T0178"
-title: "Performance - Bundle Size Optimization"
+id: "T0261"
+title: "Analytics - Real-time Dashboard"
 priority: medium
-assigned: kimi
-branch: feature/t0178
-status: active
+assigned: claude
+branch: feature/t0261
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Minimize JS bundle size
+Live translation metrics
 
 ## Acceptance criteria
 - [ ] Feature implemented
