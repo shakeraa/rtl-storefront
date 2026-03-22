@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateMembershipAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,53 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Membership App Integration', () => {
+    it('should translate membership content and preserve metadata', async () => {
+      const membership = {
+        membershipId: 'membership-1',
+        planName: 'VIP Rewards',
+        description: 'Exclusive access for loyal customers',
+        renewalLabel: 'Renews monthly',
+        portalHeading: 'Member dashboard',
+        benefits: [
+          {
+            benefitId: 'benefit-1',
+            title: 'Priority support',
+            description: 'Jump to the front of the support queue',
+          },
+          {
+            benefitId: 'benefit-2',
+            title: 'Early access drops',
+          },
+        ],
+        metadata: {
+          provider: 'membership-app',
+        },
+      };
+
+      const result = await translateMembershipAppContent(membership, 'ar');
+      expect(result.planName).toBe('[ar] VIP Rewards');
+      expect(result.description).toBe(
+        '[ar] Exclusive access for loyal customers'
+      );
+      expect(result.renewalLabel).toBe('[ar] Renews monthly');
+      expect(result.portalHeading).toBe('[ar] Member dashboard');
+      expect(result.benefits[0]).toEqual({
+        benefitId: 'benefit-1',
+        title: '[ar] Priority support',
+        description: '[ar] Jump to the front of the support queue',
+      });
+      expect(result.benefits[1]).toEqual({
+        benefitId: 'benefit-2',
+        title: '[ar] Early access drops',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'membership-app',
       });
     });
   });

@@ -41,6 +41,22 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface MembershipBenefitContent {
+  benefitId: string;
+  title: string;
+  description?: string;
+}
+
+export interface MembershipAppContent {
+  membershipId: string;
+  planName: string;
+  description?: string;
+  renewalLabel?: string;
+  portalHeading?: string;
+  benefits: MembershipBenefitContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +193,33 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Membership app integration
+export async function translateMembershipAppContent(
+  membership: MembershipAppContent,
+  targetLocale: string
+): Promise<MembershipAppContent> {
+  return {
+    ...membership,
+    planName: `[${targetLocale}] ${membership.planName}`,
+    description: membership.description
+      ? `[${targetLocale}] ${membership.description}`
+      : undefined,
+    renewalLabel: membership.renewalLabel
+      ? `[${targetLocale}] ${membership.renewalLabel}`
+      : undefined,
+    portalHeading: membership.portalHeading
+      ? `[${targetLocale}] ${membership.portalHeading}`
+      : undefined,
+    benefits: membership.benefits.map((benefit) => ({
+      ...benefit,
+      title: `[${targetLocale}] ${benefit.title}`,
+      description: benefit.description
+        ? `[${targetLocale}] ${benefit.description}`
+        : undefined,
     })),
   };
 }
