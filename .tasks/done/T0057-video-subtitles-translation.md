@@ -4,7 +4,7 @@ title: "Media - Video Subtitles Translation"
 priority: low
 assigned: claude-sec
 branch: feature/video-subtitles
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0029"]
 locks: []

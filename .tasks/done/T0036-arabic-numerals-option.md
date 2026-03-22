@@ -4,7 +4,7 @@ title: "RTL - Arabic Numerals Option (١٢٣ vs 123)"
 priority: low
 assigned: claude-sec
 branch: feature/arabic-numerals
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0002"]
 locks: []

@@ -4,7 +4,7 @@ title: "MENA - National Day Templates (UAE, Saudi)"
 priority: low
 assigned: claude-sec
 branch: feature/national-day
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0005"]
 locks: []

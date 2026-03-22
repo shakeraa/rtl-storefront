@@ -4,7 +4,7 @@ title: "Team - Activity Audit Log"
 priority: low
 assigned: claude-sec
 branch: feature/activity-log
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0016"]
 locks: []

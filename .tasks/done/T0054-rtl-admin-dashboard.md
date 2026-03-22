@@ -4,7 +4,7 @@ title: "RTL - Admin Dashboard RTL Support"
 priority: low
 assigned: claude-sec
 branch: feature/rtl-admin
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0002", "T0009"]
 locks: []

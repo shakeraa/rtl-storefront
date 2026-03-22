@@ -4,7 +4,7 @@ title: "Language Switcher - Flag Icons Library"
 priority: low
 assigned: claude-sec
 branch: feature/flag-icons
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0010"]
 locks: []

@@ -4,7 +4,7 @@ title: "MENA - Regional Logistics Integration (Aramex, Fetchr)"
 priority: low
 assigned: claude-sec
 branch: feature/mena-logistics
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0003"]
 locks: []

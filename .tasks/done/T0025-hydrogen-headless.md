@@ -4,7 +4,7 @@ title: "Hydrogen/Oxygen Headless Support"
 priority: low
 assigned: claude-sec
 branch: feature/hydrogen
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0020"]
 locks: ["packages/hydrogen/"]

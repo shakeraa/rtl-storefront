@@ -4,7 +4,7 @@ title: "Typography - Arabic Diacritics (Tashkeel) Support"
 priority: low
 assigned: claude-sec
 branch: feature/tashkeel
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0034"]
 locks: []

@@ -4,7 +4,7 @@ title: "Email Notifications & Alerts"
 priority: low
 assigned: claude-sec
 branch: feature/email-notifications
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: ["app/services/notifications/"]
