@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface TrackingCheckpointContent {
+  checkpointId: string;
+  title: string;
+  description?: string;
+}
+
+export interface PackageTrackingAppContent {
+  trackingId: string;
+  title: string;
+  etaLabel?: string;
+  statusMessage?: string;
+  checkpoints: TrackingCheckpointContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,28 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Package tracking app integration
+export async function translatePackageTrackingAppContent(
+  tracking: PackageTrackingAppContent,
+  targetLocale: string
+): Promise<PackageTrackingAppContent> {
+  return {
+    ...tracking,
+    title: `[${targetLocale}] ${tracking.title}`,
+    etaLabel: tracking.etaLabel ? `[${targetLocale}] ${tracking.etaLabel}` : undefined,
+    statusMessage: tracking.statusMessage
+      ? `[${targetLocale}] ${tracking.statusMessage}`
+      : undefined,
+    checkpoints: tracking.checkpoints.map((checkpoint) => ({
+      ...checkpoint,
+      title: `[${targetLocale}] ${checkpoint.title}`,
+      description: checkpoint.description
+        ? `[${targetLocale}] ${checkpoint.description}`
+        : undefined,
     })),
   };
 }

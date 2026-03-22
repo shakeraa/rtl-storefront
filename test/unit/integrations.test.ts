@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translatePackageTrackingAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,51 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Package Tracking App Integration', () => {
+    it('should translate tracking information and preserve metadata', async () => {
+      const tracking = {
+        trackingId: 'tracking-1',
+        title: 'Track your order',
+        etaLabel: 'Estimated delivery: Tuesday',
+        statusMessage: 'Package arrived at local facility',
+        checkpoints: [
+          {
+            checkpointId: 'checkpoint-1',
+            title: 'Order shipped',
+            description: 'Your package left the warehouse',
+          },
+          {
+            checkpointId: 'checkpoint-2',
+            title: 'Out for delivery',
+          },
+        ],
+        metadata: {
+          provider: 'tracking-app',
+        },
+      };
+
+      const result = await translatePackageTrackingAppContent(tracking, 'ar');
+      expect(result.title).toBe('[ar] Track your order');
+      expect(result.etaLabel).toBe('[ar] Estimated delivery: Tuesday');
+      expect(result.statusMessage).toBe(
+        '[ar] Package arrived at local facility'
+      );
+      expect(result.checkpoints[0]).toEqual({
+        checkpointId: 'checkpoint-1',
+        title: '[ar] Order shipped',
+        description: '[ar] Your package left the warehouse',
+      });
+      expect(result.checkpoints[1]).toEqual({
+        checkpointId: 'checkpoint-2',
+        title: '[ar] Out for delivery',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'tracking-app',
       });
     });
   });
