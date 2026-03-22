@@ -26,6 +26,21 @@ export interface ReviewData {
   rating: number;
 }
 
+export interface BundleItemContent {
+  productId: string;
+  title: string;
+  quantity?: number;
+  label?: string;
+}
+
+export interface BundleAppContent {
+  bundleId: string;
+  title: string;
+  description?: string;
+  items: BundleItemContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -74,6 +89,12 @@ export const INTEGRATIONS: Integration[] = [
     id: 'gorgias',
     name: 'Gorgias',
     category: 'support',
+    status: 'available',
+  },
+  {
+    id: 'fastbundle',
+    name: 'Fast Bundle',
+    category: 'other',
     status: 'available',
   },
 ];
@@ -139,6 +160,25 @@ export async function translateKlaviyoTemplate(
     (result, tag, i) => result.replace(`__TAG_${i}__`, tag),
     translated
   );
+}
+
+// Bundle app integration
+export async function translateBundleAppContent(
+  bundle: BundleAppContent,
+  targetLocale: string
+): Promise<BundleAppContent> {
+  return {
+    ...bundle,
+    title: `[${targetLocale}] ${bundle.title}`,
+    description: bundle.description
+      ? `[${targetLocale}] ${bundle.description}`
+      : undefined,
+    items: bundle.items.map((item) => ({
+      ...item,
+      title: `[${targetLocale}] ${item.title}`,
+      label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
 }
 
 // Get integration by ID
