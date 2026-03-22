@@ -2,7 +2,7 @@
 id: "T0055"
 title: "RTL - Custom CSS Override Fields"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/rtl-css-override
 status: done
 created: 2026-03-22

@@ -4,7 +4,7 @@ title: "Media - 3D Model AR Annotations Translation"
 priority: low
 assigned: claude-sec
 branch: feature/3d-annotations
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

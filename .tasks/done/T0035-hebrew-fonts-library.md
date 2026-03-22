@@ -2,7 +2,7 @@
 id: "T0035"
 title: "Typography - Hebrew Font Library"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/hebrew-fonts
 status: done
 created: 2026-03-22

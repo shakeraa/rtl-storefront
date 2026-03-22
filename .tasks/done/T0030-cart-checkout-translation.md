@@ -2,7 +2,7 @@
 id: "T0030"
 title: "E-commerce - Cart & Checkout Translation"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/cart-checkout
 status: done
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0027"
 title: "Bulk Import/Export - CSV Format Support"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/bulk-csv
 status: done
 created: 2026-03-22

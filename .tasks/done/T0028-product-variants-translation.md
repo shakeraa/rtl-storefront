@@ -2,7 +2,7 @@
 id: "T0028"
 title: "Content Coverage - Product Variants & Options Translation"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/product-variants
 status: done
 created: 2026-03-22

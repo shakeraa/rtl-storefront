@@ -2,7 +2,7 @@
 id: "T0048"
 title: "Analytics - Conversion Rate by Language"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/conversion-analytics
 status: done
 created: 2026-03-22

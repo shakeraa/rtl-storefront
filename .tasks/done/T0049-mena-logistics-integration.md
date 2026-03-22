@@ -2,7 +2,7 @@
 id: "T0049"
 title: "MENA - Regional Logistics Integration (Aramex, Fetchr)"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/mena-logistics
 status: done
 created: 2026-03-22

@@ -2,7 +2,7 @@
 id: "T0031"
 title: "E-commerce - Customer Account Translation"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/customer-accounts
 status: done
 created: 2026-03-22

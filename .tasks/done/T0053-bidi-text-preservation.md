@@ -2,7 +2,7 @@
 id: "T0053"
 title: "RTL - BiDi Text Preservation in Mixed Content"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/bidi-preservation
 status: done
 created: 2026-03-22

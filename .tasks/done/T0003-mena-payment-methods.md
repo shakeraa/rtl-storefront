@@ -2,7 +2,7 @@
 id: "T0003"
 title: "MENA Payment Methods - Tamara, Tabby, Mada Integration"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/mena-payments
 status: done
 created: 2026-03-22

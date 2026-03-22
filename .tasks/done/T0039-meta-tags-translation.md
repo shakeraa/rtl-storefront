@@ -2,7 +2,7 @@
 id: "T0039"
 title: "SEO - Meta Title & Description Translation"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/meta-tags
 status: done
 created: 2026-03-22

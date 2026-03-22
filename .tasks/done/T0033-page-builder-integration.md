@@ -2,7 +2,7 @@
 id: "T0033"
 title: "Third-Party - Page Builder Integration"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/page-builders
 status: done
 created: 2026-03-22

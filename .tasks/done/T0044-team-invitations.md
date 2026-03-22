@@ -2,7 +2,7 @@
 id: "T0044"
 title: "Team - Member Invitations System"
 priority: medium
-assigned: claude
+assigned: claude-sec
 branch: feature/team-invites
 status: done
 created: 2026-03-22

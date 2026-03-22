@@ -2,7 +2,7 @@
 id: "T0060"
 title: "MENA - White Friday Campaign Templates"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/white-friday
 status: active
 created: 2026-03-22

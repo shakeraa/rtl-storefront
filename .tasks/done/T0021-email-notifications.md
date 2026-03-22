@@ -2,7 +2,7 @@
 id: "T0021"
 title: "Email Notifications & Alerts"
 priority: low
-assigned: claude
+assigned: claude-sec
 branch: feature/email-notifications
 status: done
 created: 2026-03-22

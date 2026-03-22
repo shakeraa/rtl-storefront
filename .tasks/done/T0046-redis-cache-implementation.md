@@ -2,7 +2,7 @@
 id: "T0046"
 title: "Performance - Redis Cache Implementation"
 priority: high
-assigned: claude
+assigned: claude-sec
 branch: feature/redis-cache
 status: done
 created: 2026-03-22
