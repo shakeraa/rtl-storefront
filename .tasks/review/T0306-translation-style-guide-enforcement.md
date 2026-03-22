@@ -4,17 +4,17 @@ title: "Translation - Style Guide Enforcement"
 priority: low
 assigned: codex
 branch: feature/t0306
-status: done
+status: review
 created: 2026-03-22
 depends_on: []
 locks: []
-test_command: ""
+test_command: "npm run test:run -- style-guide"
 ---
 
 ## Description
 Enforce brand voice
 
 ## Acceptance criteria
-- [ ] Feature implemented
-- [ ] Tests passing
-- [ ] Documentation updated
+- [x] Feature implemented
+- [x] Tests passing
+- [x] Documentation updated
