@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0294"
+title: "MENA - Business Hours Display"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: codex
+branch: feature/t0294
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Local business hours
 
 ## Acceptance criteria
 - [ ] Feature implemented

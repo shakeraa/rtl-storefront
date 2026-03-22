@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0326"
+title: "Translation - Confidence Threshold"
+priority: low
+assigned: kimi
+branch: feature/t0326
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Min confidence for auto-publish
 
 ## Acceptance criteria
 - [ ] Feature implemented

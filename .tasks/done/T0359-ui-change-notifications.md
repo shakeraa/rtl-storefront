@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0359"
+title: "UI - Change Notifications"
+priority: low
+assigned: codex
+branch: feature/t0359
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Real-time updates
 
 ## Acceptance criteria
 - [ ] Feature implemented

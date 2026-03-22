@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0198"
+title: "Compliance - Section 508"
 priority: medium
 assigned: claude-sec
-branch: feature/t0143
+branch: feature/t0198
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+US accessibility compliance
 
 ## Acceptance criteria
 - [ ] Feature implemented

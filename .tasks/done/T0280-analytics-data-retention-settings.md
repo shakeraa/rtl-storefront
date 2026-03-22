@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0280"
+title: "Analytics - Data Retention Settings"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: codex
+branch: feature/t0280
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Configure data storage
 
 ## Acceptance criteria
 - [ ] Feature implemented

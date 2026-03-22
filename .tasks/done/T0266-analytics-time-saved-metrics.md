@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0266"
+title: "Analytics - Time Saved Metrics"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: kimi
+branch: feature/t0266
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Calculate translator time saved
 
 ## Acceptance criteria
 - [ ] Feature implemented

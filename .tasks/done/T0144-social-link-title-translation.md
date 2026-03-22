@@ -2,9 +2,9 @@
 id: "T0144"
 title: "Social - Link Title Translation"
 priority: medium
-assigned: kimi
+assigned: claude-sec
 branch: feature/t0144
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

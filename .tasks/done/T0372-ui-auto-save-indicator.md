@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0372"
+title: "UI - Auto-Save Indicator"
+priority: low
+assigned: codex
+branch: feature/t0372
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Show auto-save status
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0207"
+title: "Integration - Bold Subscriptions"
 priority: medium
 assigned: claude-sec
-branch: feature/t0143
+branch: feature/t0207
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Translate Bold app content
 
 ## Acceptance criteria
 - [ ] Feature implemented

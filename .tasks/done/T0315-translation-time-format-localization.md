@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0315"
+title: "Translation - Time Format Localization"
+priority: low
+assigned: kimi
+branch: feature/t0315
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+12h vs 24h time
 
 ## Acceptance criteria
 - [ ] Feature implemented

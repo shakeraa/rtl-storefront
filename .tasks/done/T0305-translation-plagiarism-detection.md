@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0305"
+title: "Translation - Plagiarism Detection"
+priority: low
+assigned: codex
+branch: feature/t0305
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Check for duplicate content
 
 ## Acceptance criteria
 - [ ] Feature implemented

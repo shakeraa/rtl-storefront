@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0296"
+title: "MENA - Eid Greetings Templates"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: codex
+branch: feature/t0296
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Eid celebration templates
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0345"
+title: "Translation - Accessibility Labels"
+priority: low
+assigned: kimi
+branch: feature/t0345
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+ARIA label translation
 
 ## Acceptance criteria
 - [ ] Feature implemented

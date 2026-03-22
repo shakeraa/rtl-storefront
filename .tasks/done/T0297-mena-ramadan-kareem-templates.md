@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0297"
+title: "MENA - Ramadan Kareem Templates"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: codex
+branch: feature/t0297
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Ramadan templates
 
 ## Acceptance criteria
 - [ ] Feature implemented

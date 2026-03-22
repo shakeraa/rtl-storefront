@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0151"
+title: "Performance - Browser Caching Headers"
 priority: medium
-assigned: claude-sec
-branch: feature/t0143
+assigned: kimi
+branch: feature/t0151
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Set cache headers for translation files
 
 ## Acceptance criteria
 - [ ] Feature implemented

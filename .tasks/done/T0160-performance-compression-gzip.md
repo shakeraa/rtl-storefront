@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0160"
+title: "Performance - Compression Gzip"
 priority: medium
 assigned: claude-sec
-branch: feature/t0143
+branch: feature/t0160
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Enable gzip compression for assets
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
+id: "T0182"
+title: "Security - HTTPS Enforcement"
 priority: medium
 assigned: claude-sec
-branch: feature/t0143
+branch: feature/t0182
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Force HTTPS for all requests
 
 ## Acceptance criteria
 - [ ] Feature implemented

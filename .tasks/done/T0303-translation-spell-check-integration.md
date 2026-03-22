@@ -1,9 +1,9 @@
 ---
-id: "T0143"
-title: "Social - Share Button Translation"
-priority: medium
-assigned: claude-sec
-branch: feature/t0143
+id: "T0303"
+title: "Translation - Spell Check Integration"
+priority: low
+assigned: codex
+branch: feature/t0303
 status: done
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Translate social share buttons
+Spell checking for translations
 
 ## Acceptance criteria
 - [ ] Feature implemented
