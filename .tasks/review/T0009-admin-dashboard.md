@@ -2,9 +2,9 @@
 id: "T0009"
 title: "Admin Dashboard - Translation Management UI"
 priority: high
-assigned: claude-sec
+assigned: claude
 branch: feature/admin-dashboard
-status: done
+status: active
 created: 2026-03-22
 depends_on: []
 locks: ["app/routes/app._index.tsx"]
