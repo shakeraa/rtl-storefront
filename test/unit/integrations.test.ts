@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateCurrencyConverterAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,49 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Currency Converter App Integration', () => {
+    it('should translate currency app content and preserve metadata', async () => {
+      const converter = {
+        converterId: 'converter-1',
+        title: 'Currency selector',
+        baseCurrencyLabel: 'Shop currency: USD',
+        selectorHeading: 'Choose your currency',
+        options: [
+          {
+            optionId: 'option-1',
+            title: 'US Dollar',
+            description: 'Pay in USD',
+          },
+          {
+            optionId: 'option-2',
+            title: 'Euro',
+          },
+        ],
+        metadata: {
+          provider: 'currency-converter-app',
+        },
+      };
+
+      const result = await translateCurrencyConverterAppContent(converter, 'ar');
+      expect(result.title).toBe('[ar] Currency selector');
+      expect(result.baseCurrencyLabel).toBe('[ar] Shop currency: USD');
+      expect(result.selectorHeading).toBe('[ar] Choose your currency');
+      expect(result.options[0]).toEqual({
+        optionId: 'option-1',
+        title: '[ar] US Dollar',
+        description: '[ar] Pay in USD',
+      });
+      expect(result.options[1]).toEqual({
+        optionId: 'option-2',
+        title: '[ar] Euro',
+        description: undefined,
+      });
+      expect(result.metadata).toEqual({
+        provider: 'currency-converter-app',
       });
     });
   });

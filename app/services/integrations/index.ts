@@ -41,6 +41,21 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface CurrencyOptionContent {
+  optionId: string;
+  title: string;
+  description?: string;
+}
+
+export interface CurrencyConverterAppContent {
+  converterId: string;
+  title: string;
+  baseCurrencyLabel?: string;
+  selectorHeading?: string;
+  options: CurrencyOptionContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +192,30 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Currency converter app integration
+export async function translateCurrencyConverterAppContent(
+  converter: CurrencyConverterAppContent,
+  targetLocale: string
+): Promise<CurrencyConverterAppContent> {
+  return {
+    ...converter,
+    title: `[${targetLocale}] ${converter.title}`,
+    baseCurrencyLabel: converter.baseCurrencyLabel
+      ? `[${targetLocale}] ${converter.baseCurrencyLabel}`
+      : undefined,
+    selectorHeading: converter.selectorHeading
+      ? `[${targetLocale}] ${converter.selectorHeading}`
+      : undefined,
+    options: converter.options.map((option) => ({
+      ...option,
+      title: `[${targetLocale}] ${option.title}`,
+      description: option.description
+        ? `[${targetLocale}] ${option.description}`
+        : undefined,
     })),
   };
 }
