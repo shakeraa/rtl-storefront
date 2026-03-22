@@ -2,9 +2,9 @@
 id: "T0060"
 title: "MENA - White Friday Campaign Templates"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/white-friday
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0005"]
 locks: []

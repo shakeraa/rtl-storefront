@@ -2,9 +2,9 @@
 id: "T0210"
 title: "Integration - Compare Apps"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/t0210
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

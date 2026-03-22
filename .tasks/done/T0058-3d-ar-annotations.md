@@ -2,7 +2,7 @@
 id: "T0058"
 title: "Media - 3D Model AR Annotations Translation"
 priority: low
-assigned: claude-sec
+assigned: claude
 branch: feature/3d-annotations
 status: done
 created: 2026-03-22

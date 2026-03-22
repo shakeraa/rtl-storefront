@@ -2,9 +2,9 @@
 id: "T0064"
 title: "MENA - Cultural Consultant Marketplace Foundation"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/consultant-marketplace
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0004"]
 locks: []

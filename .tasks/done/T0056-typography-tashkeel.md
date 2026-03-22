@@ -2,7 +2,7 @@
 id: "T0056"
 title: "Typography - Arabic Diacritics (Tashkeel) Support"
 priority: low
-assigned: claude-sec
+assigned: claude
 branch: feature/tashkeel
 status: done
 created: 2026-03-22

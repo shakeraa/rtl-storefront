@@ -2,9 +2,9 @@
 id: "T0062"
 title: "Regional Calendar - Weekend Adjustment"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/weekend-adjust
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0005"]
 locks: []

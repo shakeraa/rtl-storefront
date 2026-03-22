@@ -2,9 +2,9 @@
 id: "T0069"
 title: "RTL Fashion - Arabic Calligraphy Typography"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/calligraphy
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0006"]
 locks: []

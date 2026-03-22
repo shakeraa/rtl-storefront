@@ -2,9 +2,9 @@
 id: "T0086"
 title: "Language Switcher - Modal Popup"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/modal-switcher
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0010"]
 locks: []

@@ -2,9 +2,9 @@
 id: "T0065"
 title: "Cultural AI - Religious Sensitivity Filter"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/religious-filter
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0004"]
 locks: []

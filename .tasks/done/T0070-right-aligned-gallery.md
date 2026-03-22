@@ -2,9 +2,9 @@
 id: "T0070"
 title: "RTL Fashion - Right-Aligned Product Gallery"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/rtl-gallery
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0006"]
 locks: []

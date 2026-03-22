@@ -2,9 +2,9 @@
 id: "T0072"
 title: "MENA - Shopify Agency Partner Network"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/agency-network
-status: active
+status: done
 created: 2026-03-22
 depends_on: []
 locks: []

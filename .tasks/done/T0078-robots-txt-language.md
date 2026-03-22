@@ -2,9 +2,9 @@
 id: "T0078"
 title: "SEO - Language-specific Robots.txt"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/robots-txt
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0007"]
 locks: []

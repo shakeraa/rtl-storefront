@@ -2,9 +2,9 @@
 id: "T0073"
 title: "URL Structure - Subdomain (ar.example.com) Support"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/subdomain
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0007"]
 locks: []

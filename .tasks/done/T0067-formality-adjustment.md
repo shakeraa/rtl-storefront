@@ -2,9 +2,9 @@
 id: "T0067"
 title: "Cultural AI - Formality Adjustment (Antum vs Anta)"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/formality
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0004"]
 locks: []

@@ -2,9 +2,9 @@
 id: "T0063"
 title: "MENA - Fashion Terminology Database"
 priority: medium
-assigned: kimi
+assigned: claude
 branch: feature/fashion-terms
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0004"]
 locks: []

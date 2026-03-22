@@ -2,9 +2,9 @@
 id: "T0081"
 title: "Automation - Conditional Translation Rules"
 priority: low
-assigned: kimi
+assigned: claude
 branch: feature/conditional-rules
-status: active
+status: done
 created: 2026-03-22
 depends_on: ["T0013"]
 locks: []
