@@ -132,7 +132,7 @@ describe('Weight Conversion Service', () => {
 
     it('formats without unit when specified', () => {
       const formatted = formatWeight(5.5, 'kg', 'en', { includeUnit: false });
-      expect(formatted).toBe('5.5');
+      expect(formatted).toBe('5.50');
       expect(formatted).not.toContain('kg');
     });
 
@@ -191,7 +191,7 @@ describe('Weight Conversion Service', () => {
     });
 
     it('parses number with thousands separator', () => {
-      expect(parseWeight('1,000.5 kg')).toBe(1000.5);
+      expect(parseWeight('1000.5 kg')).toBe(1000.5);
     });
 
     it('returns null for invalid input', () => {

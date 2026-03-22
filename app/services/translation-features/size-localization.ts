@@ -456,6 +456,7 @@ export function getSizeRecommendation(
  */
 export function isValidSize(size: string, category: SizeCategory): boolean {
   const normalizedSize = size.toUpperCase().trim();
+  const trimmedSize = size.trim();
   
   if (category === 'clothing') {
     return (
@@ -473,7 +474,7 @@ export function isValidSize(size: string, category: SizeCategory): boolean {
   }
   
   if (category === 'accessories') {
-    return Object.keys(ACCESSORY_SIZE_CONVERSIONS).includes(normalizedSize);
+    return Object.keys(ACCESSORY_SIZE_CONVERSIONS).includes(trimmedSize);
   }
   
   return false;
