@@ -51,3 +51,98 @@ model TranslationCache {
   @@index([sourceLocale, targetLocale])
   @@index([expiresAt])
 }
+
+model TranslationMemory {
+  id             String   @id @default(cuid())
+  shop           String
+  sourceLocale   String
+  targetLocale   String
+  sourceText     String
+  translatedText String
+  context        String?
+  category       String?
+  quality        Int      @default(100)
+  usageCount     Int      @default(0)
+  lastUsedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([shop, sourceLocale, targetLocale])
+  @@index([shop, sourceText])
+}
+
+model GlossaryEntry {
+  id             String   @id @default(cuid())
+  shop           String
+  sourceLocale   String
+  targetLocale   String
+  sourceTerm     String
+  translatedTerm String
+  neverTranslate Boolean  @default(false)
+  caseSensitive  Boolean  @default(false)
+  category       String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([shop, sourceLocale, targetLocale, sourceTerm])
+  @@index([shop, sourceLocale])
+}
+
+model CulturalContext {
+  id             String   @id @default(cuid())
+  shop           String
+  locale         String
+  category       String
+  dialect        String?
+  formalityLevel String   @default("formal")
+  culturalNotes  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([shop, locale, category])
+  @@index([shop, locale])
+}
+
+model ConsentRecord {
+  id          String   @id @default(cuid())
+  shop        String
+  purpose     String
+  granted     Boolean  @default(false)
+  grantedAt   DateTime?
+  revokedAt   DateTime?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([shop, purpose])
+  @@index([shop])
+}
+
+model DataAccessLog {
+  id          String   @id @default(cuid())
+  shop        String
+  action      String
+  dataType    String
+  performedBy String?
+  details     String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([shop, createdAt])
+  @@index([action])
+}
+
+model DataRetentionPolicy {
+  id              String   @id @default(cuid())
+  shop            String
+  dataType        String
+  retentionDays   Int      @default(365)
+  autoDelete      Boolean  @default(false)
+  lastCleanup     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([shop, dataType])
+}
