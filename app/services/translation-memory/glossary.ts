@@ -1,5 +1,5 @@
 import prisma from "../../db.server";
-import type { GlossaryTerm } from "./types";
+import type { GlossaryLanguageBucket, GlossaryTerm } from "./types";
 
 /**
  * Add or update a glossary term.
@@ -138,6 +138,67 @@ export async function getAllTerms(
 }
 
 /**
+ * List the target locales that currently have glossary entries.
+ */
+export async function getGlossaryTargetLocales(
+  shop: string,
+  sourceLocale?: string,
+): Promise<string[]> {
+  const records = await prisma.glossaryEntry.findMany({
+    where: {
+      shop,
+      ...(sourceLocale ? { sourceLocale } : {}),
+    },
+    select: { targetLocale: true },
+    distinct: ["targetLocale"],
+    orderBy: { targetLocale: "asc" },
+  });
+
+  return records.map((record) => record.targetLocale);
+}
+
+/**
+ * Group glossary terms into separate buckets per target language.
+ */
+export async function getGlossariesByLanguage(
+  shop: string,
+  sourceLocale?: string,
+): Promise<GlossaryLanguageBucket[]> {
+  const records = await prisma.glossaryEntry.findMany({
+    where: {
+      shop,
+      ...(sourceLocale ? { sourceLocale } : {}),
+    },
+    orderBy: [{ targetLocale: "asc" }, { sourceTerm: "asc" }],
+  });
+
+  const buckets = new Map<string, GlossaryLanguageBucket>();
+
+  for (const record of records) {
+    const term = toGlossaryTerm(record);
+    const key = `${term.sourceLocale}\u0000${term.targetLocale}`;
+    const existing = buckets.get(key);
+
+    if (existing) {
+      existing.terms.push(term);
+      existing.termCount += 1;
+      existing.neverTranslateCount += term.neverTranslate ? 1 : 0;
+      continue;
+    }
+
+    buckets.set(key, {
+      sourceLocale: term.sourceLocale,
+      targetLocale: term.targetLocale,
+      termCount: 1,
+      neverTranslateCount: term.neverTranslate ? 1 : 0,
+      terms: [term],
+    });
+  }
+
+  return Array.from(buckets.values());
+}
+
+/**
  * Delete a glossary term by ID.
  */
 export async function deleteTerm(id: string): Promise<void> {
@@ -229,6 +290,20 @@ export async function exportTerms(shop: string): Promise<GlossaryTerm[]> {
   });
 
   return records.map(toGlossaryTerm);
+}
+
+/**
+ * Export glossary terms grouped by target language.
+ */
+export async function exportTermsByLanguage(
+  shop: string,
+  sourceLocale?: string,
+): Promise<Record<string, GlossaryTerm[]>> {
+  const glossaries = await getGlossariesByLanguage(shop, sourceLocale);
+
+  return Object.fromEntries(
+    glossaries.map((glossary) => [glossary.targetLocale, glossary.terms]),
+  );
 }
 
 function toGlossaryTerm(record: {

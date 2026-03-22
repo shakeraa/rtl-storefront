@@ -2,6 +2,7 @@ export type {
   TMEntry,
   TMSearchResult,
   GlossaryTerm,
+  GlossaryLanguageBucket,
   TMImportExportFormat,
 } from "./types";
 
@@ -27,7 +28,10 @@ export {
   findTerms,
   getNeverTranslateTerms,
   getAllTerms,
+  getGlossaryTargetLocales,
+  getGlossariesByLanguage,
   deleteTerm,
   importTerms,
   exportTerms,
+  exportTermsByLanguage,
 } from "./glossary";
