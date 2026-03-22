@@ -96,18 +96,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   const data = await response.json();
-  const { confirmationUrl, userErrors } =
-    data?.data?.appSubscriptionCreate ?? {};
+  console.log("Billing API response:", JSON.stringify(data, null, 2));
+
+  const result = data?.data?.appSubscriptionCreate;
+  const { confirmationUrl, userErrors } = result ?? {};
 
   if (userErrors?.length > 0) {
-    return json({ error: userErrors[0].message }, { status: 400 });
+    console.error("Billing user errors:", userErrors);
+    return redirect(`/app/billing?error=${encodeURIComponent(userErrors[0].message)}`);
   }
 
   if (confirmationUrl) {
+    console.log("Redirecting to confirmation:", confirmationUrl);
     return redirect(confirmationUrl);
   }
 
-  return json({ error: "Failed to create subscription" }, { status: 500 });
+  console.error("No confirmation URL returned. Full response:", JSON.stringify(data));
+  return redirect("/app/billing?error=no_confirmation_url");
 };
 
 const FEATURE_LABELS: Record<string, string> = {
