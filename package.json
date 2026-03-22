@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "build": "remix vite:build",
+    "build:edge": "EDGE_RUNTIME=cloudflare remix vite:build",
     "dev": "shopify app dev",
+    "dev:edge": "EDGE_RUNTIME=cloudflare ENABLE_CLOUDFLARE_DEV_PROXY=1 npm exec remix vite:dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",

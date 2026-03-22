@@ -1,8 +1,9 @@
-import { vitePlugin as remix } from "@remix-run/dev";
+import { cloudflareDevProxyVitePlugin, vitePlugin as remix } from "@remix-run/dev";
 import { installGlobals } from "@remix-run/node";
 import { defineConfig, type UserConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { getStaticAssetOptimizationConfig } from "./app/services/performance/asset-optimizer";
+import { shouldEnableCloudflareDevProxy } from "./app/services/performance/edge-deployment";
 
 installGlobals({ nativeFetch: true });
 
@@ -55,6 +56,9 @@ export default defineConfig({
     },
   },
   plugins: [
+    ...(shouldEnableCloudflareDevProxy()
+      ? [cloudflareDevProxyVitePlugin()]
+      : []),
     remix({
       ignoredRouteFiles: ["**/.*"],
       future: {
