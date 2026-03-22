@@ -7,6 +7,7 @@ import {
   translateJudgeMeReview,
   translateKlaviyoTemplate,
   translateBundleAppContent,
+  translateCourseAppContent,
   checkIntegrationHealth,
 } from '../../app/services/integrations/index';
 
@@ -112,6 +113,75 @@ describe('Integrations Service', () => {
       });
       expect(result.metadata).toEqual({
         source: 'fastbundle',
+      });
+    });
+  });
+
+  describe('Course App Integration', () => {
+    it('should translate course content and preserve metadata', async () => {
+      const course = {
+        courseId: 'course-1',
+        title: 'Store Styling Masterclass',
+        description: 'Learn how to merchandise seasonal collections',
+        enrollmentLabel: 'Start learning',
+        modules: [
+          {
+            moduleId: 'module-1',
+            title: 'Visual Merchandising Basics',
+            lessons: [
+              {
+                lessonId: 'lesson-1',
+                title: 'Window Display Planning',
+                summary: 'Build a seasonal focal point',
+              },
+            ],
+          },
+          {
+            moduleId: 'module-2',
+            title: 'Customer Experience',
+            lessons: [
+              {
+                lessonId: 'lesson-2',
+                title: 'In-store Navigation',
+              },
+            ],
+          },
+        ],
+        metadata: {
+          provider: 'course-app',
+        },
+      };
+
+      const result = await translateCourseAppContent(course, 'ar');
+      expect(result.title).toBe('[ar] Store Styling Masterclass');
+      expect(result.description).toBe(
+        '[ar] Learn how to merchandise seasonal collections'
+      );
+      expect(result.enrollmentLabel).toBe('[ar] Start learning');
+      expect(result.modules[0]).toEqual({
+        moduleId: 'module-1',
+        title: '[ar] Visual Merchandising Basics',
+        lessons: [
+          {
+            lessonId: 'lesson-1',
+            title: '[ar] Window Display Planning',
+            summary: '[ar] Build a seasonal focal point',
+          },
+        ],
+      });
+      expect(result.modules[1]).toEqual({
+        moduleId: 'module-2',
+        title: '[ar] Customer Experience',
+        lessons: [
+          {
+            lessonId: 'lesson-2',
+            title: '[ar] In-store Navigation',
+            summary: undefined,
+          },
+        ],
+      });
+      expect(result.metadata).toEqual({
+        provider: 'course-app',
       });
     });
   });

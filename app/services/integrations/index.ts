@@ -41,6 +41,27 @@ export interface BundleAppContent {
   metadata?: Record<string, unknown>;
 }
 
+export interface CourseLessonContent {
+  lessonId: string;
+  title: string;
+  summary?: string;
+}
+
+export interface CourseModuleContent {
+  moduleId: string;
+  title: string;
+  lessons: CourseLessonContent[];
+}
+
+export interface CourseAppContent {
+  courseId: string;
+  title: string;
+  description?: string;
+  enrollmentLabel?: string;
+  modules: CourseModuleContent[];
+  metadata?: Record<string, unknown>;
+}
+
 // Supported integrations registry
 export const INTEGRATIONS: Integration[] = [
   {
@@ -177,6 +198,34 @@ export async function translateBundleAppContent(
       ...item,
       title: `[${targetLocale}] ${item.title}`,
       label: item.label ? `[${targetLocale}] ${item.label}` : undefined,
+    })),
+  };
+}
+
+// Course app integration
+export async function translateCourseAppContent(
+  course: CourseAppContent,
+  targetLocale: string
+): Promise<CourseAppContent> {
+  return {
+    ...course,
+    title: `[${targetLocale}] ${course.title}`,
+    description: course.description
+      ? `[${targetLocale}] ${course.description}`
+      : undefined,
+    enrollmentLabel: course.enrollmentLabel
+      ? `[${targetLocale}] ${course.enrollmentLabel}`
+      : undefined,
+    modules: course.modules.map((module) => ({
+      ...module,
+      title: `[${targetLocale}] ${module.title}`,
+      lessons: module.lessons.map((lesson) => ({
+        ...lesson,
+        title: `[${targetLocale}] ${lesson.title}`,
+        summary: lesson.summary
+          ? `[${targetLocale}] ${lesson.summary}`
+          : undefined,
+      })),
     })),
   };
 }
