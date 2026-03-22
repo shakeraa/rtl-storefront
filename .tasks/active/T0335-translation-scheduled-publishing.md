@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0335"
+title: "Translation - Scheduled Publishing"
 priority: low
-assigned: kimi
-branch: feature/t0325
+assigned: claude
+branch: feature/t0335
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Publish at specific time
 
 ## Acceptance criteria
 - [ ] Feature implemented

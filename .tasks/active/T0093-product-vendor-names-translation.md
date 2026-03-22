@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
-priority: low
+id: "T0093"
+title: "Product - Vendor Names Translation"
+priority: medium
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0093
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Translate vendor/brand names with preservation option
 
 ## Acceptance criteria
 - [ ] Feature implemented

@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0341"
+title: "Translation - Cultural Review"
 priority: low
-assigned: kimi
-branch: feature/t0325
+assigned: claude
+branch: feature/t0341
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Cultural expert review
 
 ## Acceptance criteria
 - [ ] Feature implemented

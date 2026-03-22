@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0304"
+title: "Translation - Grammar Check"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0304
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Grammar checking for translations
 
 ## Acceptance criteria
 - [ ] Feature implemented

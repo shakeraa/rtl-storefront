@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
-priority: low
+id: "T0209"
+title: "Integration - Wishlist Apps"
+priority: medium
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0209
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Translate wishlist labels
 
 ## Acceptance criteria
 - [ ] Feature implemented

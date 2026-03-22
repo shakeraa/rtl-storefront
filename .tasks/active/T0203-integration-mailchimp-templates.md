@@ -2,7 +2,7 @@
 id: "T0203"
 title: "Integration - Mailchimp Templates"
 priority: medium
-assigned: claude-sec
+assigned: kimi
 branch: feature/t0203
 status: active
 created: 2026-03-22

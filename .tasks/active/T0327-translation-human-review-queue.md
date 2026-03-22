@@ -1,9 +1,9 @@
 ---
-id: "T0325"
-title: "Translation - Auto-Detect Language"
+id: "T0327"
+title: "Translation - Human Review Queue"
 priority: low
 assigned: kimi
-branch: feature/t0325
+branch: feature/t0327
 status: active
 created: 2026-03-22
 depends_on: []
@@ -12,7 +12,7 @@ test_command: ""
 ---
 
 ## Description
-Detect source language
+Queue for human review
 
 ## Acceptance criteria
 - [ ] Feature implemented
