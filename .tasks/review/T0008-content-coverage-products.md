@@ -2,9 +2,9 @@
 id: "T0008"
 title: "Content Coverage - Product & Collection Translation"
 priority: high
-assigned: claude-sec
+assigned: claude
 branch: feature/product-translation
-status: done
+status: active
 created: 2026-03-22
 depends_on: ["T0001"]
 locks: ["app/services/content/products.ts"]
