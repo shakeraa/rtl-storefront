@@ -3,6 +3,7 @@ api_version = "2025-01"
 [[extensions]]
 name = "RTL Fashion Sections"
 handle = "rtl-fashion-sections"
+uid = "214fd950-c2aa-c8f6-3823-69e27b3000775c4fee5a"
 type = "theme_app_extension"
 
 [[extensions.blocks]]
