@@ -1,4 +1,4 @@
-export type TranslationProviderName = "openai" | "deepl" | "google";
+export type TranslationProviderName = "openai" | "deepl" | "google" | "azure" | "amazon" | "anthropic" | "libre";
 
 export interface TranslationRequest {
   text: string;
@@ -88,5 +88,24 @@ export interface TranslationServiceEnv {
   GOOGLE_TRANSLATE_LOCATION?: string;
   GOOGLE_MONTHLY_REQUEST_QUOTA?: string;
   GOOGLE_MONTHLY_CHARACTER_QUOTA?: string;
+  AZURE_TRANSLATOR_KEY?: string;
+  AZURE_TRANSLATOR_REGION?: string;
+  AZURE_TRANSLATOR_ENDPOINT?: string;
+  AZURE_MONTHLY_REQUEST_QUOTA?: string;
+  AZURE_MONTHLY_CHARACTER_QUOTA?: string;
+  AWS_ACCESS_KEY_ID?: string;
+  AWS_SECRET_ACCESS_KEY?: string;
+  AWS_REGION?: string;
+  AMAZON_MONTHLY_REQUEST_QUOTA?: string;
+  AMAZON_MONTHLY_CHARACTER_QUOTA?: string;
+  ANTHROPIC_API_KEY?: string;
+  ANTHROPIC_MODEL?: string;
+  ANTHROPIC_RATE_LIMIT_PER_MINUTE?: string;
+  ANTHROPIC_MONTHLY_REQUEST_QUOTA?: string;
+  ANTHROPIC_MONTHLY_CHARACTER_QUOTA?: string;
+  LIBRETRANSLATE_URL?: string;
+  LIBRETRANSLATE_API_KEY?: string;
+  LIBRE_MONTHLY_REQUEST_QUOTA?: string;
+  LIBRE_MONTHLY_CHARACTER_QUOTA?: string;
   TRANSLATION_CACHE_TTL_HOURS?: string;
 }

@@ -1,5 +1,9 @@
+import { createAmazonProvider } from "./amazon";
+import { createAnthropicProvider } from "./anthropic";
+import { createAzureProvider } from "./azure";
 import { createDeepLProvider } from "./deepl";
 import { createGoogleProvider } from "./google";
+import { createLibreTranslateProvider } from "./libretranslate";
 import { createOpenAIProvider } from "./openai";
 import { getBaseLocale } from "./shared";
 import type {
@@ -29,8 +33,12 @@ interface ProviderRegistryOptions {
 export function createProviderRegistry(options: ProviderRegistryOptions = {}) {
   const providers: TranslationProvider[] = [
     createOpenAIProvider(options),
+    createAnthropicProvider(options),
     createDeepLProvider(options),
     createGoogleProvider(options),
+    createAzureProvider(options),
+    createAmazonProvider(options),
+    createLibreTranslateProvider(options),
   ];
 
   return {
@@ -76,6 +84,8 @@ function scoreProvider(
   switch (provider) {
     case "openai":
       return 70 + (involvesRTL ? 40 : 0);
+    case "anthropic":
+      return 75 + (involvesRTL ? 35 : 0);
     case "deepl":
       return (
         60 +
@@ -84,6 +94,12 @@ function scoreProvider(
       );
     case "google":
       return 50 + (involvesRTL ? 10 : 15);
+    case "azure":
+      return 55 + (involvesRTL ? 10 : 10);
+    case "amazon":
+      return 45 + (involvesRTL ? 5 : 10);
+    case "libre":
+      return 30;
   }
 }
 

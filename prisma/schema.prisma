@@ -200,6 +200,14 @@ model ShopSettings {
   deeplApiKey         String?
   googleAccessToken   String?
   googleProjectId     String?
+  azureTranslatorKey  String?
+  azureTranslatorRegion String?
+  awsAccessKeyId      String?
+  awsSecretAccessKey  String?
+  awsRegion           String?
+  anthropicApiKey     String?
+  libreTranslateUrl   String?
+  libreTranslateApiKey String?
   sourceLocale        String   @default("en")
   targetLocales       String   @default("[\"ar\",\"he\"]")
   autoDetectRTL       Boolean  @default(true)

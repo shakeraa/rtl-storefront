@@ -59,6 +59,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       case "openai":
         apiKeyUpdates.openaiApiKey = apiKeyValue;
         break;
+      case "anthropic":
+        apiKeyUpdates.anthropicApiKey = apiKeyValue;
+        break;
       case "deepl":
         apiKeyUpdates.deeplApiKey = apiKeyValue;
         break;
@@ -66,6 +69,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         apiKeyUpdates.googleAccessToken = apiKeyValue;
         if (data.googleProjectId) {
           apiKeyUpdates.googleProjectId = String(data.googleProjectId);
+        }
+        break;
+      case "azure":
+        apiKeyUpdates.azureTranslatorKey = apiKeyValue;
+        if (data.azureRegion) {
+          apiKeyUpdates.azureTranslatorRegion = String(data.azureRegion);
+        }
+        break;
+      case "amazon":
+        apiKeyUpdates.awsAccessKeyId = apiKeyValue;
+        if (data.awsSecretKey) {
+          apiKeyUpdates.awsSecretAccessKey = String(data.awsSecretKey);
+        }
+        if (data.awsRegion) {
+          apiKeyUpdates.awsRegion = String(data.awsRegion);
+        }
+        break;
+      case "libre":
+        apiKeyUpdates.libreTranslateUrl = apiKeyValue;
+        if (data.libreApiKey) {
+          apiKeyUpdates.libreTranslateApiKey = String(data.libreApiKey);
         }
         break;
     }
@@ -136,6 +160,10 @@ export default function SettingsPage() {
   const [confidenceThreshold, setConfidenceThreshold] = useState(String(settings?.confidenceThreshold ?? 70));
 
   const [googleProjectId, setGoogleProjectId] = useState("");
+  const [azureRegion, setAzureRegion] = useState("");
+  const [awsSecretKey, setAwsSecretKey] = useState("");
+  const [awsRegion, setAwsRegion] = useState("");
+  const [libreApiKey, setLibreApiKey] = useState("");
 
   const handleSave = () => {
     const formData = new FormData();
@@ -143,6 +171,16 @@ export default function SettingsPage() {
     formData.append("apiKey", apiKey);
     if (aiProvider === "google" && googleProjectId) {
       formData.append("googleProjectId", googleProjectId);
+    }
+    if (aiProvider === "azure" && azureRegion) {
+      formData.append("azureRegion", azureRegion);
+    }
+    if (aiProvider === "amazon") {
+      if (awsSecretKey) formData.append("awsSecretKey", awsSecretKey);
+      if (awsRegion) formData.append("awsRegion", awsRegion);
+    }
+    if (aiProvider === "libre" && libreApiKey) {
+      formData.append("libreApiKey", libreApiKey);
     }
     formData.append("sourceLocale", sourceLocale);
     formData.append("targetLocales", JSON.stringify(
@@ -189,20 +227,27 @@ export default function SettingsPage() {
                 <Select
                   label="Default provider"
                   options={[
-                    { label: "OpenAI GPT-4o", value: "openai" },
+                    { label: "OpenAI", value: "openai" },
+                    { label: "Anthropic Claude", value: "anthropic" },
                     { label: "DeepL", value: "deepl" },
                     { label: "Google Translate", value: "google" },
+                    { label: "Azure Translator", value: "azure" },
+                    { label: "Amazon Translate", value: "amazon" },
+                    { label: "LibreTranslate", value: "libre" },
                   ]}
                   value={aiProvider}
                   onChange={setAiProvider}
-                  helpText="Used for all AI-assisted translations"
+                  helpText="Used for all AI-assisted translations. Best for RTL: OpenAI or Anthropic."
                 />
                 <InlineStack gap="200" wrap>
-                  {Object.entries(providers).map(([key, p]) => (
-                    <Badge key={key} tone={p.configured ? "success" : "critical"}>
-                      {p.name}: {p.configured ? "Connected" : "Not configured"}
-                    </Badge>
-                  ))}
+                  {(["openai", "anthropic", "deepl", "google", "azure", "amazon", "libre"] as const).map((key) => {
+                    const p = providers[key];
+                    return (
+                      <Badge key={key} tone={p.configured ? "success" : "critical"}>
+                        {p.name}: {p.configured ? "Connected" : "Not configured"}
+                      </Badge>
+                    );
+                  })}
                 </InlineStack>
                 {!providers.anyConfigured && (
                   <Banner tone="warning" title="No translation provider configured">
@@ -210,17 +255,35 @@ export default function SettingsPage() {
                   </Banner>
                 )}
                 <TextField
-                  label={`API key for ${aiProvider === "openai" ? "OpenAI" : aiProvider === "deepl" ? "DeepL" : "Google Translate"}`}
-                  type="password"
+                  label={(() => {
+                    const labels: Record<string, string> = {
+                      openai: "OpenAI API Key",
+                      anthropic: "Anthropic API Key",
+                      deepl: "DeepL API Key",
+                      google: "Google Access Token",
+                      azure: "Azure Translator Key",
+                      amazon: "AWS Access Key ID",
+                      libre: "LibreTranslate URL",
+                    };
+                    return labels[aiProvider] ?? "API Key";
+                  })()}
+                  type={aiProvider === "libre" ? "text" : "password"}
                   value={apiKey}
                   onChange={setApiKey}
                   autoComplete="off"
-                  placeholder={
-                    aiProvider === "openai" ? "sk-..." :
-                    aiProvider === "deepl" ? "Enter DeepL API key" :
-                    "Enter Google access token"
-                  }
-                  helpText="Key is stored securely in the database. Leave blank to keep existing key."
+                  placeholder={(() => {
+                    const placeholders: Record<string, string> = {
+                      openai: "sk-...",
+                      anthropic: "sk-ant-...",
+                      deepl: "Enter DeepL API key",
+                      google: "Enter Google access token",
+                      azure: "Enter Azure Translator key",
+                      amazon: "AKIA...",
+                      libre: "https://libretranslate.com",
+                    };
+                    return placeholders[aiProvider] ?? "Enter key";
+                  })()}
+                  helpText="Stored securely in the database. Leave blank to keep existing key."
                 />
                 {aiProvider === "google" && (
                   <TextField
@@ -230,6 +293,47 @@ export default function SettingsPage() {
                     autoComplete="off"
                     placeholder="my-project-id"
                     helpText="Required for Google Translate API"
+                  />
+                )}
+                {aiProvider === "azure" && (
+                  <TextField
+                    label="Azure Region"
+                    value={azureRegion}
+                    onChange={setAzureRegion}
+                    autoComplete="off"
+                    placeholder="eastus"
+                    helpText="Azure Cognitive Services region (e.g. eastus, westeurope)"
+                  />
+                )}
+                {aiProvider === "amazon" && (
+                  <BlockStack gap="300">
+                    <TextField
+                      label="AWS Secret Access Key"
+                      type="password"
+                      value={awsSecretKey}
+                      onChange={setAwsSecretKey}
+                      autoComplete="off"
+                      placeholder="Enter AWS secret key"
+                    />
+                    <TextField
+                      label="AWS Region"
+                      value={awsRegion}
+                      onChange={setAwsRegion}
+                      autoComplete="off"
+                      placeholder="us-east-1"
+                      helpText="Region where Amazon Translate is available"
+                    />
+                  </BlockStack>
+                )}
+                {aiProvider === "libre" && (
+                  <TextField
+                    label="LibreTranslate API Key (optional)"
+                    type="password"
+                    value={libreApiKey}
+                    onChange={setLibreApiKey}
+                    autoComplete="off"
+                    placeholder="Optional — only needed if instance requires auth"
+                    helpText="Not required for self-hosted instances without authentication"
                   />
                 )}
                 <InlineStack gap="300" blockAlign="center">
