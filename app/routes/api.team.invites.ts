@@ -2,9 +2,10 @@
  * Invitations API
  * T0016: Team & Access Control
  *
- * GET    /api/team/invites          — list pending invites for the shop
- * POST   /api/team/invites          — create a new invite
- * DELETE /api/team/invites?id=<id>  — revoke an invite
+ * GET    /api/team/invites              — list all invites for the shop
+ * POST   /api/team/invites              — create a new invite
+ * PATCH  /api/team/invites?id=<id>      — resend an invite
+ * DELETE /api/team/invites?id=<id>      — revoke an invite
  */
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -12,45 +13,70 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import {
   createInvite,
-  getPendingInvites,
+  getInvites,
+  resendInvite,
   revokeInvite,
-} from "../services/team/invites";
+} from "../services/team/invites.server";
 
 // ---------------------------------------------------------------------------
-// GET — list pending invites
+// GET — list all invites
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
 
-  const invites = await getPendingInvites(shop);
+  const invites = await getInvites(shop);
 
   return json({ shop, invites });
 }
 
 // ---------------------------------------------------------------------------
-// POST / DELETE — create or revoke invite
+// POST / PATCH / DELETE
 // ---------------------------------------------------------------------------
 
 export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
+  const userEmail = session.email || "owner";
 
-  // ---- DELETE: revoke by id ------------------------------------------------
+  const url = new URL(request.url);
+  const inviteId = url.searchParams.get("id");
+
+  // ---- DELETE: revoke by id ----------------------------------------------
   if (request.method === "DELETE") {
-    const url = new URL(request.url);
-    const id = url.searchParams.get("id");
-
-    if (!id) {
+    if (!inviteId) {
       return json({ error: "Missing required query parameter: id" }, { status: 400 });
     }
 
-    await revokeInvite(id);
-    return json({ success: true, revoked: id });
+    try {
+      const revoked = await revokeInvite(inviteId);
+      if (!revoked) {
+        return json({ error: "Invite not found" }, { status: 404 });
+      }
+      return json({ success: true, revoked: revoked.id });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to revoke invite";
+      return json({ error: message }, { status: 400 });
+    }
   }
 
-  // ---- POST: create invite -------------------------------------------------
+  // ---- PATCH: resend invite ----------------------------------------------
+  if (request.method === "PATCH") {
+    if (!inviteId) {
+      return json({ error: "Missing required query parameter: id" }, { status: 400 });
+    }
+
+    try {
+      const resent = await resendInvite(inviteId, userEmail);
+      return json({ success: true, resent: resent?.id });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to resend invite";
+      return json({ error: message }, { status: 400 });
+    }
+  }
+
+  // ---- POST: create invite -----------------------------------------------
   if (request.method === "POST") {
     let body: { email?: string; role?: string };
 
@@ -89,9 +115,13 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    const invite = await createInvite(shop, email, role);
-
-    return json({ success: true, invite }, { status: 201 });
+    try {
+      const invite = await createInvite(shop, email, role, userEmail);
+      return json({ success: true, invite }, { status: 201 });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create invite";
+      return json({ error: message }, { status: 400 });
+    }
   }
 
   return json({ error: "Method not allowed" }, { status: 405 });

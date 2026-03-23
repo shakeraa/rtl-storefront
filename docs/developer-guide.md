@@ -41,6 +41,24 @@ DEEPL_API_KEY=...
 GOOGLE_TRANSLATE_ACCESS_TOKEN=...
 ```
 
+Optional (for team invitation emails):
+
+```
+# Email provider: mock (default), smtp, sendgrid
+EMAIL_PROVIDER=mock
+
+# For SMTP provider
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+EMAIL_FROM=noreply@rtl-storefront.app
+
+# For SendGrid provider
+SENDGRID_API_KEY=SG.xxx
+```
+
 ### Database setup
 
 The app uses SQLite via Prisma ORM. To initialize:

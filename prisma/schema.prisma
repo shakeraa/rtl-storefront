@@ -222,3 +222,44 @@ model ShopSettings {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
+
+model TeamInvite {
+  id          String    @id @default(cuid())
+  shop        String
+  email       String
+  role        String
+  token       String    @unique
+  status      String    @default("pending") // pending, sent, accepted, expired, revoked
+  invitedBy   String    // user who sent the invite
+  invitedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  sentAt      DateTime?
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  resentAt    DateTime? // last time resent
+  resentCount Int       @default(0)
+  emailError  String?   // error message if email failed
+  
+  @@unique([shop, email])
+  @@index([shop, status])
+  @@index([token])
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  shop        String
+  userId      String   @unique // Shopify user ID or custom ID
+  email       String
+  name        String?
+  role        String   // admin, manager, translator, viewer
+  invitedBy   String
+  invitedAt   DateTime @default(now())
+  acceptedAt  DateTime?
+  status      String   @default("active") // active, inactive, suspended
+  apiKey      String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([shop, email])
+  @@index([shop, status])
+}

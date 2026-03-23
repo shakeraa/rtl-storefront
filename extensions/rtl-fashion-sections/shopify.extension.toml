@@ -17,3 +17,7 @@ file = "blocks/abaya-gallery.liquid"
 [[extensions.blocks]]
 name = "Hijab Grid"
 file = "blocks/hijab-grid.liquid"
+
+[[extensions.blocks]]
+name = "RTL Engine"
+file = "blocks/rtl-engine.liquid"

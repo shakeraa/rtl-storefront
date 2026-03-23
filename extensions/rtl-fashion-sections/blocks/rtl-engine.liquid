@@ -1,0 +1,142 @@
+{% comment %}
+  RTL Engine - App Embed Block
+  Automatically detects RTL languages and applies RTL CSS
+{% endcomment %}
+
+{% liquid
+  # Parse enabled languages from settings
+  assign enabled_langs = block.settings.enabled_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_locale = request.locale.iso_code
+  assign is_rtl_lang = false
+  
+  # Check if current locale is in RTL list
+  for lang in enabled_langs
+    assign trimmed_lang = lang | strip
+    if trimmed_lang == current_locale
+      assign is_rtl_lang = true
+    endif
+  endfor
+  
+  # Force RTL if setting is enabled
+  if block.settings.force_rtl
+    assign is_rtl_lang = true
+  endif
+%}
+
+{% if is_rtl_lang or block.settings.force_rtl %}
+  <!-- RTL Engine - Active for {{ current_locale }} -->
+  <link rel="stylesheet" href="{{ 'rtl-engine.css' | asset_url }}" media="all">
+  
+  {% if block.settings.enable_fonts %}
+    {% case current_locale %}
+      {% when 'ar' %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      {% when 'he' %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      {% when 'fa' %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% endcase %}
+  {% endif %}
+  
+  <style>
+    /* RTL Base Styles */
+    html[lang="{{ current_locale }}"], 
+    html[dir="rtl"] {
+      direction: rtl;
+    }
+    
+    /* Font families per language */
+    {% case current_locale %}
+      {% when 'ar' %}
+        html[lang="ar"] body {
+          font-family: 'Noto Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+      {% when 'he' %}
+        html[lang="he"] body {
+          font-family: 'Heebo', 'Rubik', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+      {% when 'fa' %}
+        html[lang="fa"] body {
+          font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+    {% endcase %}
+    
+    /* Custom CSS from settings */
+    {{ block.settings.custom_css }}
+  </style>
+  
+  <script src="{{ 'rtl-engine.js' | asset_url }}" defer></script>
+  
+  <script>
+    (function() {
+      // Set RTL direction on HTML element immediately to prevent FOUC
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.documentElement.setAttribute('data-rtl-engine', 'active');
+      
+      // Add RTL class to body for additional styling hooks
+      document.body.classList.add('rtl-layout');
+      
+      // Store RTL state for other scripts
+      window.RTLEngineConfig = {
+        active: true,
+        locale: '{{ current_locale }}',
+        forced: {{ block.settings.force_rtl | json }},
+        languages: {{ enabled_langs | json }}
+      };
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "RTL Engine",
+  "target": "head",
+  "settings": [
+    {
+      "type": "header",
+      "content": "RTL Configuration"
+    },
+    {
+      "type": "text",
+      "id": "enabled_languages",
+      "label": "RTL Languages",
+      "default": "ar,he,fa,ur",
+      "info": "Comma-separated list of language codes (e.g., ar,he,fa,ur)"
+    },
+    {
+      "type": "checkbox",
+      "id": "force_rtl",
+      "label": "Force RTL Mode",
+      "default": false,
+      "info": "Enable to force RTL regardless of language"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_fonts",
+      "label": "Auto-load RTL Fonts",
+      "default": true,
+      "info": "Load Noto Sans Arabic, Heebo, Vazirmatn based on language"
+    },
+    {
+      "type": "header",
+      "content": "Custom Styling"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom RTL CSS",
+      "info": "Additional CSS for RTL layout"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,463 @@
+/**
+ * RTL Engine - Core RTL Styles
+ * Automatically applied when RTL language is detected
+ */
+
+/* Base RTL Direction */
+html[dir="rtl"],
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ================================
+   LAYOUT & FLEXBOX
+   ================================ */
+
+/* Reverse flex direction for horizontal layouts */
+html[dir="rtl"] .flex-row,
+html[dir="rtl"] [class*="flex-row"],
+html[dir="rtl"] .header__inline-menu,
+html[dir="rtl"] .header__icons,
+html[dir="rtl"] .cart-item__details {
+  flex-direction: row-reverse;
+}
+
+/* Grid columns - reverse order */
+html[dir="rtl"] .grid {
+  direction: rtl;
+}
+
+html[dir="rtl"] .grid--2-col .grid__item,
+html[dir="rtl"] .grid--3-col .grid__item,
+html[dir="rtl"] .grid--4-col .grid__item {
+  float: right;
+}
+
+/* ================================
+   HEADER & NAVIGATION
+   ================================ */
+
+/* Header layout */
+html[dir="rtl"] .header-wrapper {
+  direction: rtl;
+}
+
+html[dir="rtl"] .header {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .header__heading {
+  margin-right: 0;
+  margin-left: 2rem;
+}
+
+/* Navigation - reverse menu order */
+html[dir="rtl"] .header__menu-item {
+  direction: rtl;
+}
+
+html[dir="rtl"] .header__inline-menu .list-menu {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .header__inline-menu .list-menu--inline {
+  justify-content: flex-end;
+}
+
+/* Header icons (search, account, cart) */
+html[dir="rtl"] .header__icons {
+  flex-direction: row-reverse;
+}
+
+/* ================================
+   MEGA MENU & DROPDOWNS
+   ================================ */
+
+html[dir="rtl"] .mega-menu {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .mega-menu__list {
+  padding-right: 0;
+  padding-left: auto;
+}
+
+/* ================================
+   SLIDESHOW & CAROUSELS
+   ================================ */
+
+html[dir="rtl"] .slideshow__controls {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .slider-button {
+  transform: scaleX(-1);
+}
+
+/* ================================
+   PRODUCT CARDS & GRID
+   ================================ */
+
+html[dir="rtl"] .card__information {
+  text-align: right;
+}
+
+html[dir="rtl"] .price {
+  direction: rtl;
+}
+
+html[dir="rtl"] .price__regular,
+html[dir="rtl"] .price__sale {
+  direction: rtl;
+}
+
+/* Product media thumbnails */
+html[dir="rtl"] .thumbnail-list {
+  direction: rtl;
+}
+
+html[dir="rtl"] .product__media-list {
+  direction: rtl;
+}
+
+/* ================================
+   PRODUCT PAGE
+   ================================ */
+
+html[dir="rtl"] .product__info-container {
+  text-align: right;
+}
+
+html[dir="rtl"] .product-form__input {
+  text-align: right;
+}
+
+/* Quantity selector */
+html[dir="rtl"] .quantity {
+  flex-direction: row-reverse;
+}
+
+/* Breadcrumbs */
+html[dir="rtl"] .breadcrumbs {
+  direction: rtl;
+}
+
+html[dir="rtl"] .breadcrumbs__list {
+  flex-direction: row-reverse;
+}
+
+/* ================================
+   COLLECTION PAGE
+   ================================ */
+
+html[dir="rtl"] .facets {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .facets__form {
+  direction: rtl;
+}
+
+html[dir="rtl"] .facets__list {
+  padding-right: 0;
+}
+
+html[dir="rtl"] .active-facets {
+  direction: rtl;
+}
+
+/* Sort dropdown */
+html[dir="rtl"] .facet-filters__sort {
+  direction: rtl;
+}
+
+/* ================================
+   CART & CHECKOUT
+   ================================ */
+
+html[dir="rtl"] .cart-item {
+  direction: rtl;
+}
+
+html[dir="rtl"] .cart-item__details {
+  text-align: right;
+}
+
+html[dir="rtl"] .cart-item__quantity-wrapper {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .cart-drawer__footer {
+  text-align: right;
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+
+html[dir="rtl"] .footer {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .footer__list-social {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .footer-block__newsletter {
+  direction: rtl;
+}
+
+/* ================================
+   FORMS & INPUTS
+   ================================ */
+
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] select {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Keep LTR for email/phone inputs */
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="tel"],
+html[dir="rtl"] input[type="url"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ================================
+   TEXT ALIGNMENT UTILITIES
+   ================================ */
+
+html[dir="rtl"] .text-left {
+  text-align: right !important;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left !important;
+}
+
+html[dir="rtl"] .text-center {
+  text-align: center !important;
+}
+
+/* ================================
+   MARGINS & PADDINGS (Logical Properties)
+   ================================ */
+
+/* Convert physical margins to logical */
+html[dir="rtl"] .margin-left-auto {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .margin-right-auto {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* ================================
+   ICONS & ARROWS
+   ================================ */
+
+/* Flip directional icons */
+html[dir="rtl"] .icon-arrow-left,
+html[dir="rtl"] .icon-chevron-left {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .icon-arrow-right,
+html[dir="rtl"] .icon-chevron-right {
+  transform: scaleX(-1);
+}
+
+/* ================================
+   ANNOUNCEMENT BAR
+   ================================ */
+
+html[dir="rtl"] .announcement-bar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .announcement-bar__message {
+  direction: rtl;
+}
+
+/* ================================
+   DRAWERS & MODALS
+   ================================ */
+
+html[dir="rtl"] .drawer {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+html[dir="rtl"] .drawer.active {
+  transform: translateX(0);
+}
+
+/* Cart drawer from right side in RTL */
+html[dir="rtl"] .cart-drawer {
+  right: 0;
+  left: auto;
+  transform: translateX(100%);
+}
+
+html[dir="rtl"] .cart-drawer.active {
+  transform: translateX(0);
+}
+
+/* ================================
+   RICH TEXT & CONTENT
+   ================================ */
+
+html[dir="rtl"] .rich-text {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .rich-text__blocks {
+  text-align: right;
+}
+
+html[dir="rtl"] .rich-text__text {
+  direction: rtl;
+}
+
+/* ================================
+   IMAGE WITH TEXT
+   ================================ */
+
+html[dir="rtl"] .image-with-text__grid {
+  direction: rtl;
+}
+
+html[dir="rtl"] .image-with-text__media-item {
+  order: 2;
+}
+
+html[dir="rtl"] .image-with-text__text-item {
+  order: 1;
+}
+
+/* ================================
+   MULTICOLUMN
+   ================================ */
+
+html[dir="rtl"] .multicolumn {
+  direction: rtl;
+}
+
+html[dir="rtl"] .multicolumn-list {
+  direction: rtl;
+}
+
+html[dir="rtl"] .multicolumn-card {
+  text-align: right;
+}
+
+/* ================================
+   SEARCH
+   ================================ */
+
+html[dir="rtl"] .search {
+  direction: rtl;
+}
+
+html[dir="rtl"] .search__input {
+  direction: rtl;
+}
+
+html[dir="rtl"] .predictive-search {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ================================
+   PAGINATION
+   ================================ */
+
+html[dir="rtl"] .pagination {
+  direction: rtl;
+}
+
+html[dir="rtl"] .pagination__list {
+  flex-direction: row-reverse;
+}
+
+/* ================================
+   BADGES & LABELS
+   ================================ */
+
+html[dir="rtl"] .badge {
+  direction: rtl;
+}
+
+html[dir="rtl"] .price__badge-sale,
+html[dir="rtl"] .price__badge-sold-out {
+  direction: rtl;
+}
+
+/* ================================
+   RESPONSIVE ADJUSTMENTS
+   ================================ */
+
+@media screen and (max-width: 990px) {
+  /* Mobile header */
+  html[dir="rtl"] .header__icon--menu {
+    order: -1;
+  }
+  
+  html[dir="rtl"] .menu-drawer {
+    right: auto;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  
+  html[dir="rtl"] .menu-drawer.active {
+    transform: translateX(0);
+  }
+  
+  /* Mobile menu navigation */
+  html[dir="rtl"] .menu-drawer__navigation {
+    text-align: right;
+  }
+  
+  html[dir="rtl"] .menu-drawer__menu-item {
+    direction: rtl;
+  }
+}
+
+/* ================================
+   LOADING STATES
+   ================================ */
+
+html[dir="rtl"] .loading-overlay__spinner {
+  direction: rtl;
+}
+
+/* ================================
+   ANIMATIONS (Mirrored for RTL)
+   ================================ */
+
+/* Slide in from right instead of left */
+@keyframes slideInRTL {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+html[dir="rtl"] .animate-slide-in {
+  animation-name: slideInRTL;
+}
