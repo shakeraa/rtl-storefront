@@ -25,11 +25,13 @@
     
     <div class="modesty-hero__image-wrapper">
       {% if section.settings.hero_image != blank %}
-        <img 
-          src="{{ section.settings.hero_image | image_url: width: 1200 }}" 
+        <img
+          src="{{ section.settings.hero_image | image_url: width: 1200 }}"
           alt="{{ section.settings.heading | escape }}"
           class="modesty-hero__image"
           loading="eager"
+          width="1200"
+          height="800"
         >
       {% endif %}
     </div>
@@ -232,10 +234,6 @@
       "default": true
     }
   ],
-  "presets": [
-    {
-      "name": "Modesty Hero"
-    }
-  ]
+  "target": "section"
 }
 {% endschema %}

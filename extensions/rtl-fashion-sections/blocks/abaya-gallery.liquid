@@ -19,11 +19,13 @@
           <div class="abaya-card">
             <div class="abaya-card__image-wrapper">
               {% if block.settings.product.featured_image != blank %}
-                <img 
+                <img
                   src="{{ block.settings.product.featured_image | image_url: width: 600 }}"
                   alt="{{ block.settings.product.title | escape }}"
                   class="abaya-card__image"
                   loading="lazy"
+                  width="600"
+                  height="800"
                 >
               {% else %}
                 {{ 'product-1' | placeholder_svg_tag: 'abaya-card__placeholder' }}
@@ -324,57 +326,6 @@
       "default": "View Details"
     }
   ],
-  "blocks": [
-    {
-      "type": "product",
-      "name": "Product",
-      "settings": [
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product"
-        },
-        {
-          "type": "text",
-          "id": "custom_title",
-          "label": "Custom Title (optional)"
-        },
-        {
-          "type": "checkbox",
-          "id": "show_price",
-          "label": "Show Price",
-          "default": true
-        },
-        {
-          "type": "checkbox",
-          "id": "show_size_guide",
-          "label": "Show Size Guide",
-          "default": true
-        },
-        {
-          "type": "checkbox",
-          "id": "show_badge",
-          "label": "Show Badge",
-          "default": false
-        },
-        {
-          "type": "text",
-          "id": "badge_text",
-          "label": "Badge Text",
-          "default": "New"
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "name": "Abaya Gallery",
-      "blocks": [
-        { "type": "product" },
-        { "type": "product" },
-        { "type": "product" }
-      ]
-    }
-  ]
+  "target": "section"
 }
 {% endschema %}
