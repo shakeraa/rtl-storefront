@@ -68,9 +68,20 @@ export interface TranslationCacheStore {
   set(entry: TranslationCacheEntry): Promise<void>;
 }
 
+export interface GlossaryEntry {
+  source: string;
+  target: string;
+  neverTranslate?: boolean;
+}
+
 export interface TranslationEngineInput extends TranslationRequest {
+  shop?: string;
   preferredProvider?: TranslationProviderName;
   bypassCache?: boolean;
+  resourceType?: string;
+  resourceId?: string;
+  contentType?: string;
+  glossaryEntries?: GlossaryEntry[];
 }
 
 export interface TranslationServiceEnv {

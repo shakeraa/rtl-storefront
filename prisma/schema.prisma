@@ -192,6 +192,102 @@ model ShopUsage {
   @@index([shop])
 }
 
+model TranslationUsage {
+  id              String   @id @default(cuid())
+  shop            String
+  
+  // Provider details
+  provider        String   // openai, deepl, google, azure, etc.
+  model           String?  // specific model used (gpt-4, gpt-3.5-turbo, etc.)
+  
+  // Usage metrics
+  characters      Int      // characters translated
+  words           Int      // estimated word count
+  apiCalls        Int      @default(1) // usually 1 per translation
+  
+  // Cost tracking (in cents for precision)
+  costCents       Int      @default(0)
+  costPer1kChars  Float    // rate at time of translation
+  
+  // Performance
+  responseTimeMs  Int?     // API response time in milliseconds
+  
+  // Context
+  sourceLocale    String
+  targetLocale    String
+  resourceType    String?  // product, collection, page, blog, etc.
+  resourceId      String?  // Shopify resource ID
+  contentType     String?  // title, description, meta, etc.
+  
+  // Quality/Success
+  success         Boolean  @default(true)
+  errorMessage    String?
+  qualityScore    Int?     // 0-100 if available
+  
+  // Metadata
+  cached          Boolean  @default(false) // was this served from cache?
+  glossaryUsed    Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([shop, createdAt])
+  @@index([shop, provider])
+  @@index([shop, resourceType])
+  @@index([createdAt])
+}
+
+model TranslationAlert {
+  id              String    @id @default(cuid())
+  shop            String
+  category        String    // untranslated, new_content, coverage_drop, quality, etc.
+  severity        String    // critical, warning, info
+  title           String
+  message         String
+  locale          String
+  resourceType    String?   // product, collection, page, etc.
+  resourceId      String?   // Shopify resource ID
+  count           Int?      // number of items (for untranslated count)
+  dismissed       Boolean   @default(false)
+  dismissedAt     DateTime?
+  dismissedBy     String?
+  createdAt       DateTime  @default(now())
+  
+  @@index([shop, dismissed])
+  @@index([shop, severity])
+  @@index([shop, createdAt])
+  @@index([dismissed, createdAt])
+}
+
+model NotificationPreference {
+  id                String   @id @default(cuid())
+  shop              String
+  templateType      String   // translation_complete, review_needed, error, weekly_digest
+  emailEnabled      Boolean  @default(true)
+  inAppEnabled      Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([shop, templateType])
+  @@index([shop])
+}
+
+model AlertConfiguration {
+  id                    String   @id @default(cuid())
+  shop                  String   @unique
+  enableInApp           Boolean  @default(true)
+  enableEmail           Boolean  @default(false)
+  emailDigestFrequency  String   @default("weekly") // daily, weekly, never
+  emailRecipients       String   @default("[]")     // JSON array of emails
+  
+  // Thresholds
+  untranslatedCritical  Int      @default(50)
+  untranslatedWarning   Int      @default(10)
+  coverageDropPercent   Int      @default(5)
+  staleTranslationDays  Int      @default(90)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
 model ShopSettings {
   id                  String   @id @default(cuid())
   shop                String   @unique

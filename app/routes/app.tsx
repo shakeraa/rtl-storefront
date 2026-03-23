@@ -4,11 +4,12 @@ import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import { NavMenu } from "@shopify/app-bridge-react";
-import { Banner } from "@shopify/polaris";
+import { Banner, Badge } from "@shopify/polaris";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
 import { getBillingContext } from "../services/billing/index";
+import { getUnreadCount } from "../services/notifications/notifier.server";
 import type { BillingContext } from "../services/billing/types";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
@@ -26,14 +27,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
+  // Get unread notification count
+  const unreadCount = await getUnreadCount(session.shop);
+
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     billing,
+    unreadCount,
   });
 };
 
 export default function App() {
-  const { apiKey, billing } = useLoaderData<typeof loader>();
+  const { apiKey, billing, unreadCount } = useLoaderData<typeof loader>();
 
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
@@ -53,8 +58,9 @@ export default function App() {
         <Link to="/app/language-switcher">Language Switcher</Link>
         <Link to="/app/analytics">Analytics</Link>
         <Link to="/app/ai-usage">AI Usage</Link>
-        <Link to="/app/notifications">Notifications</Link>
-        <Link to="/app/alerts">Alerts</Link>
+        <Link to="/app/notifications">
+          Notifications {unreadCount > 0 && `(${unreadCount})`}
+        </Link>
         <Link to="/app/seo-schema">SEO Schema</Link>
         <Link to="/app/seo-sitemap">SEO Sitemap</Link>
         <Link to="/app/team">Team</Link>

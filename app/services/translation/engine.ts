@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import prisma from "../../db.server";
 import { createProviderRegistry, sortProvidersForLanguagePair } from "./ai-providers";
 import { normalizeLocale, TranslationProviderError } from "./ai-providers/shared";
+import { trackTranslationUsage, getProviderCostRate } from "../analytics/usage-tracker";
+import { notifyTranslationComplete, notifyTranslationError, notifyReviewNeeded } from "../notifications/notifier.server";
 import type {
   ProviderQuotaStatus,
   TranslationCacheStore,
@@ -101,6 +103,21 @@ export class TranslationEngine {
       const cached = await this.cache.get(cacheKey);
 
       if (cached) {
+        // Track cached usage (no cost, but record for analytics)
+        void trackTranslationUsage({
+          shop: input.shop || "unknown",
+          provider: cached.provider,
+          characters: input.text.length,
+          costPer1kChars: 0,
+          sourceLocale: normalizedSource,
+          targetLocale: normalizedTarget,
+          resourceType: input.resourceType,
+          resourceId: input.resourceId,
+          contentType: input.contentType,
+          cached: true,
+          glossaryUsed: !!input.glossaryEntries?.length,
+        });
+
         return {
           provider: cached.provider,
           translatedText: cached.translatedText,
@@ -134,7 +151,9 @@ export class TranslationEngine {
 
     for (const [index, provider] of chain.entries()) {
       try {
+        const startTime = Date.now();
         const result = await provider.translate(input);
+        const responseTimeMs = Date.now() - startTime;
 
         await this.cache.set({
           cacheKey,
@@ -146,6 +165,52 @@ export class TranslationEngine {
           context: input.context,
           expiresAt: buildCacheExpiry(this.env, this.now),
         });
+
+        // Track actual API usage
+        void trackTranslationUsage({
+          shop: input.shop || "unknown",
+          provider: result.provider,
+          model: result.metadata?.model as string | undefined,
+          characters: result.usage?.characters || input.text.length,
+          costPer1kChars: getProviderCostRate(result.provider),
+          responseTimeMs,
+          sourceLocale: normalizedSource,
+          targetLocale: normalizedTarget,
+          resourceType: input.resourceType,
+          resourceId: input.resourceId,
+          contentType: input.contentType,
+          qualityScore: result.metadata?.qualityScore as number | undefined,
+          cached: false,
+          glossaryUsed: !!input.glossaryEntries?.length,
+        });
+
+        // Send notification for translation completion
+        if (input.shop && input.resourceType && input.resourceId) {
+          const qualityScore = result.metadata?.qualityScore as number | undefined;
+          
+          // Notify completion
+          void notifyTranslationComplete({
+            shop: input.shop,
+            locale: normalizedTarget,
+            resourceType: input.resourceType,
+            resourceId: input.resourceId,
+            resourceTitle: input.text.slice(0, 50) + (input.text.length > 50 ? "..." : ""),
+            characters: result.usage?.characters || input.text.length,
+            provider: result.provider,
+          });
+
+          // Notify if quality is low and review needed
+          if (qualityScore && qualityScore < 70) {
+            void notifyReviewNeeded({
+              shop: input.shop,
+              locale: normalizedTarget,
+              resourceType: input.resourceType,
+              resourceId: input.resourceId,
+              resourceTitle: input.text.slice(0, 50) + (input.text.length > 50 ? "..." : ""),
+              qualityScore,
+            });
+          }
+        }
 
         return {
           ...result,
@@ -163,6 +228,18 @@ export class TranslationEngine {
 
         throw error;
       }
+    }
+
+    // Notify about translation failure
+    if (input.shop && input.resourceType && input.resourceId) {
+      void notifyTranslationError({
+        shop: input.shop,
+        locale: normalizedTarget,
+        resourceType: input.resourceType,
+        resourceId: input.resourceId,
+        resourceTitle: input.text.slice(0, 50) + (input.text.length > 50 ? "..." : ""),
+        error: attempts.map(a => `${a.provider}: ${a.message}`).join("; "),
+      });
     }
 
     throw new TranslationEngineError("All translation providers failed", attempts);

@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   Badge,
   Banner,
@@ -17,93 +18,38 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import {
-  calculateCost,
-  getProviderCostRate,
-} from "../services/analytics/ai-usage";
+  getShopUsageStats,
+  getWeeklyTrends,
+  getCurrentMonthQuota,
+  getEngineComparison,
+} from "../services/analytics/usage-tracker";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop;
 
-  // Return mock usage data for the dashboard
-  const engineCharacters = ENGINE_USAGE.reduce((sum, e) => sum + e.characters, 0);
-  const engineCost = ENGINE_USAGE.reduce((sum, e) => sum + e.cost, 0);
-  const engineCalls = ENGINE_USAGE.reduce((sum, e) => sum + e.apiCalls, 0);
+  const [stats, weeklyTrends, quota, engines] = await Promise.all([
+    getShopUsageStats(shop),
+    getWeeklyTrends(shop),
+    getCurrentMonthQuota(shop, 1_000_000),
+    getEngineComparison(shop),
+  ]);
 
   return json({
-    totalCharacters: engineCharacters,
-    totalCost: engineCost,
-    totalApiCalls: engineCalls,
+    shop,
+    stats,
+    weeklyTrends,
+    quota,
+    engines,
   });
 };
-
-// --- Mock / sample data ---
-
-interface EngineUsage {
-  engine: string;
-  characters: number;
-  apiCalls: number;
-  cost: number;
-  ratePer1K: number;
-  qualityScore: number;
-  avgSpeed: string;
-}
-
-const ENGINE_USAGE: EngineUsage[] = [
-  {
-    engine: "OpenAI",
-    characters: 482_300,
-    apiCalls: 1_247,
-    cost: calculateCost("openai", 482_300),
-    ratePer1K: getProviderCostRate("openai"),
-    qualityScore: 94,
-    avgSpeed: "1.2s",
-  },
-  {
-    engine: "DeepL",
-    characters: 215_600,
-    apiCalls: 643,
-    cost: calculateCost("deepl", 215_600),
-    ratePer1K: getProviderCostRate("deepl"),
-    qualityScore: 96,
-    avgSpeed: "0.8s",
-  },
-  {
-    engine: "Google",
-    characters: 128_400,
-    apiCalls: 412,
-    cost: calculateCost("google", 128_400),
-    ratePer1K: getProviderCostRate("google"),
-    qualityScore: 88,
-    avgSpeed: "0.5s",
-  },
-];
-
-const QUOTA_LIMIT = 1_000_000;
-const QUOTA_USED = ENGINE_USAGE.reduce((sum, e) => sum + e.characters, 0);
-const QUOTA_REMAINING = QUOTA_LIMIT - QUOTA_USED;
-const QUOTA_PERCENT = Math.round((QUOTA_USED / QUOTA_LIMIT) * 100);
-
-interface WeeklyTrend {
-  week: string;
-  characters: number;
-  apiCalls: number;
-  cost: string;
-}
-
-const WEEKLY_TRENDS: WeeklyTrend[] = [
-  { week: "Mar 17 – Mar 23", characters: 142_800, apiCalls: 387, cost: "$3.12" },
-  { week: "Mar 10 – Mar 16", characters: 168_200, apiCalls: 445, cost: "$3.68" },
-  { week: "Mar 3 – Mar 9", characters: 198_500, apiCalls: 512, cost: "$4.21" },
-  { week: "Feb 24 – Mar 2", characters: 156_400, apiCalls: 402, cost: "$3.41" },
-  { week: "Feb 17 – Feb 23", characters: 160_400, apiCalls: 556, cost: "$3.52" },
-];
 
 function formatNumber(n: number): string {
   return n.toLocaleString();
 }
 
-function formatCurrency(n: number): string {
-  return `$${n.toFixed(2)}`;
+function formatCurrency(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
 function getQuotaBadge(percent: number): {
@@ -117,25 +63,23 @@ function getQuotaBadge(percent: number): {
 }
 
 export default function AIUsagePage() {
-  const totalCharacters = ENGINE_USAGE.reduce((sum, e) => sum + e.characters, 0);
-  const totalCost = ENGINE_USAGE.reduce((sum, e) => sum + e.cost, 0);
-  const totalCalls = ENGINE_USAGE.reduce((sum, e) => sum + e.apiCalls, 0);
+  const { stats, weeklyTrends, quota, engines } = useLoaderData<typeof loader>();
 
-  const quotaBadge = getQuotaBadge(QUOTA_PERCENT);
+  const quotaBadge = getQuotaBadge(quota.percent);
+  const hasHighUsage = quota.percent >= 70;
+  const hasNoData = stats.total.totalCalls === 0;
 
-  const hasHighUsage = QUOTA_PERCENT >= 70;
-
-  // Characters per engine rows
-  const characterRows = ENGINE_USAGE.map((e) => [
+  // Engine rows for table
+  const engineRows = engines.map((e) => [
     e.engine,
     formatNumber(e.characters),
     formatNumber(e.apiCalls),
-    formatCurrency(e.cost),
+    formatCurrency(e.cost * 100),
     `$${e.ratePer1K.toFixed(3)}/1K`,
   ]);
 
   // Weekly trend rows
-  const trendRows = WEEKLY_TRENDS.map((t) => [
+  const trendRows = weeklyTrends.map((t) => [
     t.week,
     formatNumber(t.characters),
     formatNumber(t.apiCalls),
@@ -143,7 +87,7 @@ export default function AIUsagePage() {
   ]);
 
   // Engine comparison rows
-  const comparisonRows = ENGINE_USAGE.map((e) => [
+  const comparisonRows = engines.map((e) => [
     e.engine,
     e.avgSpeed,
     `$${e.ratePer1K.toFixed(3)}/1K`,
@@ -157,10 +101,17 @@ export default function AIUsagePage() {
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
+            {/* No data state */}
+            {hasNoData && (
+              <Banner tone="info" title="No Usage Data Yet">
+                Start translating content to see your AI usage metrics here.
+              </Banner>
+            )}
+
             {/* High usage warning */}
-            {hasHighUsage && (
+            {hasHighUsage && !hasNoData && (
               <Banner tone="warning" title="High Quota Usage">
-                You have used {QUOTA_PERCENT}% of your monthly character quota.
+                You have used {quota.percent}% of your monthly character quota.
                 Consider upgrading your plan or optimizing translation batches to
                 reduce API calls.
               </Banner>
@@ -175,7 +126,7 @@ export default function AIUsagePage() {
                       Total Characters
                     </Text>
                     <Text as="p" variant="heading2xl">
-                      {formatNumber(totalCharacters)}
+                      {formatNumber(stats.total.characters)}
                     </Text>
                   </BlockStack>
                 </Card>
@@ -187,7 +138,7 @@ export default function AIUsagePage() {
                       API Calls
                     </Text>
                     <Text as="p" variant="heading2xl">
-                      {formatNumber(totalCalls)}
+                      {formatNumber(stats.total.apiCalls)}
                     </Text>
                   </BlockStack>
                 </Card>
@@ -199,7 +150,7 @@ export default function AIUsagePage() {
                       Total Cost
                     </Text>
                     <Text as="p" variant="heading2xl">
-                      {formatCurrency(totalCost)}
+                      {formatCurrency(stats.total.costCents)}
                     </Text>
                   </BlockStack>
                 </Card>
@@ -217,105 +168,144 @@ export default function AIUsagePage() {
                 </InlineStack>
                 <InlineStack gap="400" blockAlign="end">
                   <Text as="span" variant="heading2xl">
-                    {QUOTA_PERCENT}%
+                    {quota.percent}%
                   </Text>
                   <Text as="span" variant="bodyMd" tone="subdued">
-                    {formatNumber(QUOTA_USED)} of {formatNumber(QUOTA_LIMIT)}{" "}
+                    {formatNumber(quota.used)} of {formatNumber(quota.limit)}{" "}
                     characters used
                   </Text>
                 </InlineStack>
                 <ProgressBar
-                  progress={QUOTA_PERCENT}
+                  progress={quota.percent}
                   size="small"
-                  tone={QUOTA_PERCENT >= 90 ? "critical" : undefined}
+                  tone={quota.percent >= 90 ? "critical" : undefined}
                 />
                 <Text as="p" variant="bodySm" tone="subdued">
-                  {formatNumber(QUOTA_REMAINING)} characters remaining this month
+                  {formatNumber(quota.remaining)} characters remaining this month
                 </Text>
               </BlockStack>
             </Card>
 
-            {/* Characters translated per engine */}
-            <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Usage by Engine
-                </Text>
-                <DataTable
-                  columnContentTypes={[
-                    "text",
-                    "numeric",
-                    "numeric",
-                    "numeric",
-                    "text",
-                  ]}
-                  headings={[
-                    "Engine",
-                    "Characters",
-                    "API Calls",
-                    "Cost",
-                    "Rate",
-                  ]}
-                  rows={characterRows}
-                  totals={[
-                    "",
-                    formatNumber(totalCharacters),
-                    formatNumber(totalCalls),
-                    formatCurrency(totalCost),
-                    "",
-                  ]}
-                  showTotalsInFooter
-                />
-              </BlockStack>
-            </Card>
+            {/* Usage by Engine */}
+            {engineRows.length > 0 ? (
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Usage by Engine
+                  </Text>
+                  <DataTable
+                    columnContentTypes={[
+                      "text",
+                      "numeric",
+                      "numeric",
+                      "numeric",
+                      "text",
+                    ]}
+                    headings={[
+                      "Engine",
+                      "Characters",
+                      "API Calls",
+                      "Cost",
+                      "Rate",
+                    ]}
+                    rows={engineRows}
+                    totals={[
+                      "",
+                      formatNumber(stats.total.characters),
+                      formatNumber(stats.total.apiCalls),
+                      formatCurrency(stats.total.costCents),
+                      "",
+                    ]}
+                    showTotalsInFooter
+                  />
+                </BlockStack>
+              </Card>
+            ) : (
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Usage by Engine
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    No translation data available yet.
+                  </Text>
+                </BlockStack>
+              </Card>
+            )}
 
             {/* Usage trends (weekly) */}
-            <Card>
-              <BlockStack gap="400">
-                <InlineStack align="space-between" blockAlign="center">
+            {trendRows.length > 0 ? (
+              <Card>
+                <BlockStack gap="400">
+                  <InlineStack align="space-between" blockAlign="center">
+                    <Text as="h2" variant="headingMd">
+                      Weekly Usage Trends
+                    </Text>
+                    <Button disabled>Export CSV</Button>
+                  </InlineStack>
+                  <DataTable
+                    columnContentTypes={[
+                      "text",
+                      "numeric",
+                      "numeric",
+                      "numeric",
+                    ]}
+                    headings={["Week", "Characters", "API Calls", "Cost"]}
+                    rows={trendRows}
+                  />
+                </BlockStack>
+              </Card>
+            ) : (
+              <Card>
+                <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
                     Weekly Usage Trends
                   </Text>
-                  <Button>Export CSV</Button>
-                </InlineStack>
-                <DataTable
-                  columnContentTypes={[
-                    "text",
-                    "numeric",
-                    "numeric",
-                    "numeric",
-                  ]}
-                  headings={["Week", "Characters", "API Calls", "Cost"]}
-                  rows={trendRows}
-                />
-              </BlockStack>
-            </Card>
+                  <Text as="p" tone="subdued">
+                    No weekly data available yet.
+                  </Text>
+                </BlockStack>
+              </Card>
+            )}
 
             {/* Engine comparison */}
-            <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">
-                  Engine Comparison
-                </Text>
-                <DataTable
-                  columnContentTypes={[
-                    "text",
-                    "text",
-                    "text",
-                    "text",
-                    "numeric",
-                  ]}
-                  headings={[
-                    "Engine",
-                    "Avg Speed",
-                    "Cost per 1K Chars",
-                    "Quality Score",
-                    "Characters Translated",
-                  ]}
-                  rows={comparisonRows}
-                />
-              </BlockStack>
-            </Card>
+            {comparisonRows.length > 0 ? (
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Engine Comparison
+                  </Text>
+                  <DataTable
+                    columnContentTypes={[
+                      "text",
+                      "text",
+                      "text",
+                      "text",
+                      "numeric",
+                    ]}
+                    headings={[
+                      "Engine",
+                      "Avg Speed",
+                      "Cost per 1K Chars",
+                      "Quality Score",
+                      "Characters Translated",
+                    ]}
+                    rows={comparisonRows}
+                  />
+                </BlockStack>
+              </Card>
+            ) : (
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Engine Comparison
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    No engine comparison data available yet.
+                  </Text>
+                </BlockStack>
+              </Card>
+            )}
           </BlockStack>
         </Layout.Section>
       </Layout>
