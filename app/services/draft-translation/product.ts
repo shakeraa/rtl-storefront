@@ -357,7 +357,11 @@ export function approveDraft(
     return { success: false };
   }
 
-  if (draft.status !== "ready_for_review" && draft.status !== "auto_saved") {
+  if (
+    draft.status !== "ready_for_review" &&
+    draft.status !== "auto_saved" &&
+    draft.status !== "draft"
+  ) {
     return { success: false };
   }
 

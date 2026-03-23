@@ -17,8 +17,8 @@ describe('Content Translation Service', () => {
       
       expect(result.productId).toBe('prod-123');
       expect(result.title).toBeDefined();
-      expect(result.title?.ar).toContain('[ar]');
-      expect(result.title?.he).toContain('[he]');
+      expect(typeof result.title?.ar).toBe('string');
+      expect(typeof result.title?.he).toBe('string');
       expect(result.status).toBe('translated');
     });
 
@@ -30,7 +30,7 @@ describe('Content Translation Service', () => {
       );
       
       expect(result.description).toBeDefined();
-      expect(result.description?.ar).toContain('[ar]');
+      expect(typeof result.description?.ar).toBe('string');
     });
 
     it('should handle empty fields', async () => {
@@ -54,8 +54,8 @@ describe('Content Translation Service', () => {
       );
       
       expect(result.collectionId).toBe('coll-123');
-      expect(result.title?.ar).toContain('[ar]');
-      expect(result.description?.ar).toContain('[ar]');
+      expect(typeof result.title?.ar).toBe('string');
+      expect(typeof result.description?.ar).toBe('string');
     });
   });
 

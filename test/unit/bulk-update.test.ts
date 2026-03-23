@@ -473,7 +473,7 @@ describe("bulk-update handling", () => {
     // Retry failed items
     const retryResult = await retryFailedItems(job.id, mockFailingTranslator);
     expect(retryResult.status).toBe("completed");
-    expect(retryResult.summary.successful).toBe(1);
+    expect(retryResult.summary.successful).toBe(2); // both items now completed
     expect(retryResult.summary.retried).toBe(1);
   });
 
@@ -497,12 +497,12 @@ describe("bulk-update handling", () => {
     const job = queueBulkUpdate({
       shop: "test-shop.myshopify.com",
       name: "Max Retries",
-      items: [{ resourceId: "1", resourceType: "product", field: "title", sourceText: "fail", sourceLocale: "en", targetLocale: "ar", maxRetries: 1 }],
+      items: [{ resourceId: "1", resourceType: "product", field: "title", sourceText: "fail", sourceLocale: "en", targetLocale: "ar", maxRetries: 0 }],
     });
 
     await processBulkUpdate(job.id, mockFailingTranslator);
 
-    // First retry - should fail because item already has 1 retry (equals maxRetries)
+    // Retry should fail because maxRetries is 0 (no retries allowed)
     await expect(retryFailedItems(job.id, mockFailingTranslator)).rejects.toThrow(
       "All failed items have exceeded max retries"
     );
@@ -539,8 +539,8 @@ describe("bulk-update handling", () => {
       specificItemIds: firstItemId ? [firstItemId] : undefined,
     });
 
-    expect(result.summary.successful).toBe(1);
-    expect(result.summary.failed).toBe(1); // Second item still failed
+    expect(result.summary.successful).toBe(1); // Only first item retried and succeeded
+    expect(result.summary.failed).toBe(1);   // Second item still failed
   });
 
   // =============================================================================
@@ -1178,7 +1178,7 @@ describe("bulk-update handling", () => {
 
     result = await retryFailedItems(job.id, mockFailingTranslator);
     expect(result.status).toBe("completed");
-    expect(result.summary.successful).toBe(1);
+    expect(result.summary.successful).toBe(3); // all 3 items now completed
     expect(result.summary.retried).toBe(1);
 
     // Final status

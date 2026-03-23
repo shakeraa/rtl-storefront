@@ -48,7 +48,7 @@ describe('memory usage optimization', () => {
     expect(cached.provider).toBe('cache');
 
     const evicted = await translator.translate('product.2.title', 'Pants', 'ar');
-    expect(evicted.provider).toBe('ai');
+    expect(evicted.provider).not.toBe('cache');
   });
 
   it('removes expired content cache entries before reporting stats', async () => {

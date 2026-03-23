@@ -369,9 +369,10 @@ export async function processBulkUpdate(
   const results: BulkUpdateItemResult[] = [];
   const errors: BulkUpdateError[] = [];
 
-  // Process items in batches
+  // Process items in batches (only queued items — failed items must be
+  // explicitly moved to queued via retryFailedItems before reprocessing)
   const pendingItems = job.items.filter(
-    (item) => item.status === "queued" || item.status === "failed",
+    (item) => item.status === "queued",
   );
 
   const { batchSize, concurrency } = job.settings;
@@ -671,8 +672,8 @@ export async function retryFailedItems(
     item.updatedAt = new Date();
   }
 
-  // Reset job status
-  job.status = "processing";
+  // Reset job status so processBulkUpdate can pick it up
+  job.status = "queued";
   job.error = undefined;
   job.updatedAt = new Date();
   job.resumedAt = new Date();
@@ -728,7 +729,7 @@ export async function resumeBulkUpdate(
     throw new Error(`Job ${jobId} is not paused`);
   }
 
-  job.status = "processing";
+  job.status = "queued";
   job.resumedAt = new Date();
   job.updatedAt = new Date();
 

@@ -192,6 +192,7 @@ export class ContentTranslator {
       };
     } catch {
       // Fallback: return source text when no AI providers are configured
+      this.addToCache(key, targetLocale, sourceText);
       return {
         key,
         sourceText,
