@@ -1,12 +1,13 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "bcc226eb90bfbaa2680bace7a23b17d1"
-name = "rtl-storefront"
-application_url = "https://example.com"
+client_id = "d10dd57638d129d485c55c6c3cd47da0"
+name = "RTL Storefront"
+application_url = "https://dozen-planner-institute-ultimate.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
+dev_store_url = "rashrash-dev.myshopify.com"
 
 [webhooks]
 api_version = "2026-04"
@@ -16,4 +17,7 @@ api_version = "2026-04"
 scopes = "read_content,read_locales,write_content,write_products,write_translations"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://placeholder.trycloudflare.com/auth/callback",
+  "https://placeholder.trycloudflare.com/auth/shopify/callback"
+]

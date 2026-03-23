@@ -20,7 +20,7 @@ model Session {
   isOnline            Boolean   @default(false)
   scope               String?
   expires             DateTime?
-  accessToken         String
+  accessToken         String    @default("")
   userId              BigInt?
   firstName           String?
   lastName            String?
@@ -196,6 +196,10 @@ model ShopSettings {
   id                  String   @id @default(cuid())
   shop                String   @unique
   aiProvider          String   @default("openai")
+  openaiApiKey        String?
+  deeplApiKey         String?
+  googleAccessToken   String?
+  googleProjectId     String?
   sourceLocale        String   @default("en")
   targetLocales       String   @default("[\"ar\",\"he\"]")
   autoDetectRTL       Boolean  @default(true)

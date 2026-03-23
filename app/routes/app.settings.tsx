@@ -21,19 +21,17 @@ import {
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const settings = await db.shopSettings.findUnique({ where: { shop: session.shop } });
+  const providers = await getProviderStatus(session.shop);
 
   return json({
     shop: session.shop,
     settings,
-    providers: {
-      openai: { configured: Boolean(process.env.OPENAI_API_KEY), name: "OpenAI GPT-4o" },
-      deepl: { configured: Boolean(process.env.DEEPL_API_KEY), name: "DeepL" },
-      google: { configured: Boolean(process.env.GOOGLE_TRANSLATE_ACCESS_TOKEN), name: "Google Translate" },
-    },
+    providers,
     availableLanguages: [
       { code: "ar", name: "Arabic", nativeName: "العربية", direction: "rtl" },
       { code: "he", name: "Hebrew", nativeName: "עברית", direction: "rtl" },
@@ -51,37 +49,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
+  // Build API key updates — only overwrite if user provided a new value
+  const apiKeyUpdates: Record<string, string | null> = {};
+  const provider = String(data.aiProvider || "openai");
+  const apiKeyValue = String(data.apiKey || "");
+
+  if (apiKeyValue) {
+    switch (provider) {
+      case "openai":
+        apiKeyUpdates.openaiApiKey = apiKeyValue;
+        break;
+      case "deepl":
+        apiKeyUpdates.deeplApiKey = apiKeyValue;
+        break;
+      case "google":
+        apiKeyUpdates.googleAccessToken = apiKeyValue;
+        if (data.googleProjectId) {
+          apiKeyUpdates.googleProjectId = String(data.googleProjectId);
+        }
+        break;
+    }
+  }
+
+  const settingsData = {
+    aiProvider: provider,
+    sourceLocale: String(data.sourceLocale || "en"),
+    targetLocales: String(data.targetLocales || '["ar","he"]'),
+    autoDetectRTL: data.autoDetectRTL === "true",
+    arabicFont: String(data.arabicFont || "noto-sans-arabic"),
+    hebrewFont: String(data.hebrewFont || "heebo"),
+    farsiFont: String(data.farsiFont || "vazirmatn"),
+    enableTM: data.enableTM === "true",
+    fuzzyThreshold: parseInt(String(data.fuzzyThreshold || "80")),
+    autoSuggest: data.autoSuggest === "true",
+    qualityReview: data.qualityReview === "true",
+    confidenceThreshold: parseInt(String(data.confidenceThreshold || "70")),
+    ...apiKeyUpdates,
+  };
+
   await db.shopSettings.upsert({
     where: { shop: session.shop },
-    update: {
-      aiProvider: String(data.aiProvider || "openai"),
-      sourceLocale: String(data.sourceLocale || "en"),
-      targetLocales: String(data.targetLocales || '["ar","he"]'),
-      autoDetectRTL: data.autoDetectRTL === "true",
-      arabicFont: String(data.arabicFont || "noto-sans-arabic"),
-      hebrewFont: String(data.hebrewFont || "heebo"),
-      farsiFont: String(data.farsiFont || "vazirmatn"),
-      enableTM: data.enableTM === "true",
-      fuzzyThreshold: parseInt(String(data.fuzzyThreshold || "80")),
-      autoSuggest: data.autoSuggest === "true",
-      qualityReview: data.qualityReview === "true",
-      confidenceThreshold: parseInt(String(data.confidenceThreshold || "70")),
-    },
-    create: {
-      shop: session.shop,
-      aiProvider: String(data.aiProvider || "openai"),
-      sourceLocale: String(data.sourceLocale || "en"),
-      targetLocales: String(data.targetLocales || '["ar","he"]'),
-      autoDetectRTL: data.autoDetectRTL === "true",
-      arabicFont: String(data.arabicFont || "noto-sans-arabic"),
-      hebrewFont: String(data.hebrewFont || "heebo"),
-      farsiFont: String(data.farsiFont || "vazirmatn"),
-      enableTM: data.enableTM === "true",
-      fuzzyThreshold: parseInt(String(data.fuzzyThreshold || "80")),
-      autoSuggest: data.autoSuggest === "true",
-      qualityReview: data.qualityReview === "true",
-      confidenceThreshold: parseInt(String(data.confidenceThreshold || "70")),
-    },
+    update: settingsData,
+    create: { shop: session.shop, ...settingsData },
   });
 
   return json({ success: true });
@@ -126,9 +135,15 @@ export default function SettingsPage() {
   const [qualityReview, setQualityReview] = useState(settings?.qualityReview ?? false);
   const [confidenceThreshold, setConfidenceThreshold] = useState(String(settings?.confidenceThreshold ?? 70));
 
+  const [googleProjectId, setGoogleProjectId] = useState("");
+
   const handleSave = () => {
     const formData = new FormData();
     formData.append("aiProvider", aiProvider);
+    formData.append("apiKey", apiKey);
+    if (aiProvider === "google" && googleProjectId) {
+      formData.append("googleProjectId", googleProjectId);
+    }
     formData.append("sourceLocale", sourceLocale);
     formData.append("targetLocales", JSON.stringify(
       Object.entries(targetLocales).filter(([, v]) => v).map(([k]) => k)
@@ -143,6 +158,7 @@ export default function SettingsPage() {
     formData.append("qualityReview", String(qualityReview));
     formData.append("confidenceThreshold", confidenceThreshold);
     submit(formData, { method: "post" });
+    setApiKey("");
     shopify.toast.show("Settings saved successfully");
   };
 
@@ -188,15 +204,34 @@ export default function SettingsPage() {
                     </Badge>
                   ))}
                 </InlineStack>
+                {!providers.anyConfigured && (
+                  <Banner tone="warning" title="No translation provider configured">
+                    <p>Enter an API key for your selected provider to enable AI translations.</p>
+                  </Banner>
+                )}
                 <TextField
-                  label="API key"
+                  label={`API key for ${aiProvider === "openai" ? "OpenAI" : aiProvider === "deepl" ? "DeepL" : "Google Translate"}`}
                   type="password"
                   value={apiKey}
                   onChange={setApiKey}
                   autoComplete="off"
-                  placeholder="Enter your API key"
-                  helpText="Key is encrypted and stored securely"
+                  placeholder={
+                    aiProvider === "openai" ? "sk-..." :
+                    aiProvider === "deepl" ? "Enter DeepL API key" :
+                    "Enter Google access token"
+                  }
+                  helpText="Key is stored securely in the database. Leave blank to keep existing key."
                 />
+                {aiProvider === "google" && (
+                  <TextField
+                    label="Google Cloud Project ID"
+                    value={googleProjectId}
+                    onChange={setGoogleProjectId}
+                    autoComplete="off"
+                    placeholder="my-project-id"
+                    helpText="Required for Google Translate API"
+                  />
+                )}
                 <InlineStack gap="300" blockAlign="center">
                   <Button
                     size="slim"

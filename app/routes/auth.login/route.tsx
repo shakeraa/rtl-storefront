@@ -39,6 +39,9 @@ export default function Auth() {
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
 
+  // No iframe breakout needed — with unstable_newEmbeddedAuthStrategy: true,
+  // auth happens via token exchange inside the Shopify admin iframe.
+
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
       <Page>

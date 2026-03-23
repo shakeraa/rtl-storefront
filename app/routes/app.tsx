@@ -40,11 +40,26 @@ export default function App() {
       <NavMenu>
         <Link to="/app" rel="home">Dashboard</Link>
         <Link to="/app/translate">Translate</Link>
+        <Link to="/app/bulk-translate">Bulk Translate</Link>
+        <Link to="/app/translations">Translations</Link>
         <Link to="/app/rtl-settings">RTL Settings</Link>
+        <Link to="/app/rtl-preview">RTL Preview</Link>
         <Link to="/app/glossary">Glossary</Link>
+        <Link to="/app/locales">Locales</Link>
+        <Link to="/app/fonts">Fonts</Link>
         <Link to="/app/coverage">Coverage</Link>
+        <Link to="/app/import">Import</Link>
+        <Link to="/app/export">Export</Link>
+        <Link to="/app/language-switcher">Language Switcher</Link>
         <Link to="/app/analytics">Analytics</Link>
+        <Link to="/app/ai-usage">AI Usage</Link>
+        <Link to="/app/notifications">Notifications</Link>
+        <Link to="/app/alerts">Alerts</Link>
+        <Link to="/app/seo-schema">SEO Schema</Link>
+        <Link to="/app/seo-sitemap">SEO Sitemap</Link>
+        <Link to="/app/team">Team</Link>
         <Link to="/app/payments">MENA Payments</Link>
+        <Link to="/app/settings">Settings</Link>
         <Link to="/app/billing">Plans & Billing</Link>
       </NavMenu>
       {billing.isTrial && billing.trialDaysRemaining > 0 && (

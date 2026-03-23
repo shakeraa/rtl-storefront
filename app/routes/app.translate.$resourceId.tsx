@@ -20,7 +20,8 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { createTranslationEngine } from "../services/translation/engine";
+import { createShopTranslationEngine } from "../services/translation/engine";
+import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
 // ---------------------------------------------------------------------------
 // Locale helpers
@@ -56,7 +57,7 @@ const FIELD_LABELS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const resourceId = params.resourceId;
 
   if (!resourceId) {
@@ -65,7 +66,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const url = new URL(request.url);
   const targetLocale = url.searchParams.get("locale") || "ar";
-  const shopifyResourceId = `gid://shopify/Product/${resourceId}`;
+  // resourceId is already a full Shopify GID (e.g. gid://shopify/Product/123)
+  const shopifyResourceId = decodeURIComponent(resourceId);
 
   // Fetch translatable content and existing translations from Shopify
   const response = await admin.graphql(
@@ -124,10 +126,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         : "untranslated",
     }));
 
-  // Try to get the product title for the page header
+  // Try to get the resource title for the page header
+  const resourceType = shopifyResourceId.split("/").slice(-2, -1)[0] || "Resource";
   const productTitle = sourceFields.find(
     (f: { key: string }) => f.key === "title",
-  )?.sourceValue ?? `Product ${resourceId}`;
+  )?.sourceValue ?? `${resourceType} ${resourceId}`;
+
+  const providerStatus = await getProviderStatus(session.shop);
 
   return json({
     resourceId,
@@ -135,6 +140,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     targetLocale,
     productTitle,
     sourceFields,
+    providerStatus,
   });
 };
 
@@ -143,7 +149,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
   const targetLocale = formData.get("locale") as string;
@@ -153,7 +159,16 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     return json({ error: "Resource ID is required" }, { status: 400 });
   }
 
-  const shopifyResourceId = `gid://shopify/Product/${resourceId}`;
+  const shopifyResourceId = decodeURIComponent(resourceId);
+
+  // Check provider configuration before attempting translation
+  const providerStatus = await getProviderStatus(session.shop);
+  if (!providerStatus.anyConfigured) {
+    return json({
+      success: false,
+      error: "No translation provider configured. Go to Settings to add your API key.",
+    });
+  }
 
   // ----- Intent: translate_all — AI-translate all untranslated fields -----
   if (intent === "translate_all") {
@@ -170,7 +185,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       translatedValue: string;
     }> = JSON.parse(fieldsJson);
 
-    const engine = createTranslationEngine();
+    const engine = await createShopTranslationEngine(session.shop);
     const translatedFields: Array<{
       key: string;
       value: string;
@@ -285,7 +300,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       return json({ error: "Missing field data" }, { status: 400 });
     }
 
-    const engine = createTranslationEngine();
+    const engine = await createShopTranslationEngine(session.shop);
 
     try {
       const result = await engine.translate({
@@ -453,7 +468,7 @@ function fieldStatusBadge(status: string) {
 }
 
 export default function TranslateResource() {
-  const { resourceId, productTitle, targetLocale, sourceFields } =
+  const { resourceId, productTitle, targetLocale, sourceFields, providerStatus } =
     useLoaderData<typeof loader>();
 
   const translateAllFetcher = useFetcher<{
@@ -488,7 +503,7 @@ export default function TranslateResource() {
   const handleLocaleChange = useCallback((value: string) => {
     setLocale(value);
     // Navigate to the same page with the new locale
-    window.location.href = `/app/translate/${resourceId}?locale=${value}`;
+    window.location.href = `/app/translate/${encodeURIComponent(resourceId)}?locale=${value}`;
   }, [resourceId]);
 
   const handleTranslationChange = useCallback(
@@ -572,7 +587,7 @@ export default function TranslateResource() {
       formData.set("sourceLocale", field.sourceLocale);
       formData.set("digest", field.digest);
 
-      fetch(`/app/translate/${resourceId}`, {
+      fetch(`/app/translate/${encodeURIComponent(resourceId)}`, {
         method: "POST",
         body: formData,
       })
@@ -641,6 +656,20 @@ export default function TranslateResource() {
     >
       <TitleBar title={`Translate: ${productTitle}`} />
       <BlockStack gap="500">
+        {/* Provider configuration warning */}
+        {!providerStatus.anyConfigured && (
+          <Banner
+            title="Translation provider not configured"
+            tone="critical"
+            action={{ content: "Go to Settings", url: "/app/settings" }}
+          >
+            <p>
+              Add an API key for at least one translation provider (OpenAI, DeepL, or Google)
+              in Settings before translating content.
+            </p>
+          </Banner>
+        )}
+
         {/* Success / Error Banners */}
         {translateAllFetcher.data?.success && (
           <Banner

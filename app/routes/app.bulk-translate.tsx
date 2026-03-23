@@ -21,7 +21,8 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { createTranslationEngine } from "../services/translation/engine";
+import { createShopTranslationEngine } from "../services/translation/engine";
+import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -55,7 +56,7 @@ const RESOURCE_TYPE_TO_GQL: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   const url = new URL(request.url);
   const resourceType = url.searchParams.get("resourceType") || "products";
@@ -119,10 +120,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     },
   );
 
+  const providerStatus = await getProviderStatus(session.shop);
+
   return json({
     resources,
     resourceType,
     targetLocale,
+    providerStatus,
   });
 };
 
@@ -131,7 +135,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 
@@ -146,8 +150,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  // Check provider configuration before attempting translation
+  const providerStatus = await getProviderStatus(session.shop);
+  if (!providerStatus.anyConfigured) {
+    return json({
+      success: false,
+      error: "No translation provider configured. Go to Settings to add your API key.",
+    });
+  }
+
   const resourceIds: string[] = JSON.parse(resourceIdsJson);
-  const engine = createTranslationEngine();
+  const engine = await createShopTranslationEngine(session.shop);
 
   let totalTranslated = 0;
   let totalErrors = 0;
@@ -299,7 +312,7 @@ interface ResourceRow {
 }
 
 export default function BulkTranslate() {
-  const { resources, resourceType, targetLocale } =
+  const { resources, resourceType, targetLocale, providerStatus } =
     useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<{
@@ -383,6 +396,18 @@ export default function BulkTranslate() {
     <Page backAction={{ content: "Dashboard", url: "/app" }} title="Bulk Translate">
       <TitleBar title="Bulk Translate" />
       <BlockStack gap="500">
+        {!providerStatus.anyConfigured && (
+          <Banner
+            title="Translation provider not configured"
+            tone="critical"
+            action={{ content: "Go to Settings", url: "/app/settings" }}
+          >
+            <p>
+              You need to add an API key for at least one translation provider (OpenAI, DeepL, or Google)
+              before you can translate content. Go to Settings to configure your provider.
+            </p>
+          </Banner>
+        )}
         {fetcher.data?.success && (
           <Banner
             title={`Bulk translation complete: ${fetcher.data.totalTranslated} field(s) translated across ${fetcher.data.resourcesProcessed} resource(s)`}

@@ -177,6 +177,16 @@ export function createTranslationEngine(options?: TranslationEngineOptions) {
   return new TranslationEngine(options);
 }
 
+/**
+ * Create a translation engine that uses per-shop API keys from the database,
+ * falling back to environment variables.
+ */
+export async function createShopTranslationEngine(shop: string): Promise<TranslationEngine> {
+  const { getProviderEnv } = await import("./get-provider-env.server");
+  const env = await getProviderEnv(shop);
+  return new TranslationEngine({ env });
+}
+
 export function createPrismaTranslationCacheStore(
   now: () => Date = () => new Date(),
 ): TranslationCacheStore {

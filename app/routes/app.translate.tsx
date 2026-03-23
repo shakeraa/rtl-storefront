@@ -11,6 +11,7 @@ import {
   Text,
   IndexTable,
   Badge,
+  Banner,
   Button,
   Box,
   Select,
@@ -23,10 +24,11 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 import { getStats as getTMStats } from "../services/translation-memory/store";
+import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
 const RESOURCE_TYPE_QUERY = `
-  query TranslatableResources($resourceType: TranslatableResourceType!, $first: Int!) {
-    translatableResources(resourceType: $resourceType, first: $first) {
+  query TranslatableResources($resourceType: TranslatableResourceType!, $first: Int!, $after: String) {
+    translatableResources(resourceType: $resourceType, first: $first, after: $after) {
       edges {
         node {
           resourceId
@@ -36,6 +38,10 @@ const RESOURCE_TYPE_QUERY = `
             locale
           }
         }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
@@ -55,52 +61,66 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // TM stats unavailable — fall back to defaults
   }
 
-  // Query Shopify for translatable resources
-  let items: Array<{ id: string; title: string; type: string; sourceLang: string; status: string }> = [];
+  // Query Shopify for translatable resources (paginate to get all)
+  let items: Array<{ id: string; resourceGid: string; title: string; type: string; resourceType: string; sourceLang: string; status: string }> = [];
   const resourceTypes = [
     { type: "PRODUCT", label: "Product" },
     { type: "COLLECTION", label: "Collection" },
     { type: "ONLINE_STORE_PAGE", label: "Page" },
     { type: "ONLINE_STORE_BLOG", label: "Blog" },
+    { type: "ONLINE_STORE_ARTICLE", label: "Article" },
   ];
 
   try {
     let idx = 0;
     for (const rt of resourceTypes) {
       try {
-        const response = await admin.graphql(RESOURCE_TYPE_QUERY, {
-          variables: { resourceType: rt.type, first: 20 },
-        });
-        const data = await response.json();
-        const edges = data?.data?.translatableResources?.edges ?? [];
-        for (const edge of edges) {
-          idx++;
-          const node = edge.node;
-          const titleContent = node.translatableContent?.find(
-            (c: any) => c.key === "title" || c.key === "name" || c.key === "body_html",
-          );
-          const title = titleContent?.value ?? `${rt.label} ${node.resourceId}`;
+        let hasNextPage = true;
+        let cursor: string | null = null;
 
-          // Check translation status in our cache
-          let status = "Untranslated";
-          try {
-            const cacheCount = await db.translationCache.count({
-              where: { sourceText: title },
-            });
-            if (cacheCount > 0) {
-              status = "Translated";
+        while (hasNextPage) {
+          const variables: Record<string, unknown> = { resourceType: rt.type, first: 50 };
+          if (cursor) variables.after = cursor;
+
+          const response = await admin.graphql(RESOURCE_TYPE_QUERY, { variables });
+          const data = await response.json();
+          const result = data?.data?.translatableResources;
+          const edges = result?.edges ?? [];
+
+          for (const edge of edges) {
+            idx++;
+            const node = edge.node;
+            const titleContent = node.translatableContent?.find(
+              (c: any) => c.key === "title" || c.key === "name",
+            );
+            const title = titleContent?.value ?? `${rt.label} ${node.resourceId}`;
+
+            // Check translation status in our cache
+            let status = "Untranslated";
+            try {
+              const cacheCount = await db.translationCache.count({
+                where: { sourceText: title },
+              });
+              if (cacheCount > 0) {
+                status = "Translated";
+              }
+            } catch {
+              // ignore
             }
-          } catch {
-            // ignore
+
+            items.push({
+              id: String(idx),
+              resourceGid: node.resourceId,
+              title: title.substring(0, 80),
+              type: rt.label,
+              resourceType: rt.type,
+              sourceLang: "English",
+              status,
+            });
           }
 
-          items.push({
-            id: String(idx),
-            title: title.substring(0, 80),
-            type: rt.label,
-            sourceLang: "English",
-            status,
-          });
+          hasNextPage = result?.pageInfo?.hasNextPage ?? false;
+          cursor = result?.pageInfo?.endCursor ?? null;
         }
       } catch {
         // Skip this resource type on error
@@ -142,10 +162,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!languageStats.hebrew) languageStats.hebrew = { translated: 0, total: 0, coverage: 0 };
   if (!languageStats.farsi) languageStats.farsi = { translated: 0, total: 0, coverage: 0 };
 
+  const providerStatus = await getProviderStatus(session.shop);
+
   return json({
     items,
     languageStats,
     tmStats,
+    providerStatus,
   });
 };
 
@@ -163,7 +186,7 @@ function statusBadge(status: string) {
 }
 
 export default function Translate() {
-  const { items, languageStats, tmStats } = useLoaderData<typeof loader>();
+  const { items, languageStats, tmStats, providerStatus } = useLoaderData<typeof loader>();
   const [selectedLanguage, setSelectedLanguage] = useState("arabic");
 
   const localeMap: Record<string, string> = {
@@ -288,7 +311,7 @@ export default function Translate() {
       <IndexTable.Cell>{statusBadge(item.status)}</IndexTable.Cell>
       <IndexTable.Cell>
         <Button
-          url={`/app/translate/${item.id}?locale=${localeMap[selectedLanguage] ?? "ar"}`}
+          url={`/app/translate/${encodeURIComponent(item.resourceGid)}?locale=${localeMap[selectedLanguage] ?? "ar"}`}
           size="slim"
         >
           Translate
@@ -304,6 +327,18 @@ export default function Translate() {
     >
       <TitleBar title="Translate Content" />
       <BlockStack gap="500">
+        {!providerStatus.anyConfigured && (
+          <Banner
+            title="Translation provider not configured"
+            tone="critical"
+            action={{ content: "Go to Settings", url: "/app/settings" }}
+          >
+            <p>
+              Add an API key for at least one translation provider (OpenAI, DeepL, or Google)
+              in Settings before translating content.
+            </p>
+          </Banner>
+        )}
         <Layout>
           <Layout.Section>
             <Card padding="0">
@@ -339,6 +374,12 @@ export default function Translate() {
                     allResourcesSelected ? "All" : selectedResources.length
                   }
                   onSelectionChange={handleSelectionChange}
+                  promotedBulkActions={[
+                    {
+                      content: "Translate Selected",
+                      url: `/app/bulk-translate?ids=${selectedResources.join(",")}&locale=${localeMap[selectedLanguage] ?? "ar"}`,
+                    },
+                  ]}
                   headings={[
                     { title: "Content" },
                     { title: "Type" },

@@ -172,6 +172,7 @@ export default function Dashboard() {
             <BlockStack gap="400">
               <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">Translate Content</Text><Text as="p" variant="bodyMd">Translate products, collections, and pages.</Text><Button url="/app/translate">Go to Translate</Button></BlockStack></Card>
               <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">Manage Glossary</Text><Text as="p" variant="bodyMd">Brand terms and never-translate words.</Text><Button url="/app/glossary">Go to Glossary</Button></BlockStack></Card>
+              <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">Seed Test Products</Text><Text as="p" variant="bodyMd">Create rich content products for testing.</Text><Button url="/app/seed-products">Seed Products</Button></BlockStack></Card>
               <Card><BlockStack gap="300"><Text as="h2" variant="headingMd">RTL Settings</Text><Text as="p" variant="bodyMd">AI providers, fonts, and RTL layout.</Text><Button url="/app/rtl-settings">Go to Settings</Button></BlockStack></Card>
             </BlockStack>
           </Layout.Section>

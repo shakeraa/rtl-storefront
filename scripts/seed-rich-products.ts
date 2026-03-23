@@ -1,0 +1,873 @@
+/**
+ * Seed Rich Content Products for RTL Storefront Testing
+ * 
+ * This script creates multiple products with rich content including:
+ * - Detailed HTML descriptions
+ * - SEO metadata (title, description)
+ * - Tags and product types
+ * - Variants with pricing
+ * - Images
+ * 
+ * Usage: npx tsx scripts/seed-rich-products.ts
+ */
+
+import "@shopify/shopify-app-remix/adapters/node";
+import { ApiVersion, shopifyApi } from "@shopify/shopify-api";
+import { restResources } from "@shopify/shopify-api/rest/admin/2025-01";
+
+// Configuration - rashrash-dev store
+const SHOP = "rashrash-dev.myshopify.com";
+const ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || "";
+
+if (!ACCESS_TOKEN) {
+  console.error("❌ Error: SHOPIFY_ACCESS_TOKEN environment variable is required");
+  console.error("   Get your access token from the Shopify Admin > Apps > Private apps");
+  process.exit(1);
+}
+
+// Initialize Shopify API client
+const shopify = shopifyApi({
+  apiKey: "dummy",
+  apiSecretKey: "dummy",
+  apiVersion: ApiVersion.January25,
+  isCustomStoreApp: true,
+  adminApiAccessToken: ACCESS_TOKEN,
+  restResources,
+});
+
+const session = new shopify.session.CustomSession({
+  shop: SHOP,
+  accessToken: ACCESS_TOKEN,
+});
+
+// Rich product templates for MENA/RTL market
+const richProducts = [
+  {
+    title: "Elegant Abaya with Embroidery - Full Coverage Modest Wear",
+    description: `<h2>Exquisite Abaya for the Modern Muslim Woman</h2>
+<p>Experience elegance and modesty with our <strong>premium embroidered abaya</strong>. Designed for the discerning woman who values both style and faith.</p>
+<h3>Key Features:</h3>
+<ul>
+<li><strong>Full Coverage Design:</strong> Floor-length with long sleeves for complete modesty</li>
+<li><strong>Premium Fabric:</strong> Lightweight crepe that's breathable and comfortable</li>
+<li><strong>Intricate Embroidery:</strong> Hand-stitched floral patterns along the sleeves and hem</li>
+<li><strong>Perfect for:</strong> Daily wear, prayers, Eid celebrations, and special occasions</li>
+</ul>
+<h3>Size Guide:</h3>
+<p>Available in sizes S-3XL. Please refer to our size chart for measurements.</p>
+<h3>Care Instructions:</h3>
+<p>Hand wash or dry clean recommended. Do not bleach. Iron on low heat.</p>
+<p><em>"This abaya combines traditional values with contemporary fashion. Perfect for Ramadan and Eid."</em></p>`,
+    productType: "Modest Fashion",
+    vendor: "RashRash Modest",
+    tags: ["abaya", "modest-wear", "full-coverage", "islamic-clothing", "ramadan", "eid", "hijab-friendly", "muslim-fashion"],
+    price: 189.00,
+    compareAtPrice: 249.00,
+    seo: {
+      title: "Elegant Embroidered Abaya | Full Coverage Modest Fashion",
+      description: "Premium embroidered abaya for Muslim women. Full coverage, lightweight fabric, perfect for daily wear and special occasions. Shop modest Islamic clothing."
+    },
+    options: ["Size", "Color"],
+    variants: [
+      { option1: "S", option2: "Black", price: 189.00, sku: "ABY-EMB-BLK-S", inventoryQuantity: 15 },
+      { option1: "M", option2: "Black", price: 189.00, sku: "ABY-EMB-BLK-M", inventoryQuantity: 20 },
+      { option1: "L", option2: "Black", price: 189.00, sku: "ABY-EMB-BLK-L", inventoryQuantity: 18 },
+      { option1: "XL", option2: "Black", price: 189.00, sku: "ABY-EMB-BLK-XL", inventoryQuantity: 12 },
+      { option1: "S", option2: "Navy Blue", price: 189.00, sku: "ABY-EMB-NVY-S", inventoryQuantity: 10 },
+      { option1: "M", option2: "Navy Blue", price: 189.00, sku: "ABY-EMB-NVY-M", inventoryQuantity: 14 },
+      { option1: "L", option2: "Navy Blue", price: 189.00, sku: "ABY-EMB-NVY-L", inventoryQuantity: 11 },
+    ]
+  },
+  {
+    title: "Premium Hijab Set - 5 Piece Chiffon Scarves",
+    description: `<h2>Luxury Chiffon Hijab Collection</h2>
+<p>Elevate your hijab game with our <strong>5-piece premium chiffon set</strong>. Each scarf is carefully selected to provide versatility, comfort, and elegance for every occasion.</p>
+<h3>What's Included:</h3>
+<ul>
+<li>5 beautiful chiffon hijabs in complementary colors</li>
+<li>Matching undercaps for secure fit</li>
+<li>Hijab pins set (20 pins)</li>
+<li>Storage pouch</li>
+</ul>
+<h3>Features:</h3>
+<ul>
+<li><strong>Non-slip fabric:</strong> Stays in place all day</li>
+<li><strong>Breathable:</strong> Perfect for hot climates</li>
+<li><strong>Easy care:</strong> Wrinkle-resistant and machine washable</li>
+<li><strong>Generous size:</strong> 180cm x 70cm for full coverage styling</li>
+</ul>
+<h3>Perfect For:</h3>
+<p>Daily wear, work, school, special events, and gifting. This set makes an ideal <strong>Eid gift</strong> or <strong>wedding present</strong>.</p>
+<p><em>"The quality is exceptional. These hijabs drape beautifully and the colors are exactly as shown." - Aisha K.</em></p>`,
+    productType: "Hijab & Scarves",
+    vendor: "RashRash Modest",
+    tags: ["hijab", "scarf", "chiffon", "muslim-women", "islamic-accessories", "modest-fashion", "head-covering", "eid-gift", "5-piece-set"],
+    price: 79.00,
+    compareAtPrice: 99.00,
+    seo: {
+      title: "Premium Chiffon Hijab Set - 5 Piece | Muslim Women Fashion",
+      description: "Luxury 5-piece chiffon hijab set with undercaps and pins. Non-slip, breathable, perfect for daily wear. Shop quality Islamic scarves."
+    },
+    options: ["Color Set"],
+    variants: [
+      { option1: "Classic (Black, Navy, Grey, Beige, White)", price: 79.00, sku: "HJB-SET-CLS", inventoryQuantity: 25 },
+      { option1: "Earth Tones (Brown, Olive, Rust, Cream, Taupe)", price: 79.00, sku: "HJB-SET-ERT", inventoryQuantity: 20 },
+      { option1: "Pastel (Pink, Lavender, Mint, Peach, Sky Blue)", price: 79.00, sku: "HJB-SET-PST", inventoryQuantity: 18 },
+    ]
+  },
+  {
+    title: "Modest Swimwear Burkini - Full Coverage Islamic Swimsuit",
+    description: `<h2>Swim with Confidence in Our Premium Burkini</h2>
+<p>Enjoy the beach and pool while maintaining your modesty with our <strong>stylish and comfortable burkini</strong>. Designed specifically for Muslim women who refuse to compromise on their values.</p>
+<h3>Complete 3-Piece Set Includes:</h3>
+<ul>
+<li><strong>Long tunic top:</strong> Loose fit with modest length</li>
+<li><strong>Swim pants:</strong> Full length, quick-dry fabric</li>
+<li><strong>Swim hijab cap:</strong> Secure fit, water-friendly</li>
+</ul>
+<h3>Technical Features:</h3>
+<ul>
+<li><strong>Chlorine-resistant:</strong> Maintains color and shape</li>
+<li><strong>UPF 50+ protection:</strong> Blocks 98% of harmful UV rays</li>
+<li><strong>Quick-dry technology:</strong> No more sitting in wet clothes</li>
+<li><strong>4-way stretch:</strong> Freedom of movement for swimming</li>
+</ul>
+<h3>Size Range:</h3>
+<p>XS to 4XL available. Our sizing is generous to ensure comfortable, modest coverage.</p>
+<h3>Care:</h3>
+<p>Rinse after use in chlorine or salt water. Machine washable on gentle cycle.</p>
+<p><em>"Finally a burkini that looks good and performs well in water. I can swim laps comfortably!" - Fatima M.</em></p>`,
+    productType: "Modest Swimwear",
+    vendor: "RashRash Modest",
+    tags: ["burkini", "modest-swimwear", "islamic-swimsuit", "full-coverage", "muslim-swimwear", "halal-swim", "uv-protection", "plus-size"],
+    price: 145.00,
+    compareAtPrice: 189.00,
+    seo: {
+      title: "Modest Burkini Swimsuit | Full Coverage Islamic Swimwear UPF 50+",
+      description: "Premium 3-piece burkini set for Muslim women. UPF 50+ protection, quick-dry, chlorine-resistant. Modest swimwear in sizes XS-4XL."
+    },
+    options: ["Size", "Color"],
+    variants: [
+      { option1: "S", option2: "Black", price: 145.00, sku: "BRK-BLK-S", inventoryQuantity: 12 },
+      { option1: "M", option2: "Black", price: 145.00, sku: "BRK-BLK-M", inventoryQuantity: 15 },
+      { option1: "L", option2: "Black", price: 145.00, sku: "BRK-BLK-L", inventoryQuantity: 14 },
+      { option1: "XL", option2: "Black", price: 145.00, sku: "BRK-BLK-XL", inventoryQuantity: 10 },
+      { option1: "2XL", option2: "Black", price: 145.00, sku: "BRK-BLK-2XL", inventoryQuantity: 8 },
+      { option1: "S", option2: "Navy", price: 145.00, sku: "BRK-NVY-S", inventoryQuantity: 10 },
+      { option1: "M", option2: "Navy", price: 145.00, sku: "BRK-NVY-M", inventoryQuantity: 12 },
+      { option1: "L", option2: "Navy", price: 145.00, sku: "BRK-NVY-L", inventoryQuantity: 11 },
+    ]
+  },
+  {
+    title: "Kaftan Dress - Moroccan Style Evening Gown",
+    description: `<h2>Authentic Moroccan Kaftan for Special Occasions</h2>
+<p>Step into elegance with our <strong>handcrafted Moroccan kaftan</strong>. This stunning piece combines traditional North African design with modern sophistication.</p>
+<h3>Design Details:</h3>
+<ul>
+<li><strong>Intricate gold embroidery:</strong> Traditional motifs along neckline and hem</li>
+<li><strong>Flowing silhouette:</strong> Flattering A-line cut for all body types</li>
+<li><strong>Luxurious satin fabric:</strong> Rich drape and elegant sheen</li>
+<li><strong>Long sleeves:</strong> Full coverage with decorative cuffs</li>
+</ul>
+<h3>Perfect For:</h3>
+<ul>
+<li>Wedding guests and bridal parties</li>
+<li>Eid celebrations</li>
+<li>Iftar gatherings during Ramadan</li>
+<li>Formal dinner parties</li>
+<li>Special family occasions</li>
+</ul>
+<h3>Styling Tips:</h3>
+<p>Pair with gold accessories and our matching hijab for a complete look. The kaftan can be belted for a more fitted silhouette or worn loose for traditional style.</p>
+<h3>Available Colors:</h3>
+<p>Emerald Green, Royal Blue, Burgundy, Gold, and Classic Black</p>
+<p><em>"Wore this to my sister's wedding and received so many compliments. The quality is exceptional!" - Layla R.</em></p>`,
+    productType: "Modest Evening Wear",
+    vendor: "RashRash Modest",
+    tags: ["kaftan", "moroccan-dress", "evening-gown", "formal-wear", "wedding-guest", "eid-dress", "islamic-fashion", "modest-evening", "embroidered-dress"],
+    price: 299.00,
+    compareAtPrice: 399.00,
+    seo: {
+      title: "Moroccan Kaftan Dress | Elegant Evening Gown | Modest Formal Wear",
+      description: "Handcrafted Moroccan kaftan with gold embroidery. Perfect for weddings, Eid, and special occasions. Luxurious satin, full coverage design."
+    },
+    options: ["Size", "Color"],
+    variants: [
+      { option1: "S", option2: "Emerald Green", price: 299.00, sku: "KFT-EMR-S", inventoryQuantity: 5 },
+      { option1: "M", option2: "Emerald Green", price: 299.00, sku: "KFT-EMR-M", inventoryQuantity: 7 },
+      { option1: "L", option2: "Emerald Green", price: 299.00, sku: "KFT-EMR-L", inventoryQuantity: 6 },
+      { option1: "S", option2: "Royal Blue", price: 299.00, sku: "KFT-RBL-S", inventoryQuantity: 4 },
+      { option1: "M", option2: "Royal Blue", price: 299.00, sku: "KFT-RBL-M", inventoryQuantity: 6 },
+      { option1: "L", option2: "Royal Blue", price: 299.00, sku: "KFT-RBL-L", inventoryQuantity: 5 },
+      { option1: "M", option2: "Burgundy", price: 299.00, sku: "KFT-BRG-M", inventoryQuantity: 8 },
+      { option1: "L", option2: "Burgundy", price: 299.00, sku: "KFT-BRG-L", inventoryQuantity: 7 },
+    ]
+  },
+  {
+    title: "Modest Activewear Set - Sports Hijab & Tunic",
+    description: `<h2>Stay Active, Stay Modest</h2>
+<p>Our <strong>modest activewear set</strong> is designed for Muslim women who want to stay fit without compromising their values. Perfect for gym, running, yoga, and sports.</p>
+<h3>Set Includes:</h3>
+<ul>
+<li><strong>Long sport tunic:</strong> Breathable, loose fit with side slits for movement</li>
+<li><strong>Sport leggings:</strong> High-waisted, full length with modest coverage</li>
+<li><strong>Sports hijab:</strong> Secure fit, moisture-wicking fabric</li>
+</ul>
+<h3>Performance Features:</h3>
+<ul>
+<li><strong>Moisture-wicking:</strong> Keeps you dry during intense workouts</li>
+<li><strong>4-way stretch:</strong> Full range of motion</li>
+<li><strong>Anti-odor technology:</strong> Fresh even after long sessions</li>
+<li><strong>Flat seams:</strong> Prevents chafing</li>
+<li><strong>Hidden pockets:</strong> Store your phone and keys</li>
+</ul>
+<h3>Activities Perfect For:</h3>
+<p>Running, gym workouts, yoga, pilates, hiking, cycling, and team sports</p>
+<h3>Why Muslim Women Love This Set:</h3>
+<p><em>"Finally activewear that covers properly and performs well. I can run comfortably without worrying about my hijab slipping or my top riding up." - Sarah H.</em></p>
+<p><em>"The fabric is amazing - keeps me cool during HIIT workouts. Highly recommend!" - Nadia A.</em></p>`,
+    productType: "Modest Sportswear",
+    vendor: "RashRash Modest",
+    tags: ["activewear", "sportswear", "sports-hijab", "modest-sports", "gym-wear", "running", "yoga", "fitness", "athletic-wear", "muslim-athlete"],
+    price: 129.00,
+    compareAtPrice: 169.00,
+    seo: {
+      title: "Modest Activewear Set | Sports Hijab & Tunic | Muslim Athletic Wear",
+      description: "Complete modest sportswear set with tunic, leggings & sports hijab. Moisture-wicking, 4-way stretch. Perfect for gym, running & yoga."
+    },
+    options: ["Size", "Color"],
+    variants: [
+      { option1: "S", option2: "Black", price: 129.00, sku: "ACT-BLK-S", inventoryQuantity: 20 },
+      { option1: "M", option2: "Black", price: 129.00, sku: "ACT-BLK-M", inventoryQuantity: 25 },
+      { option1: "L", option2: "Black", price: 129.00, sku: "ACT-BLK-L", inventoryQuantity: 22 },
+      { option1: "XL", option2: "Black", price: 129.00, sku: "ACT-BLK-XL", inventoryQuantity: 18 },
+      { option1: "S", option2: "Grey", price: 129.00, sku: "ACT-GRY-S", inventoryQuantity: 15 },
+      { option1: "M", option2: "Grey", price: 129.00, sku: "ACT-GRY-M", inventoryQuantity: 20 },
+      { option1: "L", option2: "Grey", price: 129.00, sku: "ACT-GRY-L", inventoryQuantity: 18 },
+      { option1: "S", option2: "Navy", price: 129.00, sku: "ACT-NVY-S", inventoryQuantity: 12 },
+      { option1: "M", option2: "Navy", price: 129.00, sku: "ACT-NVY-M", inventoryQuantity: 15 },
+    ]
+  },
+  {
+    title: "Jilbab Two-Piece Prayer Set - Loose Fit Overgarment",
+    description: `<h2>Complete Prayer Attire for Muslim Women</h2>
+<p>Our <strong>two-piece jilbab set</strong> provides complete coverage for prayer and daily wear. Designed with Islamic principles in mind, this overgarment is both practical and elegant.</p>
+<h3>Two-Piece Design:</h3>
+<ul>
+<li><strong>Long khimar (head & body covering):</strong> Flows gracefully to knee length</li>
+<li><strong>Matching skirt:</strong> Full length, elastic waist for comfort</li>
+<li><strong>Optional face veil:</strong> Attached for full coverage option</li>
+</ul>
+<h3>Ideal Uses:</h3>
+<ul>
+<li>Daily prayers (Salah)</li>
+<li>Taraweeh during Ramadan</li>
+<li>Umrah and Hajj pilgrimages</li>
+<li>Mosque visits</li>
+<li>Islamic classes and gatherings</li>
+</ul>
+<h3>Fabric Features:</h3>
+<ul>
+<li><strong>Lightweight crepe:</strong> Perfect for all seasons</li>
+<li><strong>Non-transparent:</strong> Opaque fabric ensures modesty</li>
+<li><strong>Breathable:</strong> Stay cool during long prayers</li>
+<li><strong>Wrinkle-resistant:</strong> Always looks presentable</li>
+</ul>
+<h3>One Size Fits Most:</h3>
+<p>Designed to accommodate heights 5'2" to 5'10". Elastic waistband adjusts to your size.</p>
+<p><em>"I wear this for every prayer. It's so comfortable and easy to put on quickly. The fabric is beautiful and drapes nicely." - Khadija T.</em></p>`,
+    productType: "Islamic Prayer Wear",
+    vendor: "RashRash Modest",
+    tags: ["jilbab", "prayer-clothes", "khimar", "islamic-wear", "salah", "ramadan", "umrah", "hajj", "mosque", "full-coverage", "overgarment"],
+    price: 89.00,
+    compareAtPrice: 119.00,
+    seo: {
+      title: "Jilbab Two-Piece Prayer Set | Islamic Prayer Clothes | Khimar",
+      description: "Complete jilbab set for Muslim women. Two-piece prayer attire perfect for Salah, Ramadan, Umrah & Hajj. Lightweight, opaque, one size fits most."
+    },
+    options: ["Color"],
+    variants: [
+      { option1: "Black", price: 89.00, sku: "JLB-BLK", inventoryQuantity: 30 },
+      { option1: "Navy Blue", price: 89.00, sku: "JLB-NVY", inventoryQuantity: 25 },
+      { option1: "Coffee Brown", price: 89.00, sku: "JLB-COF", inventoryQuantity: 20 },
+      { option1: "Dark Grey", price: 89.00, sku: "JLB-GRY", inventoryQuantity: 22 },
+    ]
+  },
+  {
+    title: "Niqab Face Veil - 3 Layer Breathable Design",
+    description: `<h2>Premium Niqab for Full Face Coverage</h2>
+<p>Our <strong>three-layer niqab</strong> is designed for sisters who observe full face covering. Made with breathable, lightweight fabric for all-day comfort.</p>
+<h3>Three-Layer Design:</h3>
+<ul>
+<li><strong>Top layer:</strong> Covers nose and extends to forehead</li>
+<li><strong>Middle layer:</strong> Optional eye coverage flap</li>
+<li><strong>Bottom layer:</strong> Covers mouth and chin</li>
+</ul>
+<h3>Features:</h3>
+<ul>
+<li><strong>Breathable mesh panels:</strong> Easy breathing without compromising coverage</li>
+<li><strong>Adjustable straps:</strong> Secure fit for all face shapes</li>
+<li><strong>No-gap design:</strong> Proper coverage of entire face</li>
+<li><strong>Soft edges:</strong> No irritation on sensitive skin</li>
+</ul>
+<h3>When to Wear:</h3>
+<p>Perfect for daily wear, religious occasions, or whenever you desire additional modesty. Many sisters wear this for increased protection and privacy.</p>
+<h3>Care Instructions:</h3>
+<p>Hand wash recommended. Air dry to maintain shape.</p>
+<p><em>"The best niqab I've worn. The breathing panels make such a difference, especially in summer." - Anonymous</em></p>`,
+    productType: "Islamic Face Covering",
+    vendor: "RashRash Modest",
+    tags: ["niqab", "face-veil", "full-coverage", "islamic-clothing", "modest-wear", "privacy", "muslim-women"],
+    price: 45.00,
+    compareAtPrice: 59.00,
+    seo: {
+      title: "Niqab Face Veil - 3 Layer | Breathable Islamic Face Covering",
+      description: "Premium 3-layer niqab with breathable mesh panels. Full face coverage with adjustable straps. Comfortable all-day wear for Muslim women."
+    },
+    options: ["Color"],
+    variants: [
+      { option1: "Black", price: 45.00, sku: "NQB-BLK", inventoryQuantity: 40 },
+      { option1: "Navy", price: 45.00, sku: "NQB-NVY", inventoryQuantity: 35 },
+      { option1: "Dark Grey", price: 45.00, sku: "NQB-GRY", inventoryQuantity: 30 },
+    ]
+  },
+  {
+    title: "Long Sleeve Maxi Dress - Floral Print Modest Fashion",
+    description: `<h2>Elegant Floral Maxi Dress for Modest Fashion</h2>
+<p>Discover the perfect blend of style and modesty with our <strong>long sleeve maxi dress</strong>. The beautiful floral print adds femininity while the full coverage design respects Islamic principles.</p>
+<h3>Dress Features:</h3>
+<ul>
+<li><strong>Floor-length hem:</strong> Complete coverage from neck to ankle</li>
+<li><strong>Long sleeves:</strong> Full arm coverage with fitted cuffs</li>
+<li><strong>Modest neckline:</strong> High neck design, no cleavage visible</li>
+<li><strong>Flowing A-line cut:</strong> Flattering without being tight</li>
+<li><strong>Side pockets:</strong> Practical and convenient</li>
+</ul>
+<h3>Fabric:</h3>
+<p>Premium polyester crepe that's lightweight, breathable, and drapes beautifully. The fabric is <strong>fully opaque</strong> - no see-through areas.</p>
+<h3>Perfect For:</h3>
+<ul>
+<li>Work and professional settings</li>
+<li>Family gatherings and dinners</li>
+<li>Eid celebrations</li>
+<li>Friday prayers</li>
+<li>Everyday modest fashion</li>
+</ul>
+<h3>Styling Suggestions:</h3>
+<p>Pair with a coordinating hijab and modest heels for a complete look. Add a belt for waist definition if desired.</p>
+<p><em>"This dress is gorgeous! The print is beautiful and I get compliments every time I wear it. Very comfortable for all-day wear." - Maryam F.</em></p>`,
+    productType: "Modest Dresses",
+    vendor: "RashRash Modest",
+    tags: ["maxi-dress", "long-sleeve", "modest-dress", "floral-print", "islamic-fashion", "muslim-women", "full-coverage", "eid-dress", "work-wear"],
+    price: 119.00,
+    compareAtPrice: 159.00,
+    seo: {
+      title: "Long Sleeve Maxi Dress Floral | Modest Islamic Fashion Dress",
+      description: "Elegant floral maxi dress with long sleeves. Full coverage, opaque fabric. Perfect for work, Eid & everyday wear. Modest fashion for Muslim women."
+    },
+    options: ["Size", "Print"],
+    variants: [
+      { option1: "S", option2: "Rose Garden", price: 119.00, sku: "MXD-RSE-S", inventoryQuantity: 12 },
+      { option1: "M", option2: "Rose Garden", price: 119.00, sku: "MXD-RSE-M", inventoryQuantity: 15 },
+      { option1: "L", option2: "Rose Garden", price: 119.00, sku: "MXD-RSE-L", inventoryQuantity: 14 },
+      { option1: "S", option2: "Midnight Bloom", price: 119.00, sku: "MXD-BLM-S", inventoryQuantity: 10 },
+      { option1: "M", option2: "Midnight Bloom", price: 119.00, sku: "MXD-BLM-M", inventoryQuantity: 12 },
+      { option1: "L", option2: "Midnight Bloom", price: 119.00, sku: "MXD-BLM-L", inventoryQuantity: 11 },
+      { option1: "S", option2: "Autumn Leaves", price: 119.00, sku: "MXD-ATM-S", inventoryQuantity: 8 },
+      { option1: "M", option2: "Autumn Leaves", price: 119.00, sku: "MXD-ATM-M", inventoryQuantity: 10 },
+    ]
+  },
+  {
+    title: "Islamic Children's Clothing Set - Girl's Modest Outfit",
+    description: `<h2>Modest Fashion for Young Muslim Girls</h2>
+<p>Teach your daughter the beauty of modesty from an early age with our <strong>adorable children's modest clothing set</strong>. Comfortable, practical, and stylish!</p>
+<h3>Set Includes:</h3>
+<ul>
+<li><strong>Long sleeve tunic top:</strong> Pastel colors with cute embroidery</li>
+<li><strong>Matching pants:</strong> Elastic waist, comfortable fit</li>
+<li><strong>Mini hijab:</strong> Easy-to-wear slip-on style</li>
+<li><strong>Hair clips set:</strong> Coordinating accessories</li>
+</ul>
+<h3>Child-Friendly Features:</h3>
+<ul>
+<li><strong>Easy on/off:</strong> No complicated fastenings</li>
+<li><strong>Stretchy waistbands:</strong> Room to grow</li>
+<li><strong>Durable fabric:</strong> Withstands active play</li>
+<li><strong>Machine washable:</strong> Easy care for busy parents</li>
+<li><strong>No itchy tags:</strong> Tagless design for comfort</li>
+</ul>
+<h3>Age Range:</h3>
+<p>Sizes available from 2T to 12 years. Please check our size chart for measurements.</p>
+<h3>Perfect For:</h3>
+<ul>
+<li>Islamic school uniform</li>
+<li>Friday prayers at the mosque</li>
+<li>Eid celebrations</li>
+<li>Family gatherings</li>
+<li>Daily modest wear</li>
+</ul>
+<p><em>"My daughter loves wearing her 'special outfit' to the mosque. The fabric is soft and she can play comfortably." - Parent Review</em></p>`,
+    productType: "Children's Modest Fashion",
+    vendor: "RashRash Modest",
+    tags: ["kids-clothing", "childrens-wear", "girls-fashion", "modest-kids", "islamic-children", "muslim-kids", "eid-outfit", "mosque-clothes"],
+    price: 69.00,
+    compareAtPrice: 89.00,
+    seo: {
+      title: "Islamic Children's Clothing Set | Modest Girls Outfit | Muslim Kids",
+      description: "Adorable modest clothing set for Muslim girls. Tunic, pants, mini hijab & accessories. Comfortable, durable, machine washable. Ages 2T-12."
+    },
+    options: ["Size", "Color"],
+    variants: [
+      { option1: "2-3 Years", option2: "Pink", price: 69.00, sku: "KDS-PNK-2T", inventoryQuantity: 10 },
+      { option1: "4-5 Years", option2: "Pink", price: 69.00, sku: "KDS-PNK-4T", inventoryQuantity: 12 },
+      { option1: "6-7 Years", option2: "Pink", price: 69.00, sku: "KDS-PNK-6T", inventoryQuantity: 10 },
+      { option1: "2-3 Years", option2: "Lavender", price: 69.00, sku: "KDS-LAV-2T", inventoryQuantity: 8 },
+      { option1: "4-5 Years", option2: "Lavender", price: 69.00, sku: "KDS-LAV-4T", inventoryQuantity: 10 },
+      { option1: "6-7 Years", option2: "Lavender", price: 69.00, sku: "KDS-LAV-6T", inventoryQuantity: 9 },
+      { option1: "8-9 Years", option2: "Mint Green", price: 69.00, sku: "KDS-MNT-8T", inventoryQuantity: 7 },
+      { option1: "10-12 Years", option2: "Mint Green", price: 69.00, sku: "KDS-MNT-10T", inventoryQuantity: 6 },
+    ]
+  },
+  {
+    title: "Men's Thobe - Traditional Saudi Style White Robe",
+    description: `<h2>Authentic Saudi Thobe for Muslim Men</h2>
+<p>Our <strong>premium men's thobe</strong> is crafted with the finest materials to provide comfort and elegance for daily wear, prayers, and special occasions.</p>
+<h3>Traditional Design:</h3>
+<ul>
+<li><strong>Classic white color:</strong> Traditional and versatile</li>
+<li><strong>Full-length cut:</strong> Ankle-length for proper coverage</li>
+<li><strong>Long sleeves:</strong> Full arm coverage</li>
+<li><strong>Button placket:</strong> Front opening with quality buttons</li>
+<li><strong>Side pockets:</strong> Practical storage</li>
+</ul>
+<h3>Premium Fabric:</h3>
+<ul>
+<li><strong>100% cotton:</strong> Breathable and comfortable</li>
+<li><strong>Lightweight weave:</strong> Perfect for hot climates</li>
+<li><strong>Wrinkle-resistant:</strong> Stays crisp all day</li>
+<li><strong>Durable:</strong> Maintains quality after many washes</li>
+</ul>
+<h3>When to Wear:</h3>
+<ul>
+<li>Daily wear for work and home</li>
+<li>Friday prayers (Jumu'ah)</li>
+<li>Eid celebrations</li>
+<li>Taraweeh during Ramadan</li>
+<li>Weddings and special occasions</li>
+<li>Umrah and Hajj pilgrimages</li>
+</ul>
+<h3>Size Information:</h3>
+<p>Available in sizes 48-64 (Saudi sizing). Please measure your height and chest for the best fit.</p>
+<p><em>"Excellent quality thobe. The fabric is substantial but breathable. Fits perfectly according to the size guide." - Ahmed K.</em></p>`,
+    productType: "Men's Islamic Clothing",
+    vendor: "RashRash Modest",
+    tags: ["thobe", "thawb", "kandura", "dishdasha", "mens-islamic", "muslim-men", "ramadan", "eid", "prayer-clothes", "white-robe"],
+    price: 159.00,
+    compareAtPrice: 199.00,
+    seo: {
+      title: "Men's Thobe Saudi Style | Traditional Islamic White Robe | Muslim Men",
+      description: "Premium Saudi style thobe for men. 100% cotton, lightweight & comfortable. Perfect for prayers, Eid & daily wear. Sizes 48-64."
+    },
+    options: ["Size"],
+    variants: [
+      { option1: "52 (Small)", price: 159.00, sku: "THB-52", inventoryQuantity: 15 },
+      { option1: "54 (Medium)", price: 159.00, sku: "THB-54", inventoryQuantity: 20 },
+      { option1: "56 (Large)", price: 159.00, sku: "THB-56", inventoryQuantity: 18 },
+      { option1: "58 (XL)", price: 159.00, sku: "THB-58", inventoryQuantity: 15 },
+      { option1: "60 (2XL)", price: 159.00, sku: "THB-60", inventoryQuantity: 12 },
+    ]
+  },
+  {
+    title: "Prayer Rug - Premium Velvet Islamic Prayer Mat",
+    description: `<h2>Luxurious Velvet Prayer Mat for Daily Salah</h2>
+<p>Enhance your daily prayers with our <strong>premium velvet prayer rug</strong>. The plush texture and beautiful design create a peaceful space for your connection with Allah.</p>
+<h3>Premium Features:</h3>
+<ul>
+<li><strong>Thick velvet pile:</strong> Cushioned comfort for knees and forehead</li>
+<li><strong>Non-slip backing:</strong> Stays in place on any surface</li>
+<li><strong>Intricate embroidery:</strong> Mihrab design with Islamic geometric patterns</li>
+<li><strong>Generous size:</strong> 110cm x 70cm - comfortable for all body types</li>
+<li><strong>Lightweight:</strong> Easy to carry for travel</li>
+</ul>
+<h3>Perfect For:</h3>
+<ul>
+<li>Daily prayers at home</li>
+<li>Office prayer room</li>
+<li>Mosque use</li>
+<li>Travel and Umrah/Hajj</li>
+<li>Eid and Ramadan gifts</li>
+<li>Wedding gifts for Muslim couples</li>
+</ul>
+<h3>Quality Construction:</h3>
+<p>The velvet surface is soft yet durable. The backing is made of high-quality material that prevents slipping on tile, carpet, or hardwood floors.</p>
+<h3>Easy Care:</h3>
+<p>Shake out regularly. Spot clean with mild soap when needed. Air dry completely.</p>
+<p><em>"This prayer mat is so comfortable, my knees don't hurt anymore during long prayers. The quality is excellent." - Yusuf M.</em></p>`,
+    productType: "Islamic Prayer Accessories",
+    vendor: "RashRash Modest",
+    tags: ["prayer-rug", "sajjada", "prayer-mat", "islamic-accessories", "salah", "ramadan", "eid-gift", "muslim-home", "wedding-gift"],
+    price: 49.00,
+    compareAtPrice: 69.00,
+    seo: {
+      title: "Premium Velvet Prayer Rug | Islamic Prayer Mat | Muslim Gift",
+      description: "Luxurious velvet prayer mat with non-slip backing. Thick cushioned pile, 110x70cm. Perfect for daily prayers, travel & gifts. Beautiful mihrab design."
+    },
+    options: ["Color"],
+    variants: [
+      { option1: "Midnight Blue", price: 49.00, sku: "RUG-BLU", inventoryQuantity: 30 },
+      { option1: "Forest Green", price: 49.00, sku: "RUG-GRN", inventoryQuantity: 25 },
+      { option1: "Deep Burgundy", price: 49.00, sku: "RUG-BUR", inventoryQuantity: 28 },
+      { option1: "Royal Purple", price: 49.00, sku: "RUG-PUR", inventoryQuantity: 22 },
+      { option1: "Classic Red", price: 49.00, sku: "RUG-RED", inventoryQuantity: 20 },
+    ]
+  },
+  {
+    title: "Tasbeeh Prayer Beads - 99 Bead Misbaha Crystal",
+    description: `<h2>Exquisite Crystal Tasbeeh for Dhikr</h2>
+<p>Our <strong>handcrafted 99-bead tasbeeh</strong> is a beautiful tool for your daily dhikr and remembrance of Allah. Each bead is carefully selected for quality and beauty.</p>
+<h3>Product Details:</h3>
+<ul>
+<li><strong>99 beads:</strong> Traditional count for tasbeeh, tahmeed, and takbeer</li>
+<li><strong>Crystal beads:</strong> Premium quality with beautiful clarity</li>
+<li><strong>Decorative tassel:</strong> Elegant silver or gold accents</li>
+<li><strong>Bead size:</strong> 8mm - comfortable to hold</li>
+<li><strong>Overall length:</strong> 35cm including tassel</li>
+</ul>
+<h3>Uses:</h3>
+<ul>
+<li>Daily dhikr after prayers</li>
+<li>Saying SubhanAllah, Alhamdulillah, Allahu Akbar</li>
+<li>Meditation and mindfulness</li>
+<li>Stress relief</li>
+<li>Islamic gift for any occasion</li>
+</ul>
+<h3>Benefits of Dhikr:</h3>
+<p>The Prophet Muhammad (peace be upon him) said: "The example of the one who remembers his Lord versus the one who does not is like the example of the living and the dead." (Bukhari)</p>
+<h3>Gift Ready:</h3>
+<p>Comes in a beautiful velvet pouch, perfect for gifting to family and friends.</p>
+<p><em>"Bought this as a gift for my father and he loves it. The beads are smooth and the quality is outstanding." - Omar S.</em></p>`,
+    productType: "Islamic Spiritual Items",
+    vendor: "RashRash Modest",
+    tags: ["tasbeeh", "misbaha", "prayer-beads", "dhikr", "islamic-gift", "spiritual", "ramadan", "eid-gift"],
+    price: 35.00,
+    compareAtPrice: 45.00,
+    seo: {
+      title: "Tasbeeh Prayer Beads 99 | Crystal Misbaha | Islamic Dhikr Gift",
+      description: "Handcrafted 99-bead crystal tasbeeh for dhikr. Premium quality with decorative tassel. Perfect for daily remembrance & Islamic gifts. Velvet pouch included."
+    },
+    options: ["Bead Color"],
+    variants: [
+      { option1: "Clear Crystal", price: 35.00, sku: "TSB-CLR", inventoryQuantity: 40 },
+      { option1: "Amber Crystal", price: 35.00, sku: "TSB-AMB", inventoryQuantity: 35 },
+      { option1: "Black Onyx", price: 39.00, sku: "TSB-BLK", inventoryQuantity: 30 },
+      { option1: "Rose Quartz", price: 39.00, sku: "TSB-ROS", inventoryQuantity: 28 },
+      { option1: "Turquoise Blue", price: 39.00, sku: "TSB-TUR", inventoryQuantity: 32 },
+    ]
+  },
+  {
+    title: "Ramadan Lantern - Traditional Fanoos LED Light",
+    description: `<h2>Authentic Egyptian Fanoos for Ramadan Decorations</h2>
+<p>Bring the spirit of Ramadan into your home with our <strong>beautiful traditional fanoos lantern</strong>. This stunning piece combines centuries-old design with modern LED technology.</p>
+<h3>Features:</h3>
+<ul>
+<li><strong>Authentic design:</strong> Based on traditional Egyptian fanoos patterns</li>
+<li><strong>Intricate metalwork:</strong> Hand-finished details with geometric patterns</li>
+<li><strong>Colorful glass panels:</strong> Creates beautiful light patterns</li>
+<li><strong>LED light included:</strong> Safe, cool-touch operation</li>
+<li><strong>Battery operated:</strong> 3 AA batteries (not included)</li>
+<li><strong>Size:</strong> 30cm height - impressive centerpiece size</li>
+</ul>
+<h3>Ramadan Tradition:</h3>
+<p>The fanoos (fanous) has been a symbol of Ramadan in Egypt since the Fatimid era. It represents the joy and light of the holy month.</p>
+<h3>Perfect For:</h3>
+<ul>
+<li>Ramadan home decorations</li>
+<li>Iftar table centerpiece</li>
+<li>Eid celebrations</li>
+<li>Islamic home decor year-round</li>
+<li>Ramadan gifts and Eid presents</li>
+</ul>
+<h3>Safety:</h3>
+<p>LED light stays cool to the touch, making it safe for homes with children. No fire hazard like traditional candles.</p>
+<p><em>"This fanoos is absolutely beautiful! It creates such a warm atmosphere during Ramadan. My kids love it." - Layla H.</em></p>`,
+    productType: "Ramadan Decorations",
+    vendor: "RashRash Modest",
+    tags: ["ramadan", "fanoos", "lantern", "islamic-decor", "eid", "iftar", "decoration", "led-light", "home-decor", "muslim-home"],
+    price: 59.00,
+    compareAtPrice: 79.00,
+    seo: {
+      title: "Ramadan Lantern Fanoos | Traditional LED Light | Islamic Decor",
+      description: "Authentic Egyptian fanoos lantern with LED light. Traditional design, 30cm height. Perfect for Ramadan decoration, Eid & Islamic home decor."
+    },
+    options: ["Color"],
+    variants: [
+      { option1: "Gold & Multicolor", price: 59.00, sku: "FNS-GLD", inventoryQuantity: 25 },
+      { option1: "Silver & Blue", price: 59.00, sku: "FNS-SLV", inventoryQuantity: 20 },
+      { option1: "Bronze & Amber", price: 59.00, sku: "FNS-BRZ", inventoryQuantity: 18 },
+    ]
+  },
+  {
+    title: "Dates Gift Box - Premium Medjool Dates Ramadan Gift",
+    description: `<h2>Premium Medjool Dates - The Perfect Ramadan Gift</h2>
+<p>Break your fast with the finest <strong>premium Medjool dates</strong> from our carefully curated collection. Dates are a sunnah food and the traditional way to break the Ramadan fast.</p>
+<h3>About Our Dates:</h3>
+<ul>
+<li><strong>Origin:</strong> Premium Palestinian and Saudi Medjool varieties</li>
+<li><strong>Size:</strong> Large to jumbo grade - plump and juicy</li>
+<li><strong>Freshness:</strong> Harvested and packed within the season</li>
+<li><strong>Weight:</strong> 1kg (2.2 lbs) per box</li>
+</ul>
+<h3>Gift Box Includes:</h3>
+<ul>
+<li>Premium dates in elegant packaging</li>
+<li>Beautiful Ramadan-themed gift box</li>
+<li>Greeting card for your personal message</li>
+<li>Optional decorative ribbon</li>
+</ul>
+<h3>Health Benefits:</h3>
+<p>Dates are rich in fiber, potassium, and natural sugars - perfect for quick energy after fasting. They're also mentioned in the Quran and Hadith as blessed food.</p>
+<h3>Perfect For:</h3>
+<ul>
+<li>Personal iftar table</li>
+<li>Ramadan gifts for family</li>
+<li>Eid presents</li>
+<li>Wedding favors</li>
+<li>Corporate Ramadan gifts</li>
+<li>Charity donations</li>
+</ul>
+<p><em>"The best dates I've ever tasted! Soft, sweet, and absolutely delicious. Will definitely order again." - Fatima A.</em></p>`,
+    productType: "Ramadan Food Gifts",
+    vendor: "RashRash Modest",
+    tags: ["dates", "medjool", "ramadan", "iftar", "eid-gift", "food-gift", "islamic-food", "sunnah", "healthy-snack"],
+    price: 49.00,
+    compareAtPrice: 69.00,
+    seo: {
+      title: "Premium Medjool Dates Gift Box | Ramadan Iftar Dates | Eid Gift",
+      description: "Premium Palestinian & Saudi Medjool dates. 1kg gift box perfect for Ramadan iftar, Eid gifts & special occasions. Fresh, plump & delicious."
+    },
+    options: ["Grade"],
+    variants: [
+      { option1: "Premium (1kg)", price: 49.00, sku: "DAT-PRM-1KG", inventoryQuantity: 50 },
+      { option1: "Jumbo (1kg)", price: 69.00, sku: "DAT-JUM-1KG", inventoryQuantity: 35 },
+      { option1: "Mixed Variety (1.5kg)", price: 89.00, sku: "DAT-MIX-15KG", inventoryQuantity: 25 },
+    ]
+  },
+  {
+    title: "Islamic Wall Art - Bismillah Arabic Calligraphy Canvas",
+    description: `<h2>Stunning Islamic Calligraphy for Your Home</h2>
+<p>Transform your living space with our <strong>beautiful Bismillah wall art</strong>. This elegant piece features traditional Arabic calligraphy on premium canvas.</p>
+<h3>Artwork Details:</h3>
+<ul>
+<li><strong>Script:</strong> Classic Thuluth calligraphy style</li>
+<li><strong>Text:</strong> "Bismillah ir-Rahman ir-Rahim" (In the name of Allah, the Most Gracious, the Most Merciful)</li>
+<li><strong>Canvas material:</strong> High-quality artist-grade canvas</li>
+<li><strong>Ink:</strong> UV-resistant archival ink - won't fade</li>
+<li><strong>Size options:</strong> 50x70cm, 70x100cm</li>
+</ul>
+<h3>Styling:</h3>
+<p>The minimalist design with gold/white color scheme complements any home decor - from modern to traditional. Perfect for:</p>
+<ul>
+<li>Living room centerpiece</li>
+<li>Entryway welcome piece</li>
+<li>Bedroom decor</li>
+<li>Office inspiration</li>
+<li>Masala/prayer room</li>
+</ul>
+<h3>Ready to Hang:</h3>
+<p>The canvas comes stretched on a wooden frame with hanging hardware pre-installed.</p>
+<h3>Meaningful Gift:</h3>
+<p>Perfect for housewarming, wedding gifts, Eid presents, or any special occasion for Muslims.</p>
+<p><em>"Absolutely gorgeous! The calligraphy is elegant and the quality is museum-grade. Everyone who visits comments on it." - Amina R.</em></p>`,
+    productType: "Islamic Home Decor",
+    vendor: "RashRash Modest",
+    tags: ["islamic-art", "wall-art", "calligraphy", "bismillah", "arabic-art", "home-decor", "muslim-home", "eid-gift", "wedding-gift"],
+    price: 89.00,
+    compareAtPrice: 129.00,
+    seo: {
+      title: "Islamic Wall Art Bismillah | Arabic Calligraphy Canvas | Muslim Home",
+      description: "Elegant Bismillah Arabic calligraphy canvas art. Premium quality, UV-resistant ink. Ready to hang. Perfect for Muslim home decor & Islamic gifts."
+    },
+    options: ["Size", "Frame Color"],
+    variants: [
+      { option1: "50x70cm", option2: "Gold Frame", price: 89.00, sku: "ART-50-GLD", inventoryQuantity: 15 },
+      { option1: "50x70cm", option2: "Black Frame", price: 89.00, sku: "ART-50-BLK", inventoryQuantity: 15 },
+      { option1: "70x100cm", option2: "Gold Frame", price: 129.00, sku: "ART-70-GLD", inventoryQuantity: 10 },
+      { option1: "70x100cm", option2: "Black Frame", price: 129.00, sku: "ART-70-BLK", inventoryQuantity: 10 },
+      { option1: "70x100cm", option2: "White Frame", price: 129.00, sku: "ART-70-WHT", inventoryQuantity: 8 },
+    ]
+  },
+  {
+    title: "Quran Stand - Wooden Rehal for Holy Book Reading",
+    description: `<h2>Elegant Wooden Rehal for Quran Reading</h2>
+<p>Honor your Quran reading with our <strong>beautifully crafted wooden rehal</strong> (Quran stand). This traditional piece adds dignity to your daily recitation and protects your Quran.</p>
+<h3>Craftsmanship:</h3>
+<ul>
+<li><strong>Premium wood:</strong> Solid sheesham or walnut wood</li>
+<li><strong>Hand-carved details:</strong> Intricate Islamic geometric patterns</li>
+<li><strong>Foldable design:</strong> Easy to store when not in use</li>
+<li><strong>Book rest:</strong> Holds Quran at comfortable reading angle</li>
+<li><strong>Page holders:</strong> Keeps pages from turning</li>
+</ul>
+<h3>Dimensions:</h3>
+<ul>
+<li>Open: 35cm x 25cm x 20cm (L x W x H)</li>
+<li>Folded: 35cm x 25cm x 3cm</li>
+<li>Weight: 800g</li>
+</ul>
+<h3>Benefits of Using a Rehal:</h3>
+<ul>
+<li>Elevates the Quran above ground level (sign of respect)</li>
+<li>Ergonomic reading angle - reduces neck strain</li>
+<li>Protects Quran pages from damage</li>
+<li>Creates a dedicated space for reading</li>
+<li>Beautiful addition to Islamic home decor</li>
+</ul>
+<h3>Perfect For:</h3>
+<ul>
+<li>Daily Quran reading</li>
+<li>Taraweeh prayers during Ramadan</li>
+<li>Quran classes and study circles</li>
+<li>Mosque libraries</li>
+<li>Meaningful Islamic gift</li>
+</ul>
+<p><em>"Beautiful craftsmanship! The wood grain is lovely and the carving is intricate. Makes my daily reading much more comfortable." - Ibrahim K.</em></p>`,
+    productType: "Islamic Religious Items",
+    vendor: "RashRash Modest",
+    tags: ["quran-stand", "rehal", "rahle", "islamic-woodwork", "quran-accessories", "ramadan", "prayer", "muslim-home", "eid-gift"],
+    price: 75.00,
+    compareAtPrice: 99.00,
+    seo: {
+      title: "Quran Stand Rehal | Wooden Holy Book Holder | Islamic Gift",
+      description: "Handcrafted wooden Quran stand (rehal) with Islamic carvings. Foldable, solid sheesham wood. Perfect for daily reading, Ramadan & Islamic gifts."
+    },
+    options: ["Wood Type"],
+    variants: [
+      { option1: "Sheesham Wood", price: 75.00, sku: "REH-SHE", inventoryQuantity: 20 },
+      { option1: "Walnut Wood", price: 89.00, sku: "REH-WAL", inventoryQuantity: 15 },
+      { option1: "Rosewood", price: 95.00, sku: "REH-ROS", inventoryQuantity: 12 },
+    ]
+  },
+];
+
+// GraphQL mutation for creating products
+const PRODUCT_CREATE_MUTATION = `
+  mutation productCreate($input: ProductInput!, $media: [CreateMediaInput!]) {
+    productCreate(input: $input, media: $media) {
+      product {
+        id
+        title
+        handle
+        status
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              sku
+              price
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// Function to create a product
+async function createProduct(productData: typeof richProducts[0]) {
+  const variants = productData.variants.map(v => ({
+    price: v.price.toFixed(2),
+    sku: v.sku,
+    inventoryQuantities: {
+      availableQuantity: v.inventoryQuantity,
+      locationId: "", // Will be filled in
+    },
+    options: productData.options.map((opt, idx) => {
+      const key = `option${idx + 1}` as keyof typeof v;
+      return v[key] as string;
+    }).filter(Boolean),
+  }));
+
+  const input = {
+    title: productData.title,
+    descriptionHtml: productData.description,
+    productType: productData.productType,
+    vendor: productData.vendor,
+    tags: productData.tags,
+    status: "ACTIVE",
+    options: productData.options,
+    variants,
+    seo: {
+      title: productData.seo.title,
+      description: productData.seo.description,
+    },
+  };
+
+  try {
+    const response = await shopify.clients.Graphql.exec({
+      session,
+      query: PRODUCT_CREATE_MUTATION,
+      variables: { input },
+    });
+
+    const result = response.body as any;
+    
+    if (result.data?.productCreate?.userErrors?.length > 0) {
+      console.error(`❌ Error creating "${productData.title}":`, result.data.productCreate.userErrors);
+      return null;
+    }
+
+    return result.data?.productCreate?.product;
+  } catch (error) {
+    console.error(`❌ Failed to create "${productData.title}":`, error);
+    return null;
+  }
+}
+
+// Main function
+async function seedProducts() {
+  console.log("🚀 Starting to seed rich content products...\n");
+  console.log(`📍 Shop: ${SHOP}`);
+  console.log(`📦 Products to create: ${richProducts.length}\n`);
+
+  const createdProducts = [];
+  const errors = [];
+
+  for (let i = 0; i < richProducts.length; i++) {
+    const product = richProducts[i];
+    console.log(`[${i + 1}/${richProducts.length}] Creating: ${product.title}`);
+    
+    const created = await createProduct(product);
+    
+    if (created) {
+      console.log(`   ✅ Created: ${created.title} (ID: ${created.id})`);
+      createdProducts.push(created);
+    } else {
+      errors.push(product.title);
+    }
+    
+    // Small delay to avoid rate limiting
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  console.log("\n" + "=".repeat(60));
+  console.log("📊 SEEDING COMPLETE");
+  console.log("=".repeat(60));
+  console.log(`✅ Successfully created: ${createdProducts.length} products`);
+  console.log(`❌ Failed: ${errors.length} products`);
+  
+  if (errors.length > 0) {
+    console.log("\nFailed products:");
+    errors.forEach(e => console.log(`   - ${e}`));
+  }
+
+  console.log("\n🎉 Rich content products have been seeded to your store!");
+  console.log("   You can now test the RTL Storefront app with these products.");
+}
+
+// Run the script
+seedProducts().catch(console.error);
