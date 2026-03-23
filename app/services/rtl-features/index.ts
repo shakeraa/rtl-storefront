@@ -302,7 +302,28 @@ export function stripTashkeel(text: string): string {
  * the text unchanged, to be replaced with an ML-backed implementation.
  */
 export function addBasicTashkeel(text: string): string {
-  // Stub: real tashkeel restoration requires ML/NLP models.
-  // Returns input unchanged until an ML engine is integrated.
-  return text;
+  // Basic tashkeel lookup for common Arabic words.
+  // Full tashkeel restoration requires ML/NLP models; this handles
+  // frequently-used words via a small dictionary.
+  const TASHKEEL_LOOKUP: Record<string, string> = {
+    "\u0643\u062A\u0627\u0628": "\u0643\u0650\u062A\u064E\u0627\u0628\u064C",       // كتاب → كِتَابٌ
+    "\u0645\u062F\u0631\u0633\u0629": "\u0645\u064E\u062F\u0652\u0631\u064E\u0633\u064E\u0629\u064C", // مدرسة → مَدْرَسَةٌ
+    "\u0628\u064A\u062A": "\u0628\u064E\u064A\u0652\u062A\u064C",                   // بيت → بَيْتٌ
+    "\u0642\u0644\u0645": "\u0642\u064E\u0644\u064E\u0645\u064C",                   // قلم → قَلَمٌ
+    "\u0648\u0644\u062F": "\u0648\u064E\u0644\u064E\u062F\u064C",                   // ولد → وَلَدٌ
+    "\u0628\u0646\u062A": "\u0628\u0650\u0646\u0652\u062A\u064C",                   // بنت → بِنْتٌ
+    "\u0631\u062C\u0644": "\u0631\u064E\u062C\u064F\u0644\u064C",                   // رجل → رَجُلٌ
+    "\u0645\u0627\u0621": "\u0645\u064E\u0627\u0621\u064C",                         // ماء → مَاءٌ
+    "\u0634\u0645\u0633": "\u0634\u064E\u0645\u0652\u0633\u064C",                   // شمس → شَمْسٌ
+    "\u0642\u0645\u0631": "\u0642\u064E\u0645\u064E\u0631\u064C",                   // قمر → قَمَرٌ
+    "\u0639\u0644\u0645": "\u0639\u0650\u0644\u0652\u0645\u064C",                   // علم → عِلْمٌ
+    "\u0639\u0645\u0644": "\u0639\u064E\u0645\u064E\u0644\u064C",                   // عمل → عَمَلٌ
+    "\u0645\u0646\u0632\u0644": "\u0645\u064E\u0646\u0652\u0632\u0650\u0644\u064C", // منزل → مَنْزِلٌ
+  };
+
+  let result = text;
+  for (const [bare, tashkeeled] of Object.entries(TASHKEEL_LOOKUP)) {
+    result = result.replaceAll(bare, tashkeeled);
+  }
+  return result;
 }

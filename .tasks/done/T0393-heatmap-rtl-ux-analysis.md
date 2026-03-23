@@ -1,6 +1,6 @@
 # T0393 — Heatmap & RTL UX Analysis
 
-status: active
+status: done
 ## Priority: low
 ## Source: product_spec §5.4
 

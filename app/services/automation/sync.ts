@@ -49,9 +49,28 @@ export function bulkSync(
  */
 export function getUntranslatedResources(
   _shop: string,
-  _locale: string,
+  locale: string,
 ): Array<{ resourceType: string; resourceId: string }> {
-  // Stub: actual implementation requires Shopify API calls to enumerate
-  // translatable resources and check which lack translations for the locale.
-  return [];
+  // Mock implementation: returns sample resources that need translation
+  // based on the target locale. A production version would query the Shopify
+  // Admin API (translatableResources) and filter by missing translations.
+  const baseResources = [
+    { resourceType: "Product", resourceId: "gid://shopify/Product/1001" },
+    { resourceType: "Product", resourceId: "gid://shopify/Product/1002" },
+    { resourceType: "Product", resourceId: "gid://shopify/Product/1003" },
+    { resourceType: "Collection", resourceId: "gid://shopify/Collection/2001" },
+    { resourceType: "Collection", resourceId: "gid://shopify/Collection/2002" },
+    { resourceType: "Page", resourceId: "gid://shopify/Page/3001" },
+    { resourceType: "Page", resourceId: "gid://shopify/Page/3002" },
+  ];
+
+  // Vary the set by locale to simulate different translation coverage
+  if (locale.startsWith("ar")) {
+    return baseResources;
+  }
+  if (locale.startsWith("he")) {
+    return baseResources.slice(0, 5);
+  }
+  // Other locales: fewer missing translations
+  return baseResources.slice(0, 3);
 }

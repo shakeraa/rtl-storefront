@@ -1,6 +1,6 @@
 # T0390 — Regional Trust Badge Library
 
-status: active
+status: done
 ## Priority: medium
 ## Source: product_spec §3.6
 

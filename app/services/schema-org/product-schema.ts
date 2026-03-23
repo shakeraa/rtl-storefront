@@ -259,17 +259,17 @@ export function translateSchemaFields(
   // Create a deep copy of the schema
   const translatedSchema: Record<string, unknown> = JSON.parse(JSON.stringify(schema));
 
-  // Add translation metadata
+  // Add translation metadata with sourceLocale
+  const sourceLocale = (schema.inLanguage as string) || "en";
   translatedSchema._translationMeta = {
     targetLocale,
+    sourceLocale,
     direction,
     translatedAt: new Date().toISOString(),
   };
 
-  // Update inLanguage if present
-  if (translatedSchema.inLanguage) {
-    translatedSchema.inLanguage = targetLocale;
-  }
+  // Always set inLanguage to the target locale
+  translatedSchema.inLanguage = targetLocale;
 
   // Add localized labels for key fields
   if (translatedSchema.offers && typeof translatedSchema.offers === "object") {

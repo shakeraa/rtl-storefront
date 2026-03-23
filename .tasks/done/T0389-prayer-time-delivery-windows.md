@@ -1,6 +1,6 @@
 # T0389 — Prayer Time-Aware Delivery Windows
 
-status: active
+status: done
 ## Priority: medium
 ## Source: product_spec §3.5
 
