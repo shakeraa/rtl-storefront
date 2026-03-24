@@ -8,12 +8,11 @@ import {
   Modal, FormLayout,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { getAllTerms, getNeverTranslateTerms, addTerm, deleteTerm } from "../services/translation-memory/glossary";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
 
   const glossaryTerms = await getAllTerms(shop);
   const neverTranslateTerms = await getNeverTranslateTerms(shop, "en");
@@ -22,12 +21,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "add") {
-    await addTerm(session.shop, {
+    await addTerm(shop, {
       sourceLocale: String(formData.get("sourceLocale") || "en"),
       targetLocale: String(formData.get("targetLocale") || "ar"),
       sourceTerm: String(formData.get("sourceTerm")),

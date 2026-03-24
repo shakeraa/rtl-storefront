@@ -20,6 +20,10 @@ interface UsageMetricsProps {
   title?: string;
 }
 
+const formatCurrency = (amount: number, currency: string = 'USD') => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+};
+
 function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <Card>
@@ -95,7 +99,7 @@ export function UsageMetrics({ data, title = "Usage Summary" }: UsageMetricsProp
                     <Text as="span" variant="bodySm" tone="subdued">
                       {provider.requests.toLocaleString()} req
                     </Text>
-                    <Badge>${provider.cost.toFixed(2)}</Badge>
+                    <Badge>{formatCurrency(provider.cost)}</Badge>
                   </InlineStack>
                 </InlineStack>
               ))}

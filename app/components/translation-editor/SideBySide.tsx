@@ -86,7 +86,7 @@ export function SideBySide({
               <Divider />
               <BlockStack gap="400">
                 {fields.map((field) => (
-                  <div key={field.key} dir={sourceIsRtl ? "rtl" : "ltr"}>
+                  <div key={field.key} dir={sourceIsRtl ? "rtl" : "ltr"} style={{ overflowWrap: "break-word", wordBreak: "break-word", minWidth: 0 }}>
                     <BlockStack gap="100">
                       <Text as="span" variant="bodySm" tone="subdued">
                         {field.key}

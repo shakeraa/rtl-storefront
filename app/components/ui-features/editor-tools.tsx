@@ -602,16 +602,26 @@ export function WordCount({ text }: { text: string }) {
 // T0378 - Reading Time
 // ---------------------------------------------------------------------------
 
+const getWpm = (locale?: string) => {
+  // Arabic reading speed is slower due to script complexity
+  if (locale?.startsWith('ar')) return 150;
+  if (locale?.startsWith('he')) return 180;
+  return 200;
+};
+
 export function ReadingTime({
   text,
-  wordsPerMinute = 200,
+  wordsPerMinute,
+  locale,
 }: {
   text: string;
   wordsPerMinute?: number;
+  locale?: string;
 }) {
+  const effectiveWpm = wordsPerMinute ?? getWpm(locale);
   const trimmed = text.trim();
   const words = trimmed.length === 0 ? 0 : trimmed.split(/\s+/).length;
-  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+  const minutes = Math.max(1, Math.ceil(words / effectiveWpm));
 
   return (
     <Text as="p" variant="bodySm" tone="subdued">

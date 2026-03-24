@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Page, Card, BlockStack, Text } from "@shopify/polaris";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getSubscription,
   activateSubscription,
@@ -10,7 +10,7 @@ import {
 } from "../services/billing/index";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, shop } = await authenticateWithTenant(request);
   const url = new URL(request.url);
   const chargeId = url.searchParams.get("charge_id");
   const planId = url.searchParams.get("planId");
@@ -20,7 +20,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   // Idempotency: check if already processed
-  const existing = await getSubscription(session.shop);
+  const existing = await getSubscription(shop);
   if (existing?.shopifyChargeId === chargeId && existing.status === "active") {
     return redirect("/app");
   }
@@ -59,7 +59,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return redirect("/app/billing?error=charge_not_active");
   }
 
-  await activateSubscription(session.shop, planId, chargeId);
+  await activateSubscription(shop, planId, chargeId);
 
   return redirect("/app");
 };

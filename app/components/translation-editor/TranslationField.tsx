@@ -67,7 +67,7 @@ export function TranslationField({
           {statusBadge()}
         </InlineStack>
       </InlineStack>
-      <div dir={isRtl ? "rtl" : "ltr"}>
+      <div dir={isRtl ? "rtl" : "ltr"} style={{ overflowWrap: "break-word", wordBreak: "break-word", minWidth: 0 }}>
         <TextField
           label={fieldKey}
           labelHidden

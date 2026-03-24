@@ -27,7 +27,7 @@ import {
   Tooltip,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getTeamMembers,
   getPendingInvites as getAuthPendingInvites,
@@ -42,8 +42,7 @@ import { getStatusTone, formatStatus } from "../services/team/invites.client";
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
 
   const members = getTeamMembers(shop);
   const invites = await getInvites(shop);
@@ -56,8 +55,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
   const invitedBy = session.email || "owner";
 
   const formData = await request.formData();

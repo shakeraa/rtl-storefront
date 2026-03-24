@@ -19,7 +19,7 @@ import {
   Divider,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { createShopTranslationEngine } from "../services/translation/engine";
 import { getProviderStatus } from "../services/translation/get-provider-env.server";
 import { sanitizeHTML } from "../utils/security.server";
@@ -58,7 +58,7 @@ const FIELD_LABELS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, shop } = await authenticateWithTenant(request);
   const resourceId = params.resourceId;
 
   if (!resourceId) {
@@ -133,7 +133,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     (f: { key: string }) => f.key === "title",
   )?.sourceValue ?? `${resourceType} ${resourceId}`;
 
-  const providerStatus = await getProviderStatus(session.shop);
+  const providerStatus = await getProviderStatus(shop);
 
   return json({
     resourceId,
@@ -150,7 +150,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
   const targetLocale = formData.get("locale") as string;
@@ -163,7 +163,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const shopifyResourceId = decodeURIComponent(resourceId);
 
   // Check provider configuration before attempting translation
-  const providerStatus = await getProviderStatus(session.shop);
+  const providerStatus = await getProviderStatus(shop);
   if (!providerStatus.anyConfigured) {
     return json({
       success: false,
@@ -191,7 +191,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       return json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    const engine = await createShopTranslationEngine(session.shop);
+    const engine = await createShopTranslationEngine(shop);
     const translatedFields: Array<{
       key: string;
       value: string;
@@ -306,7 +306,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       return json({ error: "Missing field data" }, { status: 400 });
     }
 
-    const engine = await createShopTranslationEngine(session.shop);
+    const engine = await createShopTranslationEngine(shop);
 
     try {
       const result = await engine.translate({

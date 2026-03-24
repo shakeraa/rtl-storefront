@@ -18,7 +18,7 @@ import {
   Tabs,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getRecentAlerts,
   buildAlertSummary,
@@ -38,8 +38,7 @@ const NOTIFICATION_TYPES = [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
 
   const [preferences, alertConfig, recentAlerts, alertSummary] = await Promise.all([
     getNotificationPreferences(shop),
@@ -57,8 +56,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 

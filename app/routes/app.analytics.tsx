@@ -6,7 +6,7 @@ import {
   DataTable, Box, Badge, ProgressBar,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import {
   getTranslationVolumeByLanguage,
@@ -39,7 +39,7 @@ function calculateTrendDirection(values: number[]): "up" | "down" | "stable" {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, shop } = await authenticateWithTenant(request);
 
   // Pull live data from analytics and cost-monitor services when events exist
   const translationVolume = getTranslationVolumeByLanguage();
@@ -62,6 +62,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     try {
       const providerGroups = await db.translationCache.groupBy({
         by: ["provider"],
+        where: { shop },
         _count: true,
       });
       if (providerGroups.length > 0) {
@@ -99,6 +100,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
       const count = await db.translationCache.count({
         where: {
+          shop,
           createdAt: { gte: dayStart, lte: dayEnd },
         },
       });
@@ -120,10 +122,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const langGroups = await db.translationCache.groupBy({
       by: ["targetLocale"],
+      where: { shop },
       _count: true,
     });
     const distinctSources = await db.translationCache.groupBy({
       by: ["sourceText"],
+      where: { shop },
       _count: true,
     });
     const totalSources = distinctSources.length || 1;

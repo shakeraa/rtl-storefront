@@ -7,6 +7,7 @@ import { notifyTranslationComplete, notifyTranslationError, notifyReviewNeeded }
 import { findExact as tmFindExact, addEntry as tmAddEntry } from "../translation-memory/store";
 import { getNeverTranslateTerms } from "../translation-memory/glossary";
 import { preserveHTMLFormatting, restoreHTMLFormatting, preserveLiquid, restoreLiquid } from "../translation-formatting";
+import { bidiPreserver } from "../bidi";
 import type {
   ProviderQuotaStatus,
   TranslationCacheStore,
@@ -246,6 +247,17 @@ export class TranslationEngine {
         for (const { placeholder, term } of glossaryReplacements) {
           finalText = finalText.replaceAll(placeholder, term);
         }
+
+        // Apply BiDi isolation for RTL target locales to handle mixed
+        // LTR/RTL content (brand names, URLs, numbers embedded in RTL text)
+        const RTL_LOCALES = new Set(["ar", "he", "fa", "ur", "yi"]);
+        if (RTL_LOCALES.has(normalizedTarget.split("-")[0])) {
+          const neverTranslateTerms = glossaryReplacements.map((g) => g.term);
+          finalText = bidiPreserver.preserve(finalText, normalizedTarget, {
+            neverTranslateTerms,
+          });
+        }
+
         result.translatedText = finalText;
 
         await this.cache.set({

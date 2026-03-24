@@ -16,7 +16,7 @@ import {
   Text,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getShopUsageStats,
   getWeeklyTrends,
@@ -25,8 +25,7 @@ import {
 } from "../services/analytics/usage-tracker";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { session, shop } = await authenticateWithTenant(request);
 
   const [stats, weeklyTrends, quota, engines] = await Promise.all([
     getShopUsageStats(shop),

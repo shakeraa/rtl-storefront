@@ -7,7 +7,7 @@ import {
   Badge, Button, Banner, Divider,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getActivePlans,
   getSubscription,
@@ -18,10 +18,10 @@ import {
 import type { PlanWithFeatures } from "../services/billing/types";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, shop } = await authenticateWithTenant(request);
   const [plans, subscription] = await Promise.all([
     getActivePlans(),
-    getSubscription(session.shop),
+    getSubscription(shop),
   ]);
 
   const url = new URL(request.url);
@@ -49,7 +49,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, session, shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const planId = formData.get("planId") as string;
 

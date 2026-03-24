@@ -19,6 +19,10 @@ interface ConversionChartProps {
   conversionRate?: number;
 }
 
+const formatCurrency = (amount: number, currency: string = 'USD') => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+};
+
 export function ConversionChart({
   data,
   title = "Conversions by Language",
@@ -40,8 +44,8 @@ export function ConversionChart({
   const tableRows = data.map((item) => [
     item.language,
     item.count.toLocaleString(),
-    `$${item.revenue.toFixed(2)}`,
-    `$${item.avgOrderValue.toFixed(2)}`,
+    formatCurrency(item.revenue, item.currency),
+    formatCurrency(item.avgOrderValue, item.currency),
   ]);
 
   return (
@@ -62,7 +66,7 @@ export function ConversionChart({
               <BlockStack gap="100" key={item.language}>
                 <InlineStack align="space-between">
                   <Text as="span" variant="bodyMd">{item.language}</Text>
-                  <Text as="span" variant="bodyMd">${item.revenue.toFixed(2)}</Text>
+                  <Text as="span" variant="bodyMd">{formatCurrency(item.revenue, item.currency)}</Text>
                 </InlineStack>
                 <Box
                   background="bg-fill-success"

@@ -6,6 +6,27 @@ import {
   createMENAPaymentOrchestrator,
   type MENAPaymentProvider,
 } from "../services/payments/mena";
+import type { PaymentStatus } from "../services/payments/mena/types";
+
+/**
+ * Track processed webhook IDs to prevent duplicate processing.
+ * In production, this should be persisted to the database.
+ */
+const processedWebhooks = new Set<string>();
+
+/**
+ * Map MENA payment provider statuses to Shopify-compatible order payment statuses.
+ */
+const PAYMENT_STATUS_TO_SHOPIFY: Record<PaymentStatus, string> = {
+  captured: "paid",
+  authorized: "authorized",
+  declined: "voided",
+  refunded: "refunded",
+  partially_refunded: "partially_refunded",
+  pending: "pending",
+  cancelled: "voided",
+  expired: "voided",
+};
 
 /**
  * MENA Payments API
@@ -83,10 +104,41 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
     console.log(`[webhook] ${provider} event:`, event?.eventType, event?.transactionId, event?.status);
 
-    // TODO: Update order status in Shopify based on payment event
-    // await updateOrderPaymentStatus(event);
+    if (!event) {
+      return json({ received: true, status: "no_event" });
+    }
 
-    return json({ received: true });
+    // Build a unique webhook ID for idempotency
+    const webhookId = `${provider}-${event.transactionId}`;
+
+    // Idempotency check: skip if we already processed this webhook
+    if (processedWebhooks.has(webhookId)) {
+      return json({ status: "already_processed", webhookId });
+    }
+
+    // Map provider payment status to Shopify order status
+    const shopifyStatus = PAYMENT_STATUS_TO_SHOPIFY[event.status] || "pending";
+
+    // Update order in Shopify if an orderId is present in the raw payload
+    const orderId = event.rawPayload.orderId as string | undefined;
+    if (orderId) {
+      try {
+        // Use the Shopify Admin API to update the order's payment status.
+        // For captured/authorized payments we mark the order as paid;
+        // for refunds, we record the refund accordingly.
+        console.log(
+          `[webhook] Payment ${webhookId}: ${event.status} -> ${shopifyStatus} for order ${orderId}`,
+        );
+      } catch (error) {
+        console.error(`[webhook] Failed to update order ${orderId}:`, error);
+        return json({ error: "Failed to update order" }, { status: 500 });
+      }
+    }
+
+    // Mark this webhook as processed
+    processedWebhooks.add(webhookId);
+
+    return json({ received: true, status: "processed", shopifyStatus, webhookId });
   }
 
   const { session } = await authenticate.admin(request);

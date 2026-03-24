@@ -19,17 +19,16 @@ import {
   Banner,
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
-import db from "../db.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const settings = await db.shopSettings.findUnique({ where: { shop: session.shop } });
-  const providers = await getProviderStatus(session.shop);
+  const { session, shop, tenantDb } = await authenticateWithTenant(request);
+  const settings = await tenantDb.shopSettings.findUnique();
+  const providers = await getProviderStatus(shop);
 
   return json({
-    shop: session.shop,
+    shop,
     settings,
     providers,
     availableLanguages: [
@@ -45,7 +44,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, shop, tenantDb } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
@@ -111,10 +110,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     ...apiKeyUpdates,
   };
 
-  await db.shopSettings.upsert({
-    where: { shop: session.shop },
+  await tenantDb.shopSettings.upsert({
     update: settingsData,
-    create: { shop: session.shop, ...settingsData },
+    create: settingsData,
   });
 
   return json({ success: true });

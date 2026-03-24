@@ -114,6 +114,7 @@ export function TranslationEditor({
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
           gap: "var(--p-space-400)",
+          minWidth: 0,
         }}
       >
         {/* Source column */}
@@ -132,7 +133,7 @@ export function TranslationEditor({
                   <Text as="span" variant="bodySm" tone="subdued">
                     {field.label}
                   </Text>
-                  <div dir={sourceIsRtl ? "rtl" : "ltr"}>
+                  <div dir={sourceIsRtl ? "rtl" : "ltr"} style={{ overflowWrap: "break-word", wordBreak: "break-word", minWidth: 0 }}>
                     <Text as="p" variant="bodyMd">
                       {field.source || "\u2014"}
                     </Text>
@@ -159,7 +160,7 @@ export function TranslationEditor({
                   <Text as="span" variant="bodySm" tone="subdued">
                     {field.label}
                   </Text>
-                  <div dir={targetIsRtl ? "rtl" : "ltr"}>
+                  <div dir={targetIsRtl ? "rtl" : "ltr"} style={{ overflowWrap: "break-word", wordBreak: "break-word", minWidth: 0 }}>
                     <TextField
                       label={field.label}
                       labelHidden

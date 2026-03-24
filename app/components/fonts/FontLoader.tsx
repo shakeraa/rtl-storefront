@@ -17,6 +17,7 @@ export interface FontLoaderProps {
 export function FontLoader({ config }: FontLoaderProps) {
   useEffect(() => {
     // Add preconnect links
+    const linkElements: HTMLLinkElement[] = [];
     const links = generateFontLinks(config);
     links.forEach((linkData) => {
       const link = document.createElement('link');
@@ -26,6 +27,7 @@ export function FontLoader({ config }: FontLoaderProps) {
         link.setAttribute('as', linkData.as);
       }
       document.head.appendChild(link);
+      linkElements.push(link);
     });
 
     // Add CSS variables
@@ -34,8 +36,9 @@ export function FontLoader({ config }: FontLoaderProps) {
     document.head.appendChild(style);
 
     return () => {
-      // Cleanup
-      document.head.removeChild(style);
+      // Clean up ALL elements
+      linkElements.forEach((link) => link.remove());
+      style.remove();
     };
   }, [config]);
 

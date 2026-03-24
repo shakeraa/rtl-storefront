@@ -15,11 +15,17 @@ import { ABAYA_CUSTOMIZATIONS } from '~/services/fashion';
 
 export interface AbayaCustomizerProps {
   locale?: 'ar' | 'en';
+  currency?: string;
   onChange?: (config: Record<string, string>, price: number) => void;
 }
 
+const formatPrice = (price: number, currency: string = 'SAR') => {
+  return new Intl.NumberFormat('ar-SA', { style: 'currency', currency }).format(price);
+};
+
 export function AbayaCustomizer({
   locale = 'en',
+  currency = 'SAR',
   onChange,
 }: AbayaCustomizerProps) {
   const [selections, setSelections] = useState<Record<string, string>>({});
@@ -81,7 +87,7 @@ export function AbayaCustomizer({
                   : category.category
               }
               options={category.options.map((o) => ({
-                label: `${o.name} ${o.price > 0 ? `(+$${o.price})` : ''}`,
+                label: `${o.name} ${o.price > 0 ? `(+${formatPrice(o.price, currency)})` : ''}`,
                 value: o.id,
               }))}
               value={selections[category.id]}
@@ -91,8 +97,8 @@ export function AbayaCustomizer({
 
           <Text variant="headingMd" as="p">
             {locale === 'ar'
-              ? `السعر الإضافي: $${totalPrice}`
-              : `Additional Price: $${totalPrice}`}
+              ? `السعر الإضافي: ${formatPrice(totalPrice, currency)}`
+              : `Additional Price: ${formatPrice(totalPrice, currency)}`}
           </Text>
         </BlockStack>
     </Box>

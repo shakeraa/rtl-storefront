@@ -4,6 +4,7 @@
  */
 
 import { useMemo } from 'react';
+import { Link } from '@remix-run/react';
 import { generateBreadcrumbSchema, type BreadcrumbItem } from '~/services/seo';
 
 export interface BreadcrumbSchemaProps {
@@ -46,15 +47,15 @@ export function BreadcrumbNav({
         {items.map((item, index) => (
           <li key={item.item} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {index > 0 && <span>{separator}</span>}
-            <a
-              href={item.item}
+            <Link
+              to={item.item}
               style={{
                 color: index === items.length - 1 ? '#000' : '#666',
                 textDecoration: 'none',
               }}
             >
               {locale === 'ar' && item.nameAr ? item.nameAr : item.name}
-            </a>
+            </Link>
           </li>
         ))}
       </ol>

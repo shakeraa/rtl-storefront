@@ -19,7 +19,7 @@ import {
   TextField,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import {
   buildCoverageData,
@@ -66,7 +66,7 @@ interface WeeklyTrend {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session, admin } = await authenticate.admin(request);
+  const { session, admin, shop, tenantDb } = await authenticateWithTenant(request);
 
   // Query Shopify for configured locales
   let shopLocales: Array<{ locale: string; name: string; primary: boolean }> = [];
@@ -99,6 +99,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const cacheGroups = await db.translationCache.groupBy({
       by: ["targetLocale"],
+      where: { shop },
       _count: true,
     });
     for (const g of cacheGroups) {
@@ -112,7 +113,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const tmGroups = await db.translationMemory.groupBy({
       by: ["targetLocale"],
-      where: { shop: session.shop },
+      where: { shop },
       _count: true,
     });
     for (const g of tmGroups) {
@@ -127,6 +128,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const distinctSources = await db.translationCache.groupBy({
       by: ["sourceText"],
+      where: { shop },
       _count: true,
     });
     totalSourceContent = distinctSources.length;
@@ -156,6 +158,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const contextGroups = await db.translationCache.groupBy({
       by: ["context"],
+      where: { shop },
       _count: true,
     });
     const typeMap: Record<string, number> = {};
