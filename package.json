@@ -83,6 +83,8 @@
     "minimatch": "9.0.9",
     "tar": "7.5.13",
     "estree-util-value-to-estree": "3.5.0",
+    "effect": "3.21.0",
+    "esbuild": "0.25.12",
     "vite": "^6.2.2"
   },
   "overrides": {
@@ -92,6 +94,8 @@
     "minimatch": "9.0.9",
     "tar": "7.5.13",
     "estree-util-value-to-estree": "3.5.0",
+    "effect": "3.21.0",
+    "esbuild": "0.25.12",
     "vite": "^6.2.2"
   },
   "author": "shaker",
