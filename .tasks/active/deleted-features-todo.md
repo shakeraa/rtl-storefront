@@ -47,7 +47,7 @@
 
 ## Pre-Production Infrastructure
 
-- [ ] **Migrate to PostgreSQL** — SQLite is a production blocker. Single-writer lock causes SQLITE_BUSY under concurrent webhooks, file-based storage doesn't persist across containerized deploys, no replication/redundancy. Migration steps: change provider to `postgresql` in schema.prisma, set `DATABASE_URL` to Postgres connection string (Neon/Supabase/PlanetScale free tier), run `npx prisma migrate dev`. Prisma makes this near-trivial since all queries are already ORM-based.
+- [x] **Migrate to PostgreSQL** — SQLite is a production blocker. Single-writer lock causes SQLITE_BUSY under concurrent webhooks, file-based storage doesn't persist across containerized deploys, no replication/redundancy. Migration steps: change provider to `postgresql` in schema.prisma, set `DATABASE_URL` to Postgres connection string (Neon/Supabase/PlanetScale free tier), run `npx prisma migrate dev`. Prisma makes this near-trivial since all queries are already ORM-based.
 
 ---
 
