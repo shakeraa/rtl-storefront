@@ -178,22 +178,30 @@ export function generateSubsetFontUrl(fontId: string, usedWeights: number[]): st
 }
 
 /**
- * Get font preload hints for critical fonts
+ * Get font preload hints for critical fonts.
+ * Returns preconnect links plus actual font stylesheet preloads.
  */
-export function getFontPreloadHints(fontIds: string[]): Array<{
-  rel: string;
-  href: string;
-  as: string;
-  type: string;
-  crossOrigin: string;
-}> {
-  return fontIds.map((id) => ({
-    rel: 'preconnect',
-    href: 'https://fonts.googleapis.com',
-    as: '',
-    type: '',
-    crossOrigin: 'anonymous',
-  }));
+export function getFontPreloadHints(fontIds: string[], weights: number[] = [400, 700]): string[] {
+  const hints: string[] = [
+    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
+  ];
+
+  for (const id of fontIds) {
+    const font = getFontById(id);
+    if (!font) continue;
+    const familyName = encodeURIComponent(font.name);
+    for (const weight of weights) {
+      // Only preload weights the font actually supports
+      if (font.weights.includes(weight)) {
+        hints.push(
+          `<link rel="preload" href="https://fonts.googleapis.com/css2?family=${familyName}:wght@${weight}&display=swap" as="style" />`
+        );
+      }
+    }
+  }
+
+  return hints;
 }
 
 /**

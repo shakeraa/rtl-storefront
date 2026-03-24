@@ -32,21 +32,57 @@ export async function processErasure(request: ErasureRequest): Promise<ErasureRe
       const tmResult = await tx.translationMemory.deleteMany({ where: { shop } });
       counts["translation_memory"] = tmResult.count;
 
-      const cacheResult = await tx.translationCache.deleteMany({});
+      const cacheResult = await tx.translationCache.deleteMany({ where: { shop } });
       counts["translation_cache"] = cacheResult.count;
 
       const glossaryResult = await tx.glossaryEntry.deleteMany({ where: { shop } });
       counts["glossary"] = glossaryResult.count;
+
+      const culturalResult = await tx.culturalContext.deleteMany({ where: { shop } });
+      counts["cultural_context"] = culturalResult.count;
     }
 
     if (scope === "all" || scope === "analytics") {
       const logsResult = await tx.dataAccessLog.deleteMany({ where: { shop } });
       counts["data_access_logs"] = logsResult.count;
+
+      const usageResult = await tx.translationUsage.deleteMany({ where: { shop } });
+      counts["translation_usage"] = usageResult.count;
+
+      const shopUsageResult = await tx.shopUsage.deleteMany({ where: { shop } });
+      counts["shop_usage"] = shopUsageResult.count;
+
+      const alertsResult = await tx.translationAlert.deleteMany({ where: { shop } });
+      counts["translation_alerts"] = alertsResult.count;
     }
 
     if (scope === "all" || scope === "personal") {
       const consentResult = await tx.consentRecord.deleteMany({ where: { shop } });
       counts["consent_records"] = consentResult.count;
+
+      const retentionResult = await tx.dataRetentionPolicy.deleteMany({ where: { shop } });
+      counts["data_retention_policies"] = retentionResult.count;
+
+      const notifResult = await tx.notificationPreference.deleteMany({ where: { shop } });
+      counts["notification_preferences"] = notifResult.count;
+
+      const alertConfigResult = await tx.alertConfiguration.deleteMany({ where: { shop } });
+      counts["alert_configuration"] = alertConfigResult.count;
+
+      const teamInviteResult = await tx.teamInvite.deleteMany({ where: { shop } });
+      counts["team_invites"] = teamInviteResult.count;
+
+      const teamMemberResult = await tx.teamMember.deleteMany({ where: { shop } });
+      counts["team_members"] = teamMemberResult.count;
+
+      const settingsResult = await tx.shopSettings.deleteMany({ where: { shop } });
+      counts["shop_settings"] = settingsResult.count;
+
+      const subscriptionResult = await tx.shopSubscription.deleteMany({ where: { shop } });
+      counts["shop_subscription"] = subscriptionResult.count;
+
+      const sessionResult = await tx.session.deleteMany({ where: { shop } });
+      counts["sessions"] = sessionResult.count;
     }
 
     return counts;
@@ -90,7 +126,7 @@ export async function getErasureImpactPreview(
 
   if (scope === "all" || scope === "translations") {
     const tmCount = await db.translationMemory.count({ where: { shop } });
-    const cacheCount = await db.translationCache.count();
+    const cacheCount = await db.translationCache.count({ where: { shop } });
     const glossaryCount = await db.glossaryEntry.count({ where: { shop } });
     tables.push("translation_memory", "translation_cache", "glossary");
     estimatedRecords += tmCount + cacheCount + glossaryCount;

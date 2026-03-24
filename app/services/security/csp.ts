@@ -21,6 +21,9 @@ export function getDefaultCSP(): CSPConfig {
     ],
     styleSrc: [
       "'self'",
+      // TODO: Replace with nonce-based approach when CSP middleware is wired in.
+      // Use generateNonce() and pass `'nonce-<value>'` per-request instead of 'unsafe-inline'.
+      // For now, 'unsafe-inline' is required because Polaris injects inline styles.
       "'unsafe-inline'",
       "https://cdn.shopify.com",
       "https://fonts.googleapis.com",

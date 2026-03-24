@@ -6,7 +6,7 @@
  * - `buildLocalizedUrl` — build a full URL with locale subfolder or subdomain
  */
 
-import { transliterateToSlug } from "../seo-infrastructure";
+import { transliterateToSlug } from "./infrastructure";
 
 /**
  * Translate a URL slug into the target locale.

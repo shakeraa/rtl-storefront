@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Page, Card, BlockStack, InlineStack, InlineGrid, Text,
   Badge, Button, Banner, Divider,
@@ -25,7 +25,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   ]);
 
   const url = new URL(request.url);
-  const error = url.searchParams.get("error");
+
+  const KNOWN_ERRORS: Record<string, string> = {
+    'charge_not_active': 'The charge could not be verified. Please try again.',
+    'plan_not_found': 'Plan not found. Please select a plan.',
+    'charge_declined': 'Payment was declined.',
+    'no_confirmation_url': 'Shopify did not return a confirmation URL. Please try again.',
+  };
+  const errorKey = url.searchParams.get("error");
+  const error = errorKey ? KNOWN_ERRORS[errorKey] ?? 'An error occurred' : null;
+
   const upgrade = url.searchParams.get("upgrade");
 
   return json({
@@ -97,22 +106,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   const data = await response.json();
-  console.log("Billing API response:", JSON.stringify(data, null, 2));
 
   const result = data?.data?.appSubscriptionCreate;
   const { confirmationUrl, userErrors } = result ?? {};
 
   if (userErrors?.length > 0) {
-    console.error("Billing user errors:", userErrors);
-    return redirect(`/app/billing?error=${encodeURIComponent(userErrors[0].message)}`);
+    if (process.env.NODE_ENV === "development") console.error("Billing user errors:", userErrors);
+    return redirect(`/app/billing?error=charge_declined`);
   }
 
   if (confirmationUrl) {
-    console.log("Redirecting to confirmation:", confirmationUrl);
     return redirect(confirmationUrl);
   }
 
-  console.error("No confirmation URL returned. Full response:", JSON.stringify(data));
+  if (process.env.NODE_ENV === "development") console.error("No confirmation URL returned. Full response:", JSON.stringify(data));
   return redirect("/app/billing?error=no_confirmation_url");
 };
 
@@ -150,25 +157,13 @@ export default function BillingPage() {
   const isCurrentPlan = (plan: PlanWithFeatures) =>
     subscription?.planId === plan.id && subscription?.status === "active";
 
-  const isDistributionError = error?.includes("public distribution");
-
   return (
     <Page>
       <TitleBar title="Plans & Billing" />
       <BlockStack gap="500">
         {error && (
-          <Banner tone={isDistributionError ? "warning" : "critical"} title={isDistributionError ? "Setup Required" : "Billing Error"}>
-            <p>
-              {isDistributionError
-                ? "To enable billing, set your app to \"Public distribution\" in the Shopify Partners dashboard under Distribution settings. This is required by Shopify before the Billing API can be used."
-                : error === "charge_not_active"
-                  ? "The charge could not be verified. Please try again."
-                  : error === "plan_not_found"
-                    ? "Plan not found. Please select a plan."
-                    : error === "no_confirmation_url"
-                      ? "Shopify did not return a confirmation URL. Please try again."
-                      : decodeURIComponent(error)}
-            </p>
+          <Banner tone="critical" title="Billing Error">
+            <p>{error}</p>
           </Banner>
         )}
 
@@ -258,6 +253,26 @@ export default function BillingPage() {
           ))}
         </InlineGrid>
       </BlockStack>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

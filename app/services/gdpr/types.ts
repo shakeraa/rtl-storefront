@@ -86,3 +86,37 @@ export interface AccessibilityReport {
   passedCount: number;
   failedCount: number;
 }
+
+export interface DeletionResult {
+  shop: string;
+  deletedAt: string;
+  deletedCounts: Record<string, number>;
+}
+
+export type ConsentPurpose =
+  | "translation_processing"
+  | "analytics_tracking"
+  | "third_party_sharing"
+  | "marketing_communications";
+
+export interface ConsentInput {
+  shop: string;
+  purpose: ConsentPurpose;
+  granted: boolean;
+  grantedBy: string;
+}
+
+export interface RetentionPolicyInput {
+  shop: string;
+  dataType: string;
+  retentionDays: number;
+  autoDelete: boolean;
+}
+
+export interface PrivacyDashboardData {
+  shop: string;
+  consents: Array<{ purpose: string; granted: boolean; grantedAt: string | null }>;
+  retentionPolicies: Array<{ dataType: string; retentionDays: number; autoDelete: boolean }>;
+  recentAccessLogs: Array<{ action: string; dataType: string; createdAt: string }>;
+  dataCounts: { sessions: number; translationCache: number; consents: number };
+}

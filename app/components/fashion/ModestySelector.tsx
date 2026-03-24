@@ -5,10 +5,10 @@
 
 import { useState } from 'react';
 import {
-  Stack,
+  BlockStack,
   RadioButton,
   Text,
-  Card,
+  Box,
 } from '@shopify/polaris';
 import { MODESTY_LEVELS, type ModestyLevel } from '~/services/fashion';
 
@@ -31,26 +31,24 @@ export function ModestySelector({
   };
 
   return (
-    <Card>
-      <Card.Section>
-        <Stack vertical spacing="loose">
-          <Text variant="headingMd" as="h3">
-            {locale === 'ar' ? 'مستوى الاحتشام' : 'Modesty Level'}
-          </Text>
-          
-          {MODESTY_LEVELS.map((level) => (
-            <RadioButton
-              key={level.id}
-              label={locale === 'ar' ? level.nameArabic : level.name}
-              helpText={level.description}
-              checked={selectedLevel === level.id}
-              id={level.id}
-              name="modesty-level"
-              onChange={() => handleChange(level)}
-            />
-          ))}
-        </Stack>
-      </Card.Section>
-    </Card>
+    <Box padding="400">
+      <BlockStack gap="400">
+        <Text variant="headingMd" as="h3">
+          {locale === 'ar' ? 'مستوى الاحتشام' : 'Modesty Level'}
+        </Text>
+
+        {MODESTY_LEVELS.map((level) => (
+          <RadioButton
+            key={level.id}
+            label={locale === 'ar' ? level.nameArabic : level.name}
+            helpText={level.description}
+            checked={selectedLevel === level.id}
+            id={level.id}
+            name="modesty-level"
+            onChange={() => handleChange(level)}
+          />
+        ))}
+      </BlockStack>
+    </Box>
   );
 }

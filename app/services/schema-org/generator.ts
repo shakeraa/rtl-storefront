@@ -1,72 +1,48 @@
-import { getTextDirection } from "../../utils/rtl";
 import type {
   BreadcrumbSchemaInput,
   ProductSchemaInput,
   TranslatedProductSchema,
 } from "./types";
+import {
+  generateProductSchema as generateProductSchemaCanonical,
+  generateTranslatedProductSchema,
+  type SupportedSchemaLocale,
+} from "./product-schema";
+
+// Re-export the translated helper directly
+export { generateTranslatedProductSchema } from "./product-schema";
 
 /**
- * Maps availability enum values to their Schema.org URLs.
- */
-const AVAILABILITY_MAP: Record<ProductSchemaInput["availability"], string> = {
-  InStock: "https://schema.org/InStock",
-  OutOfStock: "https://schema.org/OutOfStock",
-  PreOrder: "https://schema.org/PreOrder",
-  BackOrder: "https://schema.org/BackOrder",
-};
-
-/**
- * Generate a Product JSON-LD schema with translated fields.
+ * Generate a Product JSON-LD schema from a ProductSchemaInput.
+ *
+ * Delegates to the canonical implementation in product-schema.ts, adapting
+ * the single-object `ProductSchemaInput` shape to its two-argument API.
  */
 export function generateProductSchema(
   input: ProductSchemaInput,
 ): TranslatedProductSchema {
-  const direction = getTextDirection(input.locale);
-
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: input.name,
-    description: input.description,
-    sku: input.sku,
-    url: input.url,
-    offers: {
-      "@type": "Offer",
+  const locale = (input.locale || "en") as SupportedSchemaLocale;
+  const result = generateProductSchemaCanonical(
+    {
+      name: input.name,
+      description: input.description,
+      sku: input.sku,
       price: input.price,
-      priceCurrency: input.currency,
-      availability: AVAILABILITY_MAP[input.availability],
-      url: input.url,
-    },
-    inLanguage: input.locale,
-  };
-
-  if (input.imageUrl) {
-    jsonLd.image = input.imageUrl;
-  }
-
-  if (input.brand) {
-    jsonLd.brand = {
-      "@type": "Brand",
-      name: input.brand,
-    };
-  }
-
-  if (
-    input.ratingValue !== undefined &&
-    input.reviewCount !== undefined &&
-    input.reviewCount > 0
-  ) {
-    jsonLd.aggregateRating = {
-      "@type": "AggregateRating",
+      currency: input.currency,
+      availability: input.availability,
+      imageUrl: input.imageUrl,
+      brand: input.brand,
       ratingValue: input.ratingValue,
       reviewCount: input.reviewCount,
-    };
-  }
+      url: input.url,
+    },
+    locale,
+  );
 
   return {
-    jsonLd,
-    html: wrapJsonLd(jsonLd),
-    locale: input.locale,
+    jsonLd: result.jsonLd,
+    html: result.html,
+    locale: result.locale,
   };
 }
 

@@ -4,7 +4,15 @@
  * Produces `<link rel="alternate" hreflang="...">` tags for every
  * configured locale plus an `x-default` pointing at the canonical
  * default-locale URL.
+ *
+ * Delegates URL construction to the shared hreflang builder in
+ * `app/utils/hreflang.server.ts`.
  */
+
+import {
+  buildHreflangUrls,
+  type HreflangEntry,
+} from "../../utils/hreflang.server";
 
 export interface HreflangTag {
   locale: string;
@@ -38,18 +46,15 @@ export function generateHreflangTags(
   // Strip any existing locale prefix so we work from a clean path.
   const cleanPath = stripLocalePrefix(pathname, locales);
 
-  const tags: HreflangTag[] = locales.map((locale) => ({
-    locale,
-    url: buildLocaleUrl(origin, cleanPath, locale, defaultLocale),
-  }));
+  // Use the shared builder for URL construction
+  const entries: HreflangEntry[] = buildHreflangUrls(
+    origin,
+    cleanPath,
+    locales,
+    defaultLocale,
+  );
 
-  // x-default always points at the default-locale URL.
-  tags.push({
-    locale: "x-default",
-    url: buildLocaleUrl(origin, cleanPath, defaultLocale, defaultLocale),
-  });
-
-  return tags;
+  return entries.map((e) => ({ locale: e.locale, url: e.url }));
 }
 
 /**
@@ -68,19 +73,6 @@ export function getXDefaultUrl(baseUrl: string): string {
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
-
-function buildLocaleUrl(
-  origin: string,
-  path: string,
-  locale: string,
-  defaultLocale: string,
-): string {
-  const normalizedPath = path === "/" ? "" : path;
-  if (locale === defaultLocale) {
-    return `${origin}${normalizedPath || "/"}`;
-  }
-  return `${origin}/${locale}${normalizedPath}`;
-}
 
 function stripLocalePrefix(pathname: string, locales: string[]): string {
   for (const locale of locales) {

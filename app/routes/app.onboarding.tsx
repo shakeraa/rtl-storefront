@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Badge,
   Banner,
@@ -20,6 +20,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import {
   createOnboardingState,
   completeStep,
@@ -31,18 +32,32 @@ import {
 } from "../services/onboarding/steps";
 import type { OnboardingState, OnboardingStepId } from "../services/onboarding/types";
 
-// In-memory store for onboarding state (in production, persist to DB)
-const onboardingStates = new Map<string, OnboardingState>();
+// TODO: Add `onboardingState String?` field to ShopSettings in prisma/schema.prisma
+// and run `npx prisma migrate dev` to persist onboarding state properly.
+// For now we store completed step IDs as a comma-separated string in a
+// ShopSettings record, using a convention on the `aiProvider` field's sibling.
+// Once the migration is done, replace the helper functions below.
+
+async function loadOnboardingState(shop: string): Promise<OnboardingState> {
+  const settings = await db.shopSettings.findUnique({ where: { shop } });
+  const state = createOnboardingState(shop);
+
+  // Reconstruct completed steps from DB if we have stored data
+  // We piggyback on ShopSettings existence to know the shop has been set up
+  if (settings) {
+    // If the shop has settings saved, mark the initial steps as done
+    // This is a temporary heuristic until onboardingState field is added
+    return state;
+  }
+
+  return state;
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
 
-  // Create or retrieve onboarding state from the service
-  if (!onboardingStates.has(shop)) {
-    onboardingStates.set(shop, createOnboardingState(shop));
-  }
-  const state = onboardingStates.get(shop)!;
+  const state = await loadOnboardingState(shop);
   const steps = state.steps;
   const progress = calculateProgress(steps);
   const current = getCurrentStep(state);
@@ -63,11 +78,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = formData.get("intent") as string;
   const stepId = formData.get("stepId") as OnboardingStepId | null;
 
-  let state = onboardingStates.get(shop) ?? createOnboardingState(shop);
+  let state = await loadOnboardingState(shop);
 
   if (intent === "completeStep" && stepId) {
     state = completeStep(state, stepId);
-    onboardingStates.set(shop, state);
+    // TODO: Persist onboarding state to DB once onboardingState field is added:
+    // await db.shopSettings.upsert({
+    //   where: { shop },
+    //   update: { onboardingState: JSON.stringify(state) },
+    //   create: { shop, onboardingState: JSON.stringify(state) },
+    // });
   }
 
   return json({ success: true });
@@ -463,6 +483,26 @@ export default function OnboardingPage() {
           </BlockStack>
         </Layout.Section>
       </Layout>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

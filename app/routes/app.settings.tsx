@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit } from "@remix-run/react";
+import { useLoaderData, useSubmit, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -521,6 +521,26 @@ export default function SettingsPage() {
           </Text>
         </Banner>
       </BlockStack>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

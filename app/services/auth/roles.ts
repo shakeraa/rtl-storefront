@@ -3,6 +3,8 @@
  * T0016: Team & Access Control
  */
 
+import { randomBytes } from "crypto";
+
 export type Role = 'admin' | 'translator' | 'manager' | 'viewer';
 
 export interface Permission {
@@ -232,7 +234,7 @@ export function generateApiKey(memberId: string): string {
   const member = teamMembers.get(memberId);
   if (!member) return '';
 
-  const apiKey = `rtl_${Buffer.from(`${memberId}_${Date.now()}`).toString('base64')}`;
+  const apiKey = `rtl_${randomBytes(32).toString('hex')}`;
   member.apiKey = apiKey;
   return apiKey;
 }

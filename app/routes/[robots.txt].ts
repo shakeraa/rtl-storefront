@@ -11,7 +11,7 @@
  */
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { generateRobotsTxt } from "../services/seo-infrastructure";
+import { generateRobotsTxt } from "../services/seo";
 
 const DEFAULT_LOCALES = ["en", "ar", "he"];
 

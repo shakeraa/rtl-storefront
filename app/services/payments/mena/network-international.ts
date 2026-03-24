@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type {
   MENAPaymentConfig,
   PaymentGateway,
@@ -170,7 +170,7 @@ export function createNetworkInternationalGateway(config: MENAPaymentConfig): Pa
     async refund(request: RefundRequest): Promise<RefundResponse> {
       const payload = {
         amount: {
-          currencyCode: "AED",
+          currencyCode: request.currency ?? "AED",
           value: Math.round((request.amount ?? 0) * 100),
         },
         reason: request.reason ?? "Refund requested",
@@ -215,7 +215,11 @@ export function createNetworkInternationalGateway(config: MENAPaymentConfig): Pa
     verifyWebhook(payload: string, signature: string): boolean {
       if (!config.webhookSecret) return false;
       const expected = createHmac("sha256", config.webhookSecret).update(payload).digest("hex");
-      return expected === signature;
+      try {
+        return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      } catch {
+        return false;
+      }
     },
 
     parseWebhookEvent(payload: Record<string, unknown>): WebhookEvent {

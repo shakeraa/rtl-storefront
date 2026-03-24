@@ -1,4 +1,4 @@
-export type ArabicDialect = "gulf" | "levantine" | "egyptian" | "maghreb" | "msa";
+export type ArabicDialect = "msa" | "gulf" | "egyptian" | "levantine" | "maghrebi";
 export type FormalityLevel = "formal" | "informal" | "casual";
 
 export interface CulturalContextInput {

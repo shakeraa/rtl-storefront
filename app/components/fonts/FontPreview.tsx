@@ -4,7 +4,7 @@ import {
   ChoiceList,
   Select,
   Text,
-  Stack,
+  BlockStack,
   InlineStack,
   Box,
 } from '@shopify/polaris';
@@ -82,7 +82,7 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
   return (
     <Card>
       <Box padding="400">
-        <Stack gap="400">
+        <BlockStack gap="400">
           <Text variant="headingMd" as="h2">
             Arabic Font Selection
           </Text>
@@ -108,7 +108,7 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
               }}
             />
           ) : (
-            <Stack gap="300">
+            <BlockStack gap="300">
               <Select
                 label="Heading Font"
                 options={fontOptions}
@@ -130,7 +130,7 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
                 onChange={(value) => handleFontChange('accent', value || '')}
                 helpText={accentFont?.description}
               />
-            </Stack>
+            </BlockStack>
           )}
 
           {/* Font Preview */}
@@ -140,7 +140,7 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
             borderRadius="200"
             style={{ direction: 'rtl' }}
           >
-            <Stack gap="400">
+            <BlockStack gap="400">
               <Text variant="headingSm" as="h3">
                 Preview
               </Text>
@@ -179,12 +179,12 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
               >
                 {PREVIEW_TEXTS.accent}
               </div>
-            </Stack>
+            </BlockStack>
           </Box>
 
           {/* Selected Fonts Info */}
           <Box padding="300" background="bg-surface" borderRadius="200">
-            <Stack gap="200">
+            <BlockStack gap="200">
               <Text variant="headingXs" as="h4">
                 Selected Fonts
               </Text>
@@ -201,9 +201,9 @@ export function FontPreview({ config, onChange }: FontPreviewProps) {
                   </Text>
                 )}
               </InlineStack>
-            </Stack>
+            </BlockStack>
           </Box>
-        </Stack>
+        </BlockStack>
       </Box>
     </Card>
   );

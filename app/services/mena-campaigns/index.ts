@@ -326,137 +326,17 @@ export function isIslamicHoliday(
 }
 
 // ===========================================================================
-// T0061 - National Day Templates
+// T0061 - National Day Templates (consolidated into ./national-day.ts)
 // ===========================================================================
 
-export interface NationalDayTemplate {
-  id: string;
-  country: string;
-  name: string;
-  nameAr: string;
-  date: { month: number; day: number };
-  colors: string[];
-  discount?: number;
-  bannerHtml: string;
-}
-
-export const NATIONAL_DAY_TEMPLATES: NationalDayTemplate[] = [
-  {
-    id: "uae-national-day",
-    country: "AE",
-    name: "UAE National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0625\u0645\u0627\u0631\u0627\u062A\u064A",
-    date: { month: 12, day: 2 },
-    colors: ["#FF0000", "#00732F", "#FFFFFF", "#000000"],
-    discount: 52,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #FF0000, #00732F); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy UAE National Day! \u{1F1E6}\u{1F1EA}</h2>
-  <p style="margin: 0;">Celebrate with up to 52% off across the store</p>
-</div>`,
-  },
-  {
-    id: "saudi-national-day",
-    country: "SA",
-    name: "Saudi National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0633\u0639\u0648\u062F\u064A",
-    date: { month: 9, day: 23 },
-    colors: ["#006C35", "#FFFFFF"],
-    discount: 93,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #006C35, #004d25); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy Saudi National Day! \u{1F1F8}\u{1F1E6}</h2>
-  <p style="margin: 0;">Celebrate with up to 93% SAR off selected items</p>
-</div>`,
-  },
-  {
-    id: "kuwait-national-day",
-    country: "KW",
-    name: "Kuwait National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0643\u0648\u064A\u062A\u064A",
-    date: { month: 2, day: 25 },
-    colors: ["#007A3D", "#CE1126", "#FFFFFF", "#000000"],
-    discount: 25,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #007A3D, #CE1126); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy Kuwait National Day! \u{1F1F0}\u{1F1FC}</h2>
-  <p style="margin: 0;">Celebrate with up to 25% off across the store</p>
-</div>`,
-  },
-  {
-    id: "bahrain-national-day",
-    country: "BH",
-    name: "Bahrain National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0628\u062D\u0631\u064A\u0646\u064A",
-    date: { month: 12, day: 16 },
-    colors: ["#CE1126", "#FFFFFF"],
-    discount: 16,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #CE1126, #8B0000); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy Bahrain National Day! \u{1F1E7}\u{1F1ED}</h2>
-  <p style="margin: 0;">Celebrate with up to 16% off across the store</p>
-</div>`,
-  },
-  {
-    id: "qatar-national-day",
-    country: "QA",
-    name: "Qatar National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0642\u0637\u0631\u064A",
-    date: { month: 12, day: 18 },
-    colors: ["#8A1538", "#FFFFFF"],
-    discount: 18,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #8A1538, #5C0E26); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy Qatar National Day! \u{1F1F6}\u{1F1E6}</h2>
-  <p style="margin: 0;">Celebrate with up to 18% off across the store</p>
-</div>`,
-  },
-  {
-    id: "oman-national-day",
-    country: "OM",
-    name: "Oman National Day",
-    nameAr: "\u0627\u0644\u064A\u0648\u0645 \u0627\u0644\u0648\u0637\u0646\u064A \u0627\u0644\u0639\u0645\u0627\u0646\u064A",
-    date: { month: 11, day: 18 },
-    colors: ["#DB161B", "#FFFFFF", "#008000"],
-    discount: 18,
-    bannerHtml: `<div style="background: linear-gradient(135deg, #DB161B, #008000); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px;">
-  <h2 style="margin: 0 0 8px;">Happy Oman National Day! \u{1F1F4}\u{1F1F2}</h2>
-  <p style="margin: 0;">Celebrate with up to 18% off across the store</p>
-</div>`,
-  },
-];
-
-/**
- * Get the next upcoming national day for a given country.
- * Returns null if no template exists for the country.
- */
-export function getUpcomingNationalDay(
-  country: string,
-): NationalDayTemplate | null {
-  const code = country.toUpperCase();
-  const template = NATIONAL_DAY_TEMPLATES.find((t) => t.country === code);
-  if (!template) return null;
-  return template;
-}
-
-/**
- * Get a national day banner HTML for a country, with RTL support.
- */
-export function getNationalDayBanner(
-  country: string,
-  locale: string,
-): string {
-  const template = getUpcomingNationalDay(country);
-  if (!template) {
-    return "";
-  }
-
-  const isArabic = locale === "ar" || locale.startsWith("ar-");
-  const dir = isArabic ? "rtl" : "ltr";
-  const title = isArabic ? template.nameAr : template.name;
-  const discountText = template.discount
-    ? isArabic
-      ? `احتفل بخصم يصل إلى ${template.discount}%`
-      : `Celebrate with up to ${template.discount}% off`
-    : "";
-
-  return `<div dir="${dir}" style="background: linear-gradient(135deg, ${template.colors[0]}, ${template.colors[1] || template.colors[0]}); color: #FFFFFF; padding: 24px; text-align: center; border-radius: 8px; font-family: ${isArabic ? "'Noto Naskh Arabic', Tahoma, sans-serif" : "'Helvetica Neue', Arial, sans-serif"};">
-  <h2 style="margin: 0 0 8px;">${title}</h2>
-  ${discountText ? `<p style="margin: 0;">${discountText}</p>` : ""}
-</div>`;
-}
+export {
+  getNationalDayTemplate,
+  getNationalDayCampaign,
+  getUpcomingNationalDays,
+  generateBannerHtml,
+  getSupportedCountries,
+  getCountryName,
+  hasNationalDayTemplate,
+  formatCountdown as formatNationalDayCountdown,
+  NATIONAL_DAY_TEMPLATES,
+} from "./national-day";

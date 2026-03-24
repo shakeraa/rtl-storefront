@@ -17,3 +17,6 @@ export * from "./consent";
 export * from "./cookie-consent";
 export * from "./ccpa";
 export * from "./accessibility";
+export * from "./data-deletion";
+export * from "./retention";
+export * from "./privacy-dashboard";

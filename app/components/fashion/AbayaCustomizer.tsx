@@ -5,10 +5,10 @@
 
 import { useState, useMemo } from 'react';
 import {
-  Stack,
+  BlockStack,
   Select,
   Text,
-  Card,
+  Box,
   Thumbnail,
 } from '@shopify/polaris';
 import { ABAYA_CUSTOMIZATIONS } from '~/services/fashion';
@@ -36,16 +36,28 @@ export function AbayaCustomizer({
     return price;
   }, [selections]);
 
+  const calculateTotal = (sels: Record<string, string>) => {
+    let price = 0;
+    for (const [categoryId, optionId] of Object.entries(sels)) {
+      const category = ABAYA_CUSTOMIZATIONS.find((c) => c.id === categoryId);
+      const option = category?.options.find((o) => o.id === optionId);
+      if (option) {
+        price += option.price;
+      }
+    }
+    return price;
+  };
+
   const handleChange = (categoryId: string, optionId: string) => {
     const newSelections = { ...selections, [categoryId]: optionId };
+    const newTotal = calculateTotal(newSelections);
+    onChange?.(newSelections, newTotal);
     setSelections(newSelections);
-    onChange?.(newSelections, totalPrice);
   };
 
   return (
-    <Card>
-      <Card.Section>
-        <Stack vertical spacing="loose">
+    <Box padding="400">
+        <BlockStack gap="400">
           <Text variant="headingMd" as="h3">
             {locale === 'ar' ? 'تخصيص العباية' : 'Customize Your Abaya'}
           </Text>
@@ -82,8 +94,7 @@ export function AbayaCustomizer({
               ? `السعر الإضافي: $${totalPrice}`
               : `Additional Price: $${totalPrice}`}
           </Text>
-        </Stack>
-      </Card.Section>
-    </Card>
+        </BlockStack>
+    </Box>
   );
 }

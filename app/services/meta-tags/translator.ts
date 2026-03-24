@@ -1,6 +1,18 @@
 import { getTextDirection } from "../../utils/rtl";
+import { formatAsHtmlLinks, type HreflangEntry } from "../../utils/hreflang.server";
 import type { MetaTagSet, MetaTranslationInput, TranslatedMetaTags } from "./types";
 import { calculateSEOScore, validateMetaTags } from "./validator";
+
+export { getTextDirection } from "../../utils/rtl";
+
+/**
+ * Generate HTML attributes string for dir and lang based on locale.
+ */
+export function generateHtmlAttributes(locale: string): string {
+  const direction = getTextDirection(locale);
+  const lang = locale.split('-')[0]; // 'ar-SA' -> 'ar'
+  return `lang="${lang}" dir="${direction}"`;
+}
 
 /**
  * Translate a set of meta tags for the target locale.
@@ -41,24 +53,27 @@ export function assembleTranslatedMeta(
 
 /**
  * Generate hreflang link tags for alternate language versions.
+ *
+ * Delegates URL building to the shared hreflang utility when a baseUrl and
+ * path are provided. Falls back to the pre-built alternates array when the
+ * caller already has resolved URLs.
  */
 export function generateHreflangTags(
   alternates: Array<{ locale: string; url: string }>,
   defaultLocale: string,
 ): string[] {
-  const tags: string[] = [];
+  // Ensure x-default is present
+  const hasXDefault = alternates.some((a) => a.locale === "x-default");
+  const entries: HreflangEntry[] = [...alternates];
 
-  for (const alt of alternates) {
-    tags.push(`<link rel="alternate" hreflang="${alt.locale}" href="${escapeHtml(alt.url)}" />`);
+  if (!hasXDefault) {
+    const defaultUrl = alternates.find((a) => a.locale === defaultLocale)?.url;
+    if (defaultUrl) {
+      entries.push({ locale: "x-default", url: defaultUrl });
+    }
   }
 
-  // Add x-default pointing to default locale
-  const defaultUrl = alternates.find((a) => a.locale === defaultLocale)?.url;
-  if (defaultUrl) {
-    tags.push(`<link rel="alternate" hreflang="x-default" href="${escapeHtml(defaultUrl)}" />`);
-  }
-
-  return tags;
+  return formatAsHtmlLinks(entries).split('\n');
 }
 
 /**
@@ -71,7 +86,7 @@ export function generateOGTags(meta: MetaTagSet, locale: string): string[] {
   if (meta.ogDescription) tags.push(`<meta property="og:description" content="${escapeHtml(meta.ogDescription)}" />`);
   if (meta.ogImage) tags.push(`<meta property="og:image" content="${escapeHtml(meta.ogImage)}" />`);
   if (meta.ogType) tags.push(`<meta property="og:type" content="${escapeHtml(meta.ogType)}" />`);
-  tags.push(`<meta property="og:locale" content="${escapeHtml(locale)}" />`);
+  tags.push(`<meta property="og:locale" content="${escapeHtml(locale.replace('-', '_'))}" />`);
 
   if (meta.alternateUrls) {
     for (const alt of meta.alternateUrls) {

@@ -11,11 +11,7 @@ import {
   Select,
 } from "@shopify/polaris";
 
-const RTL_LOCALES = new Set(["ar", "he", "fa", "ur", "ps", "ku", "sd", "yi"]);
-
-function isRtlLocale(locale: string): boolean {
-  return RTL_LOCALES.has(locale.split("-")[0].toLowerCase());
-}
+import { isRtlLocale } from "../../utils/rtl";
 
 export interface TranslationField {
   key: string;

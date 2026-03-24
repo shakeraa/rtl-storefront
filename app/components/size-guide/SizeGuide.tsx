@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react';
 import {
   Modal,
   DataTable,
-  Stack,
+  BlockStack,
   Text,
   Button,
   TextField,
@@ -88,7 +88,7 @@ export function SizeGuide({
         }}
       >
         <Modal.Section>
-          <Stack vertical spacing="loose">
+          <BlockStack gap="400">
             <Select
               label={locale === 'ar' ? 'وحدة القياس' : 'Unit'}
               options={[
@@ -106,11 +106,11 @@ export function SizeGuide({
             />
             
             {guide.notes && (
-              <Text variant="bodySm" as="p" color="subdued">
+              <Text variant="bodySm" as="p" tone="subdued">
                 {locale === 'ar' ? guide.notesAr : guide.notes}
               </Text>
             )}
-          </Stack>
+          </BlockStack>
         </Modal.Section>
       </Modal>
     </>
@@ -139,7 +139,7 @@ export function SizeCalculator({
   }, [measurements, guide]);
 
   return (
-    <Stack vertical spacing="loose">
+    <BlockStack gap="400">
       <Text variant="headingSm" as="h4">
         {locale === 'ar' ? 'حاسبة المقاس' : 'Size Calculator'}
       </Text>
@@ -159,19 +159,19 @@ export function SizeCalculator({
       ))}
       
       {recommendation.size && (
-        <Stack vertical spacing="tight">
+        <BlockStack gap="200">
           <Text variant="headingMd" as="p">
             {locale === 'ar'
               ? `المقاس الموصى به: ${recommendation.size}`
               : `Recommended Size: ${recommendation.size}`}
           </Text>
-          <Text variant="bodySm" as="p" color="subdued">
+          <Text variant="bodySm" as="p" tone="subdued">
             {locale === 'ar'
               ? `الثقة: ${recommendation.confidence === 'high' ? 'عالية' : recommendation.confidence === 'medium' ? 'متوسطة' : 'منخفضة'}`
               : `Confidence: ${recommendation.confidence}`}
           </Text>
-        </Stack>
+        </BlockStack>
       )}
-    </Stack>
+    </BlockStack>
   );
 }

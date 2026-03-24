@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { Text, Stack, Badge } from '@shopify/polaris';
+import { Text, BlockStack, Badge } from '@shopify/polaris';
 import {
   toHijri,
   formatHijri,
@@ -32,7 +32,7 @@ export function HijriDateDisplay({
   const eidCountdown = useMemo(() => getEidCountdown(date), [date]);
 
   return (
-    <Stack vertical spacing="tight">
+    <BlockStack gap="200">
       <Text variant="headingMd" as="h3">
         {formatHijri(hijriDate, locale)}
       </Text>
@@ -44,9 +44,9 @@ export function HijriDateDisplay({
       )}
       
       {showCountdowns && (
-        <Stack vertical spacing="extraTight">
+        <BlockStack gap="100">
           {ramadanDays > 0 && (
-            <Text variant="bodySm" as="p" color="subdued">
+            <Text variant="bodySm" as="p" tone="subdued">
               {locale === 'ar'
                 ? `${ramadanDays} يوم حتى رمضان`
                 : `${ramadanDays} days until Ramadan`}
@@ -54,14 +54,14 @@ export function HijriDateDisplay({
           )}
           
           {eidCountdown.eidFitr > 0 && (
-            <Text variant="bodySm" as="p" color="subdued">
+            <Text variant="bodySm" as="p" tone="subdued">
               {locale === 'ar'
                 ? `${eidCountdown.eidFitr} يوم حتى عيد الفطر`
                 : `${eidCountdown.eidFitr} days until Eid al-Fitr`}
             </Text>
           )}
-        </Stack>
+        </BlockStack>
       )}
-    </Stack>
+    </BlockStack>
   );
 }

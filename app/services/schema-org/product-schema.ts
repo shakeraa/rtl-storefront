@@ -249,38 +249,63 @@ export function extractTranslatableFields(schema: Record<string, unknown>): Sche
  * @param targetLocale - The target locale for translation
  * @returns Translated schema object with locale metadata
  */
+/**
+ * Translation metadata returned alongside (but not embedded in) the JSON-LD.
+ */
+export interface TranslationMetadata {
+  targetLocale: string;
+  sourceLocale: string;
+  direction: "rtl" | "ltr";
+  translatedAt: string;
+  availabilityLabel?: string;
+}
+
 export function translateSchemaFields(
   schema: Record<string, unknown>,
   targetLocale: SupportedSchemaLocale,
 ): Record<string, unknown> {
   const translations = getSchemaTranslations(targetLocale);
-  const direction = getTextDirection(targetLocale);
 
   // Create a deep copy of the schema
   const translatedSchema: Record<string, unknown> = JSON.parse(JSON.stringify(schema));
 
-  // Add translation metadata with sourceLocale
+  // Always set inLanguage to the target locale
+  translatedSchema.inLanguage = targetLocale;
+
+  // Do NOT embed non-standard properties (_translationMeta, availabilityLabel)
+  // in the JSON-LD output. Use getTranslationMetadata() for that data.
+
+  return translatedSchema;
+}
+
+/**
+ * Build translation metadata for a schema object without embedding it in the
+ * JSON-LD. Consumers that need this data can call this separately.
+ */
+export function getTranslationMetadata(
+  schema: Record<string, unknown>,
+  targetLocale: SupportedSchemaLocale,
+): TranslationMetadata {
+  const translations = getSchemaTranslations(targetLocale);
+  const direction = getTextDirection(targetLocale);
   const sourceLocale = (schema.inLanguage as string) || "en";
-  translatedSchema._translationMeta = {
+
+  const metadata: TranslationMetadata = {
     targetLocale,
     sourceLocale,
     direction,
     translatedAt: new Date().toISOString(),
   };
 
-  // Always set inLanguage to the target locale
-  translatedSchema.inLanguage = targetLocale;
-
-  // Add localized labels for key fields
-  if (translatedSchema.offers && typeof translatedSchema.offers === "object") {
-    const offers = translatedSchema.offers as Record<string, unknown>;
+  // Include localized availability label if the schema has offers
+  if (schema.offers && typeof schema.offers === "object") {
+    const offers = schema.offers as Record<string, unknown>;
     if (offers.availability) {
-      // Add localized availability text as a custom property
-      offers.availabilityLabel = translations.availability.inStock;
+      metadata.availabilityLabel = translations.availability.inStock;
     }
   }
 
-  return translatedSchema;
+  return metadata;
 }
 
 /**
@@ -491,6 +516,22 @@ export function generateProductBreadcrumbSchema(
   };
 
   return wrapProductJsonLd(schema);
+}
+
+/**
+ * Generate a translated product schema — convenience wrapper that calls
+ * `generateProductSchema` and then applies locale-specific field translations.
+ */
+export function generateTranslatedProductSchema(
+  product: ProductSchemaData,
+  locale: SupportedSchemaLocale,
+): GeneratedProductSchema {
+  const result = generateProductSchema(product, locale);
+  const translated = translateSchemaFields(result.jsonLd, locale);
+  return {
+    ...result,
+    jsonLd: translated,
+  };
 }
 
 /**

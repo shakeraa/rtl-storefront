@@ -10,7 +10,7 @@ generator client {
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "sqlite"
-  url      = "file:dev.sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -31,6 +31,9 @@ model Session {
   emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@index([shop])
+  @@index([expires])
 }
 
 model TranslationCache {
@@ -42,6 +45,7 @@ model TranslationCache {
   sourceText     String
   translatedText String
   context        String?
+  shop           String   @default("")
   hits           Int      @default(0)
   lastUsedAt     DateTime @default(now())
   expiresAt      DateTime
@@ -50,6 +54,7 @@ model TranslationCache {
 
   @@index([sourceLocale, targetLocale])
   @@index([expiresAt])
+  @@index([shop])
 }
 
 model TranslationMemory {
@@ -69,6 +74,7 @@ model TranslationMemory {
 
   @@index([shop, sourceLocale, targetLocale])
   @@index([shop, sourceText])
+  @@unique([shop, sourceLocale, targetLocale, sourceText])
 }
 
 model GlossaryEntry {
@@ -179,6 +185,7 @@ model ShopSubscription {
   updatedAt          DateTime  @updatedAt
 
   @@index([status])
+  @@index([planId])
 }
 
 model ShopUsage {

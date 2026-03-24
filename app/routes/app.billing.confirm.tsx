@@ -1,5 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
+import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { Page, Card, BlockStack, Text } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import {
   getSubscription,
@@ -46,9 +48,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const activeSubscriptions =
     data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
-  // Validate that at least one active subscription matches the plan name
+  // Validate that an active subscription matches by Shopify GID
   const matchingSub = activeSubscriptions.find(
-    (sub: any) => sub.name === plan.name && sub.status === "ACTIVE"
+    (sub: any) => sub.id === `gid://shopify/AppSubscription/${chargeId}` && sub.status === "ACTIVE"
+  ) ?? activeSubscriptions.find(
+    (sub: any) => sub.status === "ACTIVE" && sub.name === plan.name
   );
 
   if (!matchingSub) {
@@ -59,3 +63,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return redirect("/app");
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
+    </Page>
+  );
+}

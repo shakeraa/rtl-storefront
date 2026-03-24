@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type {
   MENAPaymentConfig,
   PaymentGateway,
@@ -10,7 +10,7 @@ import type {
   WebhookEvent,
 } from "./types";
 
-const TELR_SANDBOX_URL = "https://secure.telr.com/gateway/order.json";
+const TELR_SANDBOX_URL = "https://secure-test.telr.com/gateway/order.json";
 const TELR_PRODUCTION_URL = "https://secure.telr.com/gateway/order.json";
 
 /**
@@ -169,7 +169,11 @@ export function createTelrGateway(config: MENAPaymentConfig): PaymentGateway {
     verifyWebhook(payload: string, signature: string): boolean {
       if (!config.webhookSecret) return false;
       const expected = createHmac("sha256", config.webhookSecret).update(payload).digest("hex");
-      return expected === signature;
+      try {
+        return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      } catch {
+        return false;
+      }
     },
 
     parseWebhookEvent(payload: Record<string, unknown>): WebhookEvent {

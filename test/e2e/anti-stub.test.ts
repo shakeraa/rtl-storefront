@@ -34,12 +34,12 @@ describe("Anti-Stub: Dialect Service", () => {
   });
 
   it("translateToDialect replaces ماذا with شو for levant", () => {
-    expect(translateToDialect("ماذا", "levant")).toBe("شو");
-    expect(translateToDialect("ماذا", "levant")).not.toBe("ماذا");
+    expect(translateToDialect("ماذا", "levantine")).toBe("شو");
+    expect(translateToDialect("ماذا", "levantine")).not.toBe("ماذا");
   });
 
   it("translateToDialect replaces ماذا with واش for maghreb", () => {
-    expect(translateToDialect("ماذا", "maghreb")).toBe("واش");
+    expect(translateToDialect("ماذا", "maghrebi")).toBe("واش");
   });
 
   it("translateToDialect replaces ماذا with إيه for egyptian", () => {
@@ -47,7 +47,7 @@ describe("Anti-Stub: Dialect Service", () => {
   });
 
   it("translateToDialect leaves standard unchanged for standard dialect", () => {
-    expect(translateToDialect("مرحباً", "standard")).toBe("مرحباً");
+    expect(translateToDialect("مرحباً", "msa")).toBe("مرحباً");
   });
 
   it("detectDialect returns confidence > 0 for dialect text", () => {
@@ -60,22 +60,22 @@ describe("Anti-Stub: Dialect Service", () => {
   });
 
   it("detectDialect returns specific dialect, not always standard", () => {
-    expect(detectDialect("شو كيفك عم").dialect).toBe("levant");
-    expect(detectDialect("واش شكون لاباس").dialect).toBe("maghreb");
+    expect(detectDialect("شو كيفك عم").dialect).toBe("levantine");
+    expect(detectDialect("واش شكون لاباس").dialect).toBe("maghrebi");
     expect(detectDialect("إزاي إيه يعني").dialect).toBe("egyptian");
   });
 
   it("detectDialectFromCountry returns actual dialects for MENA countries", () => {
     expect(detectDialectFromCountry("SA")).toBe("gulf");
-    expect(detectDialectFromCountry("LB")).toBe("levant");
-    expect(detectDialectFromCountry("MA")).toBe("maghreb");
+    expect(detectDialectFromCountry("LB")).toBe("levantine");
+    expect(detectDialectFromCountry("MA")).toBe("maghrebi");
     expect(detectDialectFromCountry("EG")).toBe("egyptian");
     // NOT just 'standard' for everything
   });
 
   it("getGreeting returns different text per dialect", () => {
     const gulf = getGreeting("gulf");
-    const levant = getGreeting("levant");
+    const levant = getGreeting("levantine");
     const egyptian = getGreeting("egyptian");
     expect(gulf).toBe("هلا");
     expect(levant).toBe("مرحبتين");
@@ -90,10 +90,10 @@ describe("Anti-Stub: Dialect Service", () => {
     const vocab = DIALECT_VOCABULARY;
     // "what" must differ across dialects
     expect(vocab.what.gulf).toBe("وش");
-    expect(vocab.what.levant).toBe("شو");
-    expect(vocab.what.maghreb).toBe("واش");
+    expect(vocab.what.levantine).toBe("شو");
+    expect(vocab.what.maghrebi).toBe("واش");
     expect(vocab.what.egyptian).toBe("إيه");
-    expect(vocab.what.standard).toBe("ماذا");
+    expect(vocab.what.msa).toBe("ماذا");
     // All 5 are different
     const whatValues = Object.values(vocab.what);
     expect(new Set(whatValues).size).toBe(5);

@@ -8,165 +8,24 @@
  */
 
 // ---------------------------------------------------------------------------
-// T0060 - White Friday Campaign Templates
+// T0060 - White Friday Campaign Templates (consolidated into white-friday/ service)
 // ---------------------------------------------------------------------------
 
-export interface CampaignTemplate {
-  id: string;
-  name: string;
-  nameAr: string;
-  type: "white_friday" | "ramadan" | "eid" | "national_day";
-  colors: { primary: string; secondary: string; accent: string };
-  discount: number;
-  bannerText: string;
-  bannerTextAr: string;
-  startDate: string;
-  endDate: string;
-  countries: string[];
-}
-
-export const WHITE_FRIDAY_TEMPLATE: CampaignTemplate = {
-  id: "wf-2026",
-  name: "White Friday Mega Sale",
-  nameAr: "تخفيضات الجمعة البيضاء الكبرى",
-  type: "white_friday",
-  colors: { primary: "#000000", secondary: "#D4AF37", accent: "#FFFFFF" },
-  discount: 60,
-  bannerText: "White Friday — Up to 70% Off!",
-  bannerTextAr: "الجمعة البيضاء — خصومات تصل إلى ٧٠٪!",
-  startDate: "2026-11-20",
-  endDate: "2026-11-30",
-  countries: ["SA", "AE", "QA", "KW", "BH", "OM", "EG", "JO"],
-};
-
-export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
-  WHITE_FRIDAY_TEMPLATE,
-  {
-    id: "ramadan-2026",
-    name: "Ramadan Kareem Sale",
-    nameAr: "عروض رمضان كريم",
-    type: "ramadan",
-    colors: { primary: "#1A472A", secondary: "#D4AF37", accent: "#FFFFFF" },
-    discount: 30,
-    bannerText: "Ramadan Kareem — Special Offers",
-    bannerTextAr: "رمضان كريم — عروض خاصة",
-    startDate: "2026-02-18",
-    endDate: "2026-03-19",
-    countries: ["SA", "AE", "QA", "KW", "BH", "OM", "EG", "JO", "IQ"],
-  },
-  {
-    id: "eid-fitr-2026",
-    name: "Eid Al-Fitr Celebration",
-    nameAr: "احتفالات عيد الفطر",
-    type: "eid",
-    colors: { primary: "#2E7D32", secondary: "#FFD700", accent: "#FAFAFA" },
-    discount: 40,
-    bannerText: "Eid Mubarak — Celebrate with Savings",
-    bannerTextAr: "عيد مبارك — احتفل مع التوفير",
-    startDate: "2026-03-20",
-    endDate: "2026-03-27",
-    countries: ["SA", "AE", "QA", "KW", "BH", "OM", "EG", "JO"],
-  },
-  {
-    id: "national-day-sa-2026",
-    name: "Saudi National Day",
-    nameAr: "اليوم الوطني السعودي",
-    type: "national_day",
-    colors: { primary: "#006C35", secondary: "#FFFFFF", accent: "#006C35" },
-    discount: 50,
-    bannerText: "Saudi National Day — Exclusive Deals",
-    bannerTextAr: "اليوم الوطني السعودي — عروض حصرية",
-    startDate: "2026-09-20",
-    endDate: "2026-09-25",
-    countries: ["SA"],
-  },
-];
-
-export function generateWhiteFridayBanner(
-  locale: string,
-  discountPercent: number,
-): string {
-  const isArabic = locale.startsWith("ar");
-  const dir = isArabic ? "rtl" : "ltr";
-  const headline = isArabic
-    ? "الجمعة البيضاء"
-    : "White Friday";
-  const subtitle = isArabic
-    ? `خصومات تصل إلى ${discountPercent}٪`
-    : `Up to ${discountPercent}% Off`;
-  const cta = isArabic ? "تسوق الآن" : "Shop Now";
-
-  return `<div dir="${dir}" style="background:linear-gradient(135deg,#000 0%,#1a1a1a 100%);color:#fff;padding:48px;text-align:center;font-family:sans-serif;">
-  <h1 style="font-size:3rem;margin:0;color:#D4AF37;">${headline}</h1>
-  <p style="font-size:1.5rem;margin:16px 0;color:#fff;">${subtitle}</p>
-  <a href="#" style="display:inline-block;padding:16px 48px;background:#D4AF37;color:#000;text-decoration:none;font-weight:bold;font-size:1.2rem;border-radius:4px;">${cta}</a>
-</div>`;
-}
+export {
+  createWhiteFridayCampaign,
+  isWhiteFridayActive,
+  getWhiteFridayTemplate,
+  getWhiteFridayCountdown,
+  formatCountdown,
+  getSaleBadge,
+  getDiscountMessage,
+} from "../white-friday";
 
 // ---------------------------------------------------------------------------
-// T0062 - Weekend Adjustment
+// T0062 - Weekend Adjustment (consolidated into weekend/ service)
 // ---------------------------------------------------------------------------
 
-export interface WeekendConfig {
-  country: string;
-  weekendDays: number[];
-  workStartDay: number;
-}
-
-export const WEEKEND_CONFIGS: Record<string, WeekendConfig> = {
-  // GCC countries - Friday(5) + Saturday(6)
-  SA: { country: "SA", weekendDays: [5, 6], workStartDay: 0 },
-  AE: { country: "AE", weekendDays: [5, 6], workStartDay: 0 },
-  QA: { country: "QA", weekendDays: [5, 6], workStartDay: 0 },
-  KW: { country: "KW", weekendDays: [5, 6], workStartDay: 0 },
-  BH: { country: "BH", weekendDays: [5, 6], workStartDay: 0 },
-  OM: { country: "OM", weekendDays: [5, 6], workStartDay: 0 },
-  // Other MENA - Friday(5) + Saturday(6)
-  EG: { country: "EG", weekendDays: [5, 6], workStartDay: 0 },
-  JO: { country: "JO", weekendDays: [5, 6], workStartDay: 0 },
-  IQ: { country: "IQ", weekendDays: [5, 6], workStartDay: 0 },
-  IL: { country: "IL", weekendDays: [5, 6], workStartDay: 0 },
-  // Western - Saturday(6) + Sunday(0)
-  US: { country: "US", weekendDays: [0, 6], workStartDay: 1 },
-  GB: { country: "GB", weekendDays: [0, 6], workStartDay: 1 },
-  FR: { country: "FR", weekendDays: [0, 6], workStartDay: 1 },
-  DE: { country: "DE", weekendDays: [0, 6], workStartDay: 1 },
-  CA: { country: "CA", weekendDays: [0, 6], workStartDay: 1 },
-};
-
-export function isWeekend(date: Date, country: string): boolean {
-  const config = WEEKEND_CONFIGS[country] ?? WEEKEND_CONFIGS.US;
-  return config.weekendDays.includes(date.getDay());
-}
-
-export function getNextBusinessDay(date: Date, country: string): Date {
-  const next = new Date(date);
-  next.setDate(next.getDate() + 1);
-  while (isWeekend(next, country)) {
-    next.setDate(next.getDate() + 1);
-  }
-  return next;
-}
-
-export function getBusinessDays(
-  start: Date,
-  end: Date,
-  country: string,
-): number {
-  let count = 0;
-  const current = new Date(start);
-  current.setHours(0, 0, 0, 0);
-  const endDate = new Date(end);
-  endDate.setHours(0, 0, 0, 0);
-
-  while (current <= endDate) {
-    if (!isWeekend(current, country)) {
-      count++;
-    }
-    current.setDate(current.getDate() + 1);
-  }
-  return count;
-}
+export { isWeekend, getNextBusinessDay, getWeekendConfig, getWeekendType } from "../weekend";
 
 // ---------------------------------------------------------------------------
 // T0064 - Cultural Consultant Marketplace
@@ -237,114 +96,10 @@ export function requestConsultation(
 }
 
 // ---------------------------------------------------------------------------
-// T0066 - Dialect Awareness
+// T0066 - Dialect Awareness (consolidated into cultural-ai/dialect-detector)
 // ---------------------------------------------------------------------------
 
-export interface DialectVariation {
-  word: string;
-  msa: string;
-  gulf: string;
-  egyptian: string;
-  levantine: string;
-  maghreb: string;
-}
-
-export const COMMON_DIALECT_VARIATIONS: DialectVariation[] = [
-  { word: "now", msa: "الآن", gulf: "الحين", egyptian: "دلوقتي", levantine: "هلأ", maghreb: "دروك" },
-  { word: "what", msa: "ماذا", gulf: "شنو", egyptian: "إيه", levantine: "شو", maghreb: "واش" },
-  { word: "how", msa: "كيف", gulf: "شلون", egyptian: "إزاي", levantine: "كيف", maghreb: "كيفاش" },
-  { word: "good", msa: "جيد", gulf: "زين", egyptian: "كويس", levantine: "منيح", maghreb: "مزيان" },
-  { word: "a lot", msa: "كثيراً", gulf: "واجد", egyptian: "كتير", levantine: "كتير", maghreb: "بزاف" },
-  { word: "want", msa: "أريد", gulf: "أبي", egyptian: "عايز", levantine: "بدي", maghreb: "بغيت" },
-  { word: "speak", msa: "يتكلم", gulf: "يتكلم", egyptian: "بيتكلم", levantine: "بيحكي", maghreb: "يهدر" },
-  { word: "go", msa: "يذهب", gulf: "يروح", egyptian: "يروح", levantine: "يروح", maghreb: "يمشي" },
-  { word: "see", msa: "يرى", gulf: "يشوف", egyptian: "يشوف", levantine: "يشوف", maghreb: "يشوف" },
-  { word: "where", msa: "أين", gulf: "وين", egyptian: "فين", levantine: "وين", maghreb: "فاين" },
-  { word: "this", msa: "هذا", gulf: "هذا", egyptian: "ده", levantine: "هاد", maghreb: "هاذ" },
-  { word: "beautiful", msa: "جميل", gulf: "حلو", egyptian: "حلو", levantine: "حلو", maghreb: "زوين" },
-  { word: "money", msa: "مال", gulf: "فلوس", egyptian: "فلوس", levantine: "مصاري", maghreb: "دراهم" },
-  { word: "child", msa: "طفل", gulf: "ياهل", egyptian: "عيل", levantine: "ولد", maghreb: "درّي" },
-  { word: "eat", msa: "يأكل", gulf: "ياكل", egyptian: "ياكل", levantine: "ياكل", maghreb: "ياكل" },
-  { word: "car", msa: "سيارة", gulf: "سيارة", egyptian: "عربية", levantine: "سيارة", maghreb: "طونوبيل" },
-  { word: "house", msa: "بيت", gulf: "بيت", egyptian: "بيت", levantine: "بيت", maghreb: "دار" },
-  { word: "never mind", msa: "لا بأس", gulf: "عادي", egyptian: "معلش", levantine: "ما علينا", maghreb: "ما عليه" },
-  { word: "look", msa: "انظر", gulf: "طالع", egyptian: "بص", levantine: "طلّع", maghreb: "شوف" },
-  { word: "boy", msa: "ولد", gulf: "ولد", egyptian: "واد", levantine: "صبي", maghreb: "ولد" },
-  { word: "girl", msa: "فتاة", gulf: "بنت", egyptian: "بنت", levantine: "بنت", maghreb: "بنت" },
-  { word: "door", msa: "باب", gulf: "باب", egyptian: "باب", levantine: "باب", maghreb: "باب" },
-  { word: "shop", msa: "متجر", gulf: "دكّان", egyptian: "محل", levantine: "دكّانة", maghreb: "حانوت" },
-  { word: "big", msa: "كبير", gulf: "كبير", egyptian: "كبير", levantine: "كبير", maghreb: "كبير" },
-  { word: "small", msa: "صغير", gulf: "صغير", egyptian: "صغير", levantine: "زغير", maghreb: "صغير" },
-  { word: "tired", msa: "متعب", gulf: "تعبان", egyptian: "تعبان", levantine: "تعبان", maghreb: "عيّان" },
-  { word: "water", msa: "ماء", gulf: "ماي", egyptian: "ميّة", levantine: "ميّ", maghreb: "الما" },
-  { word: "bread", msa: "خبز", gulf: "خبز", egyptian: "عيش", levantine: "خبز", maghreb: "خبز" },
-  { word: "fast", msa: "سريع", gulf: "سريع", egyptian: "سريع", levantine: "سريع", maghreb: "فيسع" },
-  { word: "street", msa: "شارع", gulf: "شارع", egyptian: "شارع", levantine: "شارع", maghreb: "زنقة" },
-  { word: "like/love", msa: "يحب", gulf: "يحب", egyptian: "بيحب", levantine: "بيحب", maghreb: "يبغي" },
-];
-
-export function getDialectVariation(
-  word: string,
-  dialect: string,
-): string | null {
-  const entry = COMMON_DIALECT_VARIATIONS.find(
-    (v) => v.word.toLowerCase() === word.toLowerCase() || v.msa === word,
-  );
-  if (!entry) return null;
-  const key = dialect as keyof DialectVariation;
-  return (entry[key] as string) ?? null;
-}
-
-const DIALECT_MARKERS: Record<string, string[]> = {
-  gulf: ["الحين", "شلون", "شنو", "واجد", "أبي", "زين", "ياهل"],
-  egyptian: ["دلوقتي", "إزاي", "إيه", "عايز", "كويس", "بص", "عربية", "عيش", "معلش"],
-  levantine: ["هلأ", "شو", "بدي", "منيح", "بيحكي", "مصاري", "هاد"],
-  maghreb: ["دروك", "واش", "بزاف", "بغيت", "يهدر", "مزيان", "حانوت", "زنقة", "طونوبيل"],
-};
-
-export function detectDialectFromText(
-  text: string,
-): { dialect: string; confidence: number; markers: string[] } {
-  const foundMarkers: Record<string, string[]> = {
-    gulf: [],
-    egyptian: [],
-    levantine: [],
-    maghreb: [],
-  };
-
-  for (const [dialect, markers] of Object.entries(DIALECT_MARKERS)) {
-    for (const marker of markers) {
-      if (text.includes(marker)) {
-        foundMarkers[dialect].push(marker);
-      }
-    }
-  }
-
-  let bestDialect = "msa";
-  let maxMatches = 0;
-  const allMarkers: string[] = [];
-
-  for (const [dialect, markers] of Object.entries(foundMarkers)) {
-    if (markers.length > maxMatches) {
-      maxMatches = markers.length;
-      bestDialect = dialect;
-    }
-    allMarkers.push(...markers);
-  }
-
-  if (maxMatches === 0) {
-    return { dialect: "msa", confidence: 0.5, markers: [] };
-  }
-
-  const totalPossibleMarkers = DIALECT_MARKERS[bestDialect]?.length ?? 1;
-  const confidence = Math.min(0.95, 0.4 + (maxMatches / totalPossibleMarkers) * 0.55);
-
-  return {
-    dialect: bestDialect,
-    confidence,
-    markers: foundMarkers[bestDialect],
-  };
-}
+export { detectDialect, getDialectFromCountry, getDialectPromptModifier, type ArabicDialect } from "../cultural-ai/dialect-detector";
 
 // ---------------------------------------------------------------------------
 // T0067 - Formality Adjustment

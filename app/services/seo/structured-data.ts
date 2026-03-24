@@ -1,16 +1,24 @@
 /**
  * Translated JSON-LD structured data generators (T0007).
  *
- * Produces schema.org-compliant JSON-LD objects for:
- * - Product
- * - BreadcrumbList
- * - Organization
- *
- * All text fields are localised via the `locale` parameter.
+ * Re-exports canonical implementations from their authoritative modules.
+ * Provides schema.org-compliant JSON-LD objects for:
+ * - Product (via schema-org/product-schema)
+ * - BreadcrumbList (via breadcrumb service)
+ * - Organization (kept here as its only home)
  */
 
+// Re-export product schema from the canonical source
+export {
+  generateProductSchema as generateProductSchema_typed,
+  generateTranslatedProductSchema,
+} from "../schema-org/product-schema";
+
+// Re-export breadcrumb schema from the canonical source
+export { generateBreadcrumbSchema } from "../breadcrumb";
+
 // ---------------------------------------------------------------------------
-// Product schema
+// Product schema — Shopify-shape adapter
 // ---------------------------------------------------------------------------
 
 /**
@@ -90,31 +98,6 @@ export function generateProductSchema(product: any, locale: string): object {
   };
 
   return schema;
-}
-
-// ---------------------------------------------------------------------------
-// BreadcrumbList schema
-// ---------------------------------------------------------------------------
-
-/**
- * Generate a schema.org/BreadcrumbList JSON-LD object for the given
- * breadcrumb trail.
- */
-export function generateBreadcrumbSchema(
-  breadcrumbs: { name: string; url: string }[],
-  locale: string,
-): object {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    inLanguage: locale,
-    itemListElement: breadcrumbs.map((crumb, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: crumb.name,
-      item: crumb.url,
-    })),
-  };
 }
 
 // ---------------------------------------------------------------------------

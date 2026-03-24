@@ -7,14 +7,16 @@
  * - validateSEOSetup: check hreflang consistency, canonical, sitemap
  */
 
-export * from "../seo-infrastructure";
+export * from "./infrastructure";
 
 import {
   type SEOConfig,
   generateHreflangMeta,
   generateCanonical,
   generateRobotsTxt,
-} from "../seo-infrastructure";
+} from "./infrastructure";
+
+import { getTextDirection, type TextDirection } from "../../utils/rtl";
 
 // ---------------------------------------------------------------------------
 // generateMetaTagsForLocale
@@ -26,11 +28,14 @@ export interface LocaleMetaTags {
   canonical: string;
   hreflangTags: string[];
   metaTags: string[];
+  direction: TextDirection;
+  htmlAttributes: string;
 }
 
 /**
  * Generate a complete set of meta tags for a given URL and locale, including
- * `<title>`, `<meta name="description">`, canonical, and hreflang alternates.
+ * `<title>`, `<meta name="description">`, canonical, hreflang alternates,
+ * and dir/lang attributes for RTL support.
  */
 export function generateMetaTagsForLocale(
   url: string,
@@ -41,6 +46,8 @@ export function generateMetaTagsForLocale(
 ): LocaleMetaTags {
   const canonical = generateCanonical(url, locale, config);
   const hreflangTags = generateHreflangMeta(url, config);
+  const direction = getTextDirection(locale);
+  const lang = locale.split('-')[0];
 
   const metaTags: string[] = [
     `<title>${escapeHtml(title)}</title>`,
@@ -49,7 +56,7 @@ export function generateMetaTagsForLocale(
     `<meta property="og:title" content="${escapeHtml(title)}" />`,
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
     `<meta property="og:url" content="${canonical}" />`,
-    `<meta property="og:locale" content="${locale}" />`,
+    `<meta property="og:locale" content="${escapeHtml(locale.replace('-', '_'))}" />`,
     ...hreflangTags,
   ];
 
@@ -59,6 +66,8 @@ export function generateMetaTagsForLocale(
     canonical,
     hreflangTags,
     metaTags,
+    direction,
+    htmlAttributes: `lang="${lang}" dir="${direction}"`,
   };
 }
 

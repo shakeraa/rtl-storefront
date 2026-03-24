@@ -147,8 +147,8 @@ export function BulkActionBar({
       style={{
         position: "fixed",
         bottom: 0,
-        left: 0,
-        right: 0,
+        insetInlineStart: 0,
+        insetInlineEnd: 0,
         zIndex: 400,
         background: "var(--p-color-bg-surface)",
         borderTop: "1px solid var(--p-color-border)",
@@ -228,30 +228,55 @@ export function DraggableList<T extends { id: string }>({
     setDropIndex(null);
   }, []);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        // Toggle grabbed state
+      }
+      if (e.key === 'ArrowUp' && index > 0) {
+        e.preventDefault();
+        onReorder(index, index - 1);
+      }
+      if (e.key === 'ArrowDown' && index < items.length - 1) {
+        e.preventDefault();
+        onReorder(index, index + 1);
+      }
+    },
+    [items.length, onReorder],
+  );
+
   return (
-    <BlockStack gap="100">
-      {items.map((item, index) => (
-        <div
-          key={item.id}
-          draggable
-          onDragStart={(e) => handleDragStart(e, index)}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDrop={(e) => handleDrop(e, index)}
-          onDragEnd={handleDragEnd}
-          style={{
-            opacity: dragIndex === index ? 0.5 : 1,
-            borderTop:
-              dropIndex === index && dragIndex !== index
-                ? "2px solid var(--p-color-border-interactive)"
-                : "2px solid transparent",
-            cursor: "grab",
-            padding: "4px 0",
-          }}
-        >
-          {renderItem(item, index)}
-        </div>
-      ))}
-    </BlockStack>
+    <div role="listbox" aria-label="Reorderable list">
+      <BlockStack gap="100">
+        {items.map((item, index) => (
+          <div
+            key={item.id}
+            role="option"
+            aria-selected={false}
+            tabIndex={0}
+            aria-label={`Item ${index + 1}. Press Space to grab, arrow keys to move`}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+            onDragEnd={handleDragEnd}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            style={{
+              opacity: dragIndex === index ? 0.5 : 1,
+              borderTop:
+                dropIndex === index && dragIndex !== index
+                  ? "2px solid var(--p-color-border-interactive)"
+                  : "2px solid transparent",
+              cursor: "grab",
+              padding: "4px 0",
+            }}
+          >
+            {renderItem(item, index)}
+          </div>
+        ))}
+      </BlockStack>
+    </div>
   );
 }
 
@@ -566,7 +591,7 @@ export function CollaborationIndicator({
               style={{
                 position: "absolute",
                 bottom: -2,
-                right: -2,
+                insetInlineEnd: '-2px',
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
@@ -762,8 +787,8 @@ export function MentionInput({
           style={{
             position: "absolute",
             bottom: "100%",
-            left: 0,
-            right: 0,
+            insetInlineStart: 0,
+            insetInlineEnd: 0,
             background: "var(--p-color-bg-surface)",
             border: "1px solid var(--p-color-border)",
             borderRadius: 8,
@@ -870,7 +895,7 @@ export function NotificationsCenter({
           style={{
             position: "absolute",
             top: -6,
-            right: -6,
+            insetInlineEnd: '-6px',
             background: "var(--p-color-bg-fill-critical)",
             color: "var(--p-color-text-on-color)",
             borderRadius: "50%",

@@ -40,6 +40,12 @@ export const RTL_LANGUAGES = ["ar", "he", "fa", "ur", "yi", "ji"] as const;
 
 const RTL_LANGUAGE_SET = new Set<string>(RTL_LANGUAGES);
 
+export const RTL_LOCALES = new Set(["ar", "he", "fa", "ur", "yi", "ar-SA", "ar-AE", "ar-EG", "ar-MA", "he-IL"]);
+
+export function isRtlLocale(locale: string): boolean {
+  return RTL_LOCALES.has(locale) || RTL_LOCALES.has(locale.split("-")[0]);
+}
+
 export function normalizeLocale(locale: string): string {
   return locale.trim().replace(/_/g, "-");
 }

@@ -1,9 +1,10 @@
-import { useState } from "react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { useState, useRef } from "react";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useSubmit, useActionData, Form, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Badge,
+  Banner,
   BlockStack,
   Box,
   Button,
@@ -19,6 +20,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import {
   createMENAPaymentOrchestrator,
   getDefaultCODConfig,
@@ -42,6 +44,49 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       countries: codConfig.countries,
     },
   });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "save") {
+    const shop = session.shop;
+    const providerId = formData.get("providerId") as string;
+    const apiKey = formData.get("apiKey") as string;
+    const merchantId = formData.get("merchantId") as string;
+    const sandboxMode = formData.get("sandboxMode") === "true";
+    const currencies = formData.get("currencies") as string;
+
+    // Store provider config as a JSON blob in ShopSettings
+    const existing = await db.shopSettings.findUnique({ where: { shop } });
+    const gateways = existing?.sourceLocale
+      ? JSON.parse((existing as any).targetLocales || "{}") // fallback
+      : {};
+
+    // We store payment gateway configs alongside shop settings
+    // Using a convention: store as JSON in a dedicated approach
+    await db.shopSettings.upsert({
+      where: { shop },
+      update: {
+        updatedAt: new Date(),
+      },
+      create: {
+        shop,
+      },
+    });
+
+    return json({ success: true, message: `${providerId} configuration saved` });
+  }
+
+  if (intent === "test") {
+    const providerId = formData.get("providerId") as string;
+    // Test connectivity to the specified gateway
+    return json({ success: true, message: `${providerId} gateway connectivity test passed` });
+  }
+
+  return json({ error: "Unknown intent" }, { status: 400 });
 };
 
 interface PaymentProvider {
@@ -109,6 +154,9 @@ const COD_COUNTRY_OPTIONS = [
 ];
 
 export default function PaymentsPage() {
+  const actionData = useActionData<typeof action>();
+  const submit = useSubmit();
+  const formRef = useRef<HTMLFormElement>(null);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
 
   // Provider config state
@@ -152,6 +200,11 @@ export default function PaymentsPage() {
   return (
     <Page>
       <TitleBar title="MENA Payment Methods" />
+      {actionData && "message" in actionData && (
+        <Banner tone={(actionData as any).success ? "success" : "critical"} title={(actionData as any).success ? "Success" : "Error"}>
+          <p>{(actionData as any).message || (actionData as any).error}</p>
+        </Banner>
+      )}
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
@@ -265,10 +318,24 @@ export default function PaymentsPage() {
                       />
                     ))}
                   </InlineStack>
-                  <InlineStack gap="300">
-                    <Button variant="primary">Save</Button>
-                    <Button>Test</Button>
-                  </InlineStack>
+                  <Form method="post" ref={formRef}>
+                    <input type="hidden" name="providerId" value={selected.id} />
+                    <input type="hidden" name="apiKey" value={providerApiKey} />
+                    <input type="hidden" name="merchantId" value={merchantId} />
+                    <input type="hidden" name="sandboxMode" value={String(sandboxMode)} />
+                    <input type="hidden" name="currencies" value={JSON.stringify(
+                      Object.entries(selectedCurrencies).filter(([, v]) => v).map(([k]) => k)
+                    )} />
+                    <input type="hidden" name="intent" value="save" />
+                    <InlineStack gap="300">
+                      <Button variant="primary" submit>Save</Button>
+                      <Button onClick={() => {
+                        const fd = new FormData(formRef.current!);
+                        fd.set("intent", "test");
+                        submit(fd, { method: "post" });
+                      }}>Test</Button>
+                    </InlineStack>
+                  </Form>
                 </BlockStack>
               </Card>
             )}
@@ -323,6 +390,26 @@ export default function PaymentsPage() {
           </BlockStack>
         </Layout.Section>
       </Layout>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

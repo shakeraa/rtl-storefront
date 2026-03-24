@@ -14,14 +14,9 @@
 const PLACEHOLDER_PREFIX = "\u27EA" + "FMT_"; // ⟪FMT_
 const PLACEHOLDER_SUFFIX = "\u27EB"; // ⟫
 
-let globalCounter = 0;
-
-function nextPlaceholder(): string {
-  return `${PLACEHOLDER_PREFIX}${globalCounter++}${PLACEHOLDER_SUFFIX}`;
-}
-
-function resetCounter(): void {
-  globalCounter = 0;
+function createPlaceholderGenerator() {
+  let counter = 0;
+  return () => `${PLACEHOLDER_PREFIX}${counter++}${PLACEHOLDER_SUFFIX}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -166,7 +161,7 @@ const MARKDOWN_PATTERNS = [
 export function preserveHTMLFormatting(
   html: string,
 ): { text: string; placeholders: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const placeholders = new Map<string, string>();
   let result = html;
 
@@ -193,7 +188,7 @@ export function restoreHTMLFormatting(
 export function preserveMarkdown(
   text: string,
 ): { text: string; placeholders: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const placeholders = new Map<string, string>();
   let result = text;
 
@@ -240,7 +235,7 @@ export function countEmojis(text: string): number {
 export function preserveEmojis(
   text: string,
 ): { text: string; emojiMap: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const emojiMap = new Map<string, string>();
   const result = text.replace(EMOJI_REGEX, (match) => {
     const ph = nextPlaceholder();
@@ -270,7 +265,7 @@ const SPECIAL_CHARS_REGEX = /[\u2122\u00AE\u00A9\u00B0\u00B1\u00B2\u00B3\u00BD\u
 export function preserveSpecialChars(
   text: string,
 ): { text: string; charMap: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const charMap = new Map<string, string>();
   const result = text.replace(SPECIAL_CHARS_REGEX, (match) => {
     const ph = nextPlaceholder();
@@ -312,7 +307,7 @@ export function extractUrls(
 export function protectUrls(
   text: string,
 ): { text: string; urls: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const urls = new Map<string, string>();
   const result = text.replace(URL_REGEX, (match) => {
     const ph = nextPlaceholder();
@@ -346,7 +341,7 @@ export function extractEmails(text: string): string[] {
 export function protectEmails(
   text: string,
 ): { text: string; emails: Map<string, string> } {
-  resetCounter();
+  const nextPlaceholder = createPlaceholderGenerator();
   const emails = new Map<string, string>();
   const result = text.replace(EMAIL_REGEX, (match) => {
     const ph = nextPlaceholder();
@@ -363,6 +358,36 @@ export function restoreEmails(
   let result = text;
   for (const [ph, email] of emails) {
     result = result.replace(ph, email);
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Liquid Template Preservation
+// ---------------------------------------------------------------------------
+
+const LIQUID_REGEX = /\{\{[\s\S]*?\}\}|\{%[\s\S]*?%\}/g;
+
+export function preserveLiquid(
+  text: string,
+): { text: string; placeholders: Map<string, string> } {
+  const nextPlaceholder = createPlaceholderGenerator();
+  const placeholders = new Map<string, string>();
+  const result = text.replace(LIQUID_REGEX, (match) => {
+    const ph = nextPlaceholder();
+    placeholders.set(ph, match);
+    return ph;
+  });
+  return { text: result, placeholders };
+}
+
+export function restoreLiquid(
+  text: string,
+  placeholders: Map<string, string>,
+): string {
+  let result = text;
+  for (const [ph, original] of placeholders) {
+    result = result.replace(ph, original);
   }
   return result;
 }

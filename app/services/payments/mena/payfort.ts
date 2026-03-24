@@ -1,4 +1,4 @@
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import type {
   MENAPaymentConfig,
   PaymentGateway,
@@ -21,18 +21,30 @@ export function createPayFortGateway(config: MENAPaymentConfig): PaymentGateway 
   const apiUrl = config.sandbox ? PAYFORT_SANDBOX_URL : PAYFORT_PRODUCTION_URL;
 
   /**
-   * Generate PayFort signature.
-   * SHA-256 hash of sorted request parameters concatenated with passphrase.
+   * Generate PayFort signature for requests.
+   * SHA-256 hash of sorted request parameters concatenated with request passphrase.
    */
-  function generateSignature(params: Record<string, string>): string {
-    const passphrase = config.secretKey ?? "";
+  function generateSignature(params: Record<string, string>, passphrase?: string): string {
+    const phrase = passphrase ?? config.secretKey ?? "";
     const sortedKeys = Object.keys(params).sort();
     const signatureString =
-      passphrase +
+      phrase +
       sortedKeys.map((key) => `${key}=${params[key]}`).join("") +
-      passphrase;
+      phrase;
     return createHash("sha256").update(signatureString).digest("hex");
   }
+
+  /**
+   * Currency-aware minor unit multiplier.
+   * KWD, BHD, OMR use 3 decimal places; JPY uses 0; others use 2.
+   */
+  const getMinorUnitMultiplier = (currency: string): number => {
+    const threeDecimal = ['KWD', 'BHD', 'OMR'];
+    const zeroDecimal = ['JPY'];
+    if (threeDecimal.includes(currency.toUpperCase())) return 1000;
+    if (zeroDecimal.includes(currency.toUpperCase())) return 1;
+    return 100;
+  };
 
   async function payfortFetch<T>(params: Record<string, string>): Promise<T> {
     const signature = generateSignature(params);
@@ -67,7 +79,7 @@ export function createPayFortGateway(config: MENAPaymentConfig): PaymentGateway 
         access_code: config.apiKey,
         merchant_identifier: config.merchantId ?? "",
         merchant_reference: request.orderId,
-        amount: String(Math.round(request.amount * 100)),
+        amount: String(Math.round(request.amount * getMinorUnitMultiplier(request.currency))),
         currency: request.currency,
         language: "ar",
         customer_email: request.customerEmail,
@@ -143,8 +155,8 @@ export function createPayFortGateway(config: MENAPaymentConfig): PaymentGateway 
         access_code: config.apiKey,
         merchant_identifier: config.merchantId ?? "",
         fort_id: request.transactionId,
-        amount: String(Math.round((request.amount ?? 0) * 100)),
-        currency: "AED",
+        amount: String(Math.round((request.amount ?? 0) * getMinorUnitMultiplier(request.currency ?? "AED"))),
+        currency: request.currency ?? "AED",
         language: "ar",
       };
 
@@ -170,8 +182,12 @@ export function createPayFortGateway(config: MENAPaymentConfig): PaymentGateway 
       if (!config.webhookSecret) return false;
       const data = JSON.parse(payload) as Record<string, string>;
       const { signature: _sig, ...params } = data;
-      const expected = generateSignature(params);
-      return expected === signature;
+      const expected = generateSignature(params, config.webhookSecret);
+      try {
+        return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      } catch {
+        return false;
+      }
     },
 
     parseWebhookEvent(payload: Record<string, unknown>): WebhookEvent {

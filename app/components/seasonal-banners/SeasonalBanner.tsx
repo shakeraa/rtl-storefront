@@ -28,27 +28,28 @@ export function SeasonalBanner({ country, locale = 'en' }: SeasonalBannerProps) 
   const isRTL = locale === 'ar';
   const text = isRTL ? template.bannerTextAr : template.bannerText;
 
+  const bannerStyle = {
+    backgroundColor: template.theme.primaryColor,
+    color: template.theme.secondaryColor,
+    direction: isRTL ? 'rtl' as const : 'ltr' as const,
+    textAlign: 'start' as const,
+  };
+
   return (
-    <Banner
-      tone="info"
-      style={{
-        backgroundColor: template.theme.primaryColor,
-        color: template.theme.secondaryColor,
-        direction: isRTL ? 'rtl' : 'ltr',
-        textAlign: isRTL ? 'right' : 'left',
-      }}
-    >
-      <Text variant="headingMd" as="h2">
-        {text}
-      </Text>
-      {activeCampaign.discount && (
-        <Text variant="bodyMd" as="p">
-          {isRTL
-            ? `خصم يصل إلى ${activeCampaign.discount}%`
-            : `Up to ${activeCampaign.discount}% off`}
+    <div style={bannerStyle}>
+      <Banner tone="info">
+        <Text variant="headingMd" as="h2">
+          {text}
         </Text>
-      )}
-    </Banner>
+        {activeCampaign.discount && (
+          <Text variant="bodyMd" as="p">
+            {isRTL
+              ? `خصم يصل إلى ${activeCampaign.discount}%`
+              : `Up to ${activeCampaign.discount}% off`}
+          </Text>
+        )}
+      </Banner>
+    </div>
   );
 }
 

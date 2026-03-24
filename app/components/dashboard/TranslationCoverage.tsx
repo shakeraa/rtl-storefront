@@ -5,13 +5,13 @@
 
 import { useState } from 'react';
 import {
-  Card,
-  Stack,
+  BlockStack,
   Text,
   ProgressBar,
   DataTable,
   Badge,
   Button,
+  Box,
 } from '@shopify/polaris';
 
 export interface CoverageData {
@@ -69,20 +69,18 @@ export function TranslationCoverage({
   ];
 
   return (
-    <Card>
-      <Card.Section>
-        <Stack vertical spacing="loose">
-          <Text variant="headingMd" as="h2">
-            {locale === 'ar' ? 'تغطية الترجمة' : 'Translation Coverage'}
-          </Text>
-          
-          <DataTable
-            columnContentTypes={['text', 'text', 'numeric', 'numeric', 'text', 'text']}
-            headings={headings}
-            rows={rows}
-          />
-        </Stack>
-      </Card.Section>
-    </Card>
+    <Box padding="400">
+      <BlockStack gap="400">
+        <Text variant="headingMd" as="h2">
+          {locale === 'ar' ? 'تغطية الترجمة' : 'Translation Coverage'}
+        </Text>
+
+        <DataTable
+          columnContentTypes={['text', 'text', 'numeric', 'numeric', 'text', 'text']}
+          headings={headings}
+          rows={rows}
+        />
+      </BlockStack>
+    </Box>
   );
 }

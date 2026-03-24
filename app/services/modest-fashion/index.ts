@@ -123,32 +123,23 @@ export function getModestCollection(products: ProductInput[], minLevel: ModestyL
 }
 
 /**
- * Approximate check for Ramadan season.
- * Uses a simplified Hijri calendar estimate (Ramadan shifts ~11 days/year).
- * Reference: Ramadan 2024 started ~March 11, 2025 ~March 1, 2026 ~Feb 18.
+ * Check for Ramadan season using the Hijri (Islamic) calendar via Intl.
+ * Ramadan is month 9 in the Islamic calendar.
+ * Also includes Sha'ban (month 8) for pre-Ramadan preparation season.
  */
 export function isRamadanSeason(date: Date): boolean {
-  const year = date.getFullYear();
-  // Approximate Ramadan start dates (shifts ~11 days earlier each Gregorian year)
-  const ramadanEstimates: Record<number, { startMonth: number; startDay: number }> = {
-    2024: { startMonth: 2, startDay: 11 },  // March 11
-    2025: { startMonth: 1, startDay: 28 },  // Feb 28
-    2026: { startMonth: 1, startDay: 18 },  // Feb 18
-    2027: { startMonth: 1, startDay: 7 },   // Feb 7
-    2028: { startMonth: 0, startDay: 27 },  // Jan 27
-  };
-
-  const estimate = ramadanEstimates[year];
-  if (!estimate) {
-    // Fallback heuristic: check if within a broad window
-    const month = date.getMonth();
-    return month >= 0 && month <= 3; // Jan-Apr as broad fallback
+  try {
+    const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+      month: 'numeric',
+    });
+    const hijriMonth = parseInt(hijriFormatter.format(date));
+    // Ramadan is month 9 in the Islamic calendar
+    // Include Sha'ban (month 8) for pre-Ramadan prep
+    return hijriMonth === 9 || hijriMonth === 8;
+  } catch {
+    // Fallback: return false if Intl doesn't support islamic calendar
+    return false;
   }
-
-  const ramadanStart = new Date(year, estimate.startMonth, estimate.startDay);
-  const ramadanEnd = new Date(ramadanStart.getTime() + 30 * 24 * 60 * 60 * 1000); // ~30 days
-
-  return date >= ramadanStart && date <= ramadanEnd;
 }
 
 /**

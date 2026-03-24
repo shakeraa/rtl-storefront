@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type {
   MENAPaymentConfig,
   PaymentGateway,
@@ -131,7 +131,7 @@ export function createTamaraGateway(config: MENAPaymentConfig): PaymentGateway {
       }>(`/orders/${request.transactionId}/refunds`, {
         method: "POST",
         body: JSON.stringify({
-          total_amount: request.amount ? { amount: request.amount, currency: "SAR" } : undefined,
+          total_amount: request.amount ? { amount: request.amount, currency: request.currency ?? "SAR" } : undefined,
           comment: request.reason ?? "Refund requested",
         }),
       });
@@ -141,7 +141,7 @@ export function createTamaraGateway(config: MENAPaymentConfig): PaymentGateway {
         refundId: result.refund_id,
         transactionId: request.transactionId,
         amount: request.amount ?? 0,
-        currency: "SAR",
+        currency: (request.currency ?? "SAR") as SupportedCurrency,
         status: result.status === "fully_refunded" ? "completed" : "pending",
       };
     },
@@ -149,7 +149,11 @@ export function createTamaraGateway(config: MENAPaymentConfig): PaymentGateway {
     verifyWebhook(payload: string, signature: string): boolean {
       if (!config.webhookSecret) return false;
       const expected = createHmac("sha256", config.webhookSecret).update(payload).digest("hex");
-      return expected === signature;
+      try {
+        return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      } catch {
+        return false;
+      }
     },
 
     parseWebhookEvent(payload: Record<string, unknown>): WebhookEvent {

@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type {
   MENAPaymentConfig,
   PaymentGateway,
@@ -151,7 +151,7 @@ export function createHyperPayGateway(config: MENAPaymentConfig): PaymentGateway
       const params = new URLSearchParams({
         entityId: config.merchantId ?? "",
         amount: String(request.amount ?? 0),
-        currency: "SAR",
+        currency: request.currency ?? "SAR",
         paymentType: "RF",
       });
 
@@ -175,7 +175,11 @@ export function createHyperPayGateway(config: MENAPaymentConfig): PaymentGateway
     verifyWebhook(payload: string, signature: string): boolean {
       if (!config.webhookSecret) return false;
       const expected = createHmac("sha256", config.webhookSecret).update(payload).digest("hex");
-      return expected === signature;
+      try {
+        return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      } catch {
+        return false;
+      }
     },
 
     parseWebhookEvent(payload: Record<string, unknown>): WebhookEvent {

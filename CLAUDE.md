@@ -44,21 +44,21 @@ npx tsx prisma/seed.ts   # Seed billing plans + glossary
 
 ```
 app/
-├── routes/           # 26 Remix routes (admin pages + API)
-├── services/         # 87 service directories
+├── routes/           # 54 Remix routes (admin pages + API)
+├── services/         # 64 service directories
 ├── components/       # UI components (visual-editor, system, ui-features)
 ├── utils/            # RTL utilities, translation helpers
 extensions/
-├── language-switcher/  # Theme extension (4 blocks)
+├── rtl-fashion-sections/  # Theme extension (4 blocks)
 │   ├── blocks/         # language-switcher, checkout-rtl, mena-payments, rtl-inject
 │   ├── assets/         # rtl-storefront.css
 │   └── locales/        # en.default.json
 packages/
 ├── hydrogen/         # Headless translation client stub
 prisma/
-├── schema.prisma     # 8 models
+├── schema.prisma     # 18 models
 ├── seed.ts           # Billing plans + glossary entries
-├── migrations/       # 3 migrations applied
+├── migrations/       # 11 migrations applied
 test/
 ├── unit/             # 109 test files
 ├── integration/      # 3 integration tests

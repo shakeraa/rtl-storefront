@@ -1,13 +1,14 @@
 import { useState } from "react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useSubmit } from "@remix-run/react";
 import {
   Page, Layout, Card, BlockStack, InlineStack, Text,
   TextField, Select, Checkbox, Badge, Button,
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import { SUPPORTED_LANGUAGES } from "../services/language-switcher/options";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -34,9 +35,52 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+
+  const settingsData = {
+    aiProvider: String(formData.get("provider") || "openai"),
+    sourceLocale: String(formData.get("sourceLocale") || "en"),
+    targetLocales: String(formData.get("targetLocales") || '["ar","he"]'),
+    autoDetectRTL: formData.get("autoDetectRTL") === "true",
+    arabicFont: String(formData.get("arabicFont") || "noto-sans-arabic"),
+    hebrewFont: String(formData.get("hebrewFont") || "heebo"),
+    enableTM: formData.get("enableTM") === "true",
+    fuzzyThreshold: parseInt(String(formData.get("fuzzyThreshold") || "80")),
+    autoSuggest: formData.get("autoSuggest") === "true",
+  };
+
+  // Save API key if provided
+  const apiKeyValue = String(formData.get("apiKey") || "");
+  const apiKeyUpdates: Record<string, string> = {};
+  if (apiKeyValue) {
+    switch (settingsData.aiProvider) {
+      case "openai":
+        apiKeyUpdates.openaiApiKey = apiKeyValue;
+        break;
+      case "deepl":
+        apiKeyUpdates.deeplApiKey = apiKeyValue;
+        break;
+      case "google":
+        apiKeyUpdates.googleAccessToken = apiKeyValue;
+        break;
+    }
+  }
+
+  await db.shopSettings.upsert({
+    where: { shop: session.shop },
+    update: { ...settingsData, ...apiKeyUpdates },
+    create: { shop: session.shop, ...settingsData, ...apiKeyUpdates },
+  });
+
+  return json({ success: true });
+};
+
 export default function SettingsPage() {
   const { shop, providers, availableLanguages } = useLoaderData<typeof loader>();
   const shopify = useAppBridge();
+  const submit = useSubmit();
 
   const [provider, setProvider] = useState("openai");
   const [apiKey, setApiKey] = useState("");
@@ -50,6 +94,21 @@ export default function SettingsPage() {
   const [autoSuggest, setAutoSuggest] = useState(true);
 
   const handleSave = () => {
+    const formData = new FormData();
+    formData.set("provider", provider);
+    formData.set("apiKey", apiKey);
+    formData.set("sourceLocale", sourceLocale);
+    formData.set("targetLocales", JSON.stringify(
+      Object.entries(targetLocales).filter(([, v]) => v).map(([k]) => k)
+    ));
+    formData.set("autoDetectRTL", String(autoDetectRTL));
+    formData.set("arabicFont", arabicFont);
+    formData.set("hebrewFont", hebrewFont);
+    formData.set("enableTM", String(enableTM));
+    formData.set("fuzzyThreshold", fuzzyThreshold);
+    formData.set("autoSuggest", String(autoSuggest));
+    submit(formData, { method: "post" });
+    setApiKey("");
     shopify.toast.show("Settings saved");
   };
 

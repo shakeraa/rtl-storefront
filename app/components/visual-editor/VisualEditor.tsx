@@ -12,12 +12,7 @@ import {
   Box,
 } from "@shopify/polaris";
 
-const RTL_LOCALES = new Set(["ar", "he", "fa", "ur", "ps", "ku", "sd", "yi"]);
-
-function isRtlLocale(locale: string): boolean {
-  const lang = locale.split("-")[0].toLowerCase();
-  return RTL_LOCALES.has(lang);
-}
+import { isRtlLocale } from "../../utils/rtl";
 
 interface VisualEditorProps {
   sourceText: string;

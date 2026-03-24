@@ -4,6 +4,9 @@ import { createProviderRegistry, sortProvidersForLanguagePair } from "./ai-provi
 import { normalizeLocale, TranslationProviderError } from "./ai-providers/shared";
 import { trackTranslationUsage, getProviderCostRate } from "../analytics/usage-tracker";
 import { notifyTranslationComplete, notifyTranslationError, notifyReviewNeeded } from "../notifications/notifier.server";
+import { findExact as tmFindExact, addEntry as tmAddEntry } from "../translation-memory/store";
+import { getNeverTranslateTerms } from "../translation-memory/glossary";
+import { preserveHTMLFormatting, restoreHTMLFormatting, preserveLiquid, restoreLiquid } from "../translation-formatting";
 import type {
   ProviderQuotaStatus,
   TranslationCacheStore,
@@ -15,6 +18,25 @@ import type {
 } from "./types";
 
 const DEFAULT_CACHE_TTL_HOURS = 24 * 7;
+
+const isRetryable = (error: unknown): boolean => {
+  const status = (error as { statusCode?: number; status?: number })?.statusCode
+    ?? (error as { statusCode?: number; status?: number })?.status;
+  return [429, 500, 502, 503].includes(status as number)
+    || (error as { code?: string })?.code === "ECONNRESET";
+};
+
+async function withRetry<T>(fn: () => Promise<T>, maxRetries = 2): Promise<T> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === maxRetries || !isRetryable(error)) throw error;
+      await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
+    }
+  }
+  throw new Error("Unreachable");
+}
 
 export class TranslationEngineError extends Error {
   constructor(
@@ -97,6 +119,44 @@ export class TranslationEngine {
       };
     }
 
+    // Check Translation Memory first
+    if (input.shop) {
+      const tmMatch = await tmFindExact(
+        input.shop,
+        normalizedSource,
+        normalizedTarget,
+        input.text,
+      );
+      if (tmMatch) {
+        return {
+          translatedText: tmMatch.translatedText,
+          provider: "openai" as TranslationProviderName,
+          detectedSourceLocale: normalizedSource,
+          cached: true,
+          fallbackUsed: false,
+          usage: {
+            requests: 0,
+            characters: 0,
+            remainingRequests: null,
+            remainingCharacters: null,
+          },
+          quota: {
+            provider: "openai",
+            configured: false,
+            requests: 0,
+            requestLimit: null,
+            characters: 0,
+            characterLimit: null,
+            alert: null,
+          },
+          metadata: {
+            source: "translation-memory",
+            quality: tmMatch.quality ?? 1.0,
+          },
+        };
+      }
+    }
+
     const cacheKey = buildCacheKey(input);
 
     if (!input.bypassCache) {
@@ -147,13 +207,46 @@ export class TranslationEngine {
       );
     }
 
+    // --- Glossary: protect never-translate terms ---
+    let processedText = input.text;
+    const glossaryReplacements: Array<{ placeholder: string; term: string }> = [];
+
+    if (input.shop) {
+      const neverTranslate = await getNeverTranslateTerms(input.shop, normalizedSource);
+      let idx = 0;
+      for (const term of neverTranslate) {
+        const placeholder = `\u27E8NT${idx}\u27E9`;
+        if (processedText.includes(term.sourceTerm)) {
+          processedText = processedText.replaceAll(term.sourceTerm, placeholder);
+          glossaryReplacements.push({ placeholder, term: term.sourceTerm });
+          idx++;
+        }
+      }
+    }
+
+    // --- Formatting preservation: protect HTML tags and Liquid templates ---
+    const { text: afterHtml, placeholders: htmlPlaceholders } = preserveHTMLFormatting(processedText);
+    const { text: textForProvider, placeholders: liquidPlaceholders } = preserveLiquid(afterHtml);
+
+    // Create a modified input with preprocessed text for providers
+    const providerInput = { ...input, text: textForProvider };
+
     const attempts: Array<{ provider: TranslationProviderName; message: string }> = [];
 
     for (const [index, provider] of chain.entries()) {
       try {
         const startTime = Date.now();
-        const result = await provider.translate(input);
+        const result = await withRetry(() => provider.translate(providerInput));
         const responseTimeMs = Date.now() - startTime;
+
+        // --- Restore formatting: Liquid, then HTML, then glossary ---
+        let finalText = result.translatedText;
+        finalText = restoreLiquid(finalText, liquidPlaceholders);
+        finalText = restoreHTMLFormatting(finalText, htmlPlaceholders);
+        for (const { placeholder, term } of glossaryReplacements) {
+          finalText = finalText.replaceAll(placeholder, term);
+        }
+        result.translatedText = finalText;
 
         await this.cache.set({
           cacheKey,
@@ -165,6 +258,17 @@ export class TranslationEngine {
           context: input.context,
           expiresAt: buildCacheExpiry(this.env, this.now),
         });
+
+        // Save to Translation Memory
+        if (input.shop && result.translatedText) {
+          void tmAddEntry(input.shop, {
+            sourceLocale: normalizedSource,
+            targetLocale: normalizedTarget,
+            sourceText: input.text,
+            translatedText: result.translatedText,
+            quality: (result.metadata?.qualityScore as number) ?? 0.85,
+          }).catch(() => {});
+        }
 
         // Track actual API usage
         void trackTranslationUsage({
@@ -181,13 +285,13 @@ export class TranslationEngine {
           contentType: input.contentType,
           qualityScore: result.metadata?.qualityScore as number | undefined,
           cached: false,
-          glossaryUsed: !!input.glossaryEntries?.length,
+          glossaryUsed: !!input.glossaryEntries?.length || glossaryReplacements.length > 0,
         });
 
         // Send notification for translation completion
         if (input.shop && input.resourceType && input.resourceId) {
           const qualityScore = result.metadata?.qualityScore as number | undefined;
-          
+
           // Notify completion
           void notifyTranslationComplete({
             shop: input.shop,

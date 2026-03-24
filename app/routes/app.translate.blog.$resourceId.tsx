@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Page, Layout, Card, BlockStack, InlineStack, Text, TextField, Button, Badge, Select, Banner, Spinner } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -14,14 +14,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const targetLocale = url.searchParams.get("locale") || "ar";
 
   const response = await admin.graphql(`#graphql
-    query getTranslatableResource($resourceId: ID!) {
+    query getTranslatableResource($resourceId: ID!, $locale: String!) {
       translatableResource(resourceId: $resourceId) {
         resourceId
         translatableContent { key value digest locale }
-        translations(locale: "${targetLocale}") { key value }
+        translations(locale: $locale) { key value }
       }
     }
-  `, { variables: { resourceId: `gid://shopify/OnlineStoreArticle/${resourceId}` } });
+  `, { variables: { resourceId: `gid://shopify/OnlineStoreArticle/${resourceId}`, locale: targetLocale } });
 
   const data = await response.json();
   const resource = data.data?.translatableResource;
@@ -48,7 +48,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (intent === "translate_all") {
     const engine = createTranslationEngine();
     const fieldsJson = formData.get("fields") as string;
-    const fields = JSON.parse(fieldsJson);
+    let fields;
+    try {
+      fields = JSON.parse(fieldsJson);
+    } catch {
+      return json({ error: "Invalid data format" }, { status: 400 });
+    }
     const translated = [];
 
     for (const field of fields) {
@@ -156,6 +161,26 @@ export default function BlogTranslatePage() {
           </Layout.Section>
         </Layout>
       </BlockStack>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponseError ? `${error.status} Error` : 'Something went wrong'}
+          </Text>
+          <Text as="p">
+            {isResponseError ? error.data?.message || error.statusText : 'An unexpected error occurred. Please try again.'}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

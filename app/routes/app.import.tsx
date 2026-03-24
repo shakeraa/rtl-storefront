@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { useActionData, useSubmit, useNavigation } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -18,6 +19,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import db from "../db.server";
 import {
   parseCSV,
   validateCSVStructure,
@@ -29,6 +31,81 @@ import type { CSVValidationResult, TranslationEntry } from "../services/import-e
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
   return json({});
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+  const fileContent = formData.get("fileContent") as string;
+  const fileNameVal = formData.get("fileName") as string;
+
+  if (!fileContent) {
+    return json({ error: "No file content provided" }, { status: 400 });
+  }
+
+  const isJson = fileNameVal?.endsWith(".json");
+
+  try {
+    let translations: Array<{
+      sourceText?: string;
+      targetText?: string;
+      translatedText?: string;
+      sourceLocale?: string;
+      targetLocale?: string;
+    }>;
+
+    if (isJson) {
+      translations = JSON.parse(fileContent);
+      if (!Array.isArray(translations)) {
+        translations = [translations];
+      }
+    } else {
+      // CSV parsing
+      const lines = fileContent.split("\n");
+      const headers = lines[0].split(",").map((h: string) => h.trim());
+      translations = lines
+        .slice(1)
+        .filter((l: string) => l.trim())
+        .map((line: string) => {
+          const values = line.split(",").map((v: string) => v.trim().replace(/^"|"$/g, ""));
+          return Object.fromEntries(headers.map((h: string, i: number) => [h, values[i]]));
+        });
+    }
+
+    let imported = 0;
+    for (const t of translations) {
+      const sourceText = t.sourceText;
+      const targetText = t.targetText || t.translatedText;
+      const sourceLocale = t.sourceLocale;
+      const targetLocale = t.targetLocale;
+
+      if (sourceText && targetText && sourceLocale && targetLocale) {
+        await db.translationMemory.upsert({
+          where: {
+            shop_sourceLocale_targetLocale_sourceText: {
+              shop: session.shop,
+              sourceLocale,
+              targetLocale,
+              sourceText,
+            },
+          },
+          update: { translatedText: targetText },
+          create: {
+            shop: session.shop,
+            sourceLocale,
+            targetLocale,
+            sourceText,
+            translatedText: targetText,
+          },
+        });
+        imported++;
+      }
+    }
+
+    return json({ success: true, imported });
+  } catch (error) {
+    return json({ error: "Failed to parse file content" }, { status: 400 });
+  }
 };
 
 type FileFormat = "CSV" | "JSON" | "XLIFF" | "unknown";
@@ -60,6 +137,10 @@ function formatBadgeTone(format: FileFormat) {
 }
 
 export default function ImportPage() {
+  const actionData = useActionData<typeof action>();
+  const submit = useSubmit();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [detectedFormat, setDetectedFormat] = useState<FileFormat>("unknown");
@@ -119,19 +200,13 @@ export default function ImportPage() {
 
   const handleImport = useCallback(() => {
     if (!fileContent || entries.length === 0) return;
-    // Simulate import progress
-    setImportProgress(0);
-    const interval = setInterval(() => {
-      setImportProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setImported(true);
-          return 100;
-        }
-        return prev + 20;
-      });
-    }, 300);
-  }, [fileContent, entries]);
+    const formData = new FormData();
+    formData.set("fileContent", fileContent);
+    formData.set("fileName", fileName || "import.csv");
+    submit(formData, { method: "post" });
+    setImported(true);
+    setImportProgress(100);
+  }, [fileContent, entries, fileName, submit]);
 
   const previewHeaders =
     previewRows.length > 0 ? Object.keys(previewRows[0]) : [];
@@ -245,7 +320,21 @@ export default function ImportPage() {
                   Import Progress
                 </Text>
                 <ProgressBar progress={importProgress} size="small" />
-                {imported && (
+                {actionData && "success" in actionData && actionData.success && (
+                  <Banner title="Import Complete" tone="success">
+                    <Text as="p" variant="bodyMd">
+                      Successfully imported {actionData.imported} translation entries to the database.
+                    </Text>
+                  </Banner>
+                )}
+                {actionData && "error" in actionData && (
+                  <Banner title="Import Failed" tone="critical">
+                    <Text as="p" variant="bodyMd">
+                      {actionData.error}
+                    </Text>
+                  </Banner>
+                )}
+                {imported && !actionData && (
                   <Banner title="Import Complete" tone="success">
                     <Text as="p" variant="bodyMd">
                       Successfully imported {entries.length} translation entries.
@@ -266,9 +355,11 @@ export default function ImportPage() {
                 disabled={
                   !validation?.valid ||
                   entries.length === 0 ||
-                  imported
+                  imported ||
+                  isSubmitting
                 }
                 onClick={handleImport}
+                loading={isSubmitting}
               >
                 Import
               </Button>

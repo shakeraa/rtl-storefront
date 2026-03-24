@@ -6,7 +6,7 @@
 import { useState, useCallback } from 'react';
 import {
   Select,
-  Stack,
+  BlockStack,
   Text,
 } from '@shopify/polaris';
 import {
@@ -46,7 +46,7 @@ export function CurrencySelector({
   }));
 
   return (
-    <Stack vertical spacing="tight">
+    <BlockStack gap="200">
       <Select
         label="Currency"
         options={options}
@@ -55,16 +55,16 @@ export function CurrencySelector({
       />
       
       {showPreview && amount !== undefined && currency && (
-        <Text variant="bodyMd" as="p" color="subdued">
+        <Text variant="bodyMd" as="p" tone="subdued">
           Preview: {formatPrice(amount, selected)}
         </Text>
       )}
       
       {currency && (
-        <Text variant="bodySm" as="p" color="subdued">
+        <Text variant="bodySm" as="p" tone="subdued">
           Symbol: {currency.symbol} ({currency.symbolPosition})
         </Text>
       )}
-    </Stack>
+    </BlockStack>
   );
 }

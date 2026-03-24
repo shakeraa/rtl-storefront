@@ -67,7 +67,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const prefsJson = formData.get("preferences") as string;
       const emailRecipients = formData.get("emailRecipients") as string;
       
-      const prefs = JSON.parse(prefsJson);
+      let prefs;
+      try {
+        prefs = JSON.parse(prefsJson);
+      } catch {
+        return json({ error: "Invalid data format" }, { status: 400 });
+      }
       
       // Update notification preferences
       for (const [templateId, channels] of Object.entries(prefs)) {

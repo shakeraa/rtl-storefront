@@ -1,5 +1,7 @@
 import type { ArabicDialect } from "./types";
 
+export type { ArabicDialect };
+
 /**
  * Country code to Arabic dialect mapping.
  */
@@ -19,10 +21,10 @@ const COUNTRY_DIALECT_MAP: Record<string, ArabicDialect> = {
   // Egyptian Arabic
   EG: "egyptian",
   // Maghreb Arabic
-  MA: "maghreb",
-  DZ: "maghreb",
-  TN: "maghreb",
-  LY: "maghreb",
+  MA: "maghrebi",
+  DZ: "maghrebi",
+  TN: "maghrebi",
+  LY: "maghrebi",
 };
 
 /**
@@ -62,7 +64,7 @@ const DIALECT_MARKERS: Record<ArabicDialect, string[]> = {
     "بتاع", // Of/belonging to
     "قوي", // Very
   ],
-  maghreb: [
+  maghrebi: [
     "واش", // What (Maghreb)
     "كيفاش", // How
     "بزاف", // Very/much
@@ -90,7 +92,7 @@ export function detectDialect(text: string): ArabicDialect {
     gulf: 0,
     levantine: 0,
     egyptian: 0,
-    maghreb: 0,
+    maghrebi: 0,
     msa: 0,
   };
 
@@ -144,10 +146,10 @@ export function getDialectPromptModifier(dialect: ArabicDialect): string {
         "Use Egyptian Arabic dialect. Prefer Egyptian vocabulary such as 'ازاي' for 'how' " +
         "and 'دلوقتي' for 'now'. Use Egyptian pronunciation conventions in transliteration."
       );
-    case "maghreb":
+    case "maghrebi":
       return (
-        "Use Maghreb Arabic dialect common in Morocco, Algeria, Tunisia, and Libya. " +
-        "Prefer Maghreb vocabulary and French-influenced loanwords where commonly used."
+        "Use Maghrebi Arabic dialect common in Morocco, Algeria, Tunisia, and Libya. " +
+        "Prefer Maghrebi vocabulary and French-influenced loanwords where commonly used."
       );
     case "msa":
       return (
