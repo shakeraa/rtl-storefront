@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Page, Card, BlockStack, InlineStack, Text,
   TextField, Checkbox, Button, DataTable, Banner,
@@ -218,6 +218,28 @@ export default function AdminBillingPage() {
           </Card>
         )}
       </BlockStack>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponse = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponse ? `${error.status} Error` : "Something went wrong"}
+          </Text>
+          <Text as="p">
+            {isResponse
+              ? error.data?.message || error.statusText
+              : "An unexpected error occurred. Please try again."}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

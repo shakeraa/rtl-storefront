@@ -9,7 +9,7 @@
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation, useActionData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Badge,
   Banner,
@@ -346,6 +346,28 @@ export default function TeamPage() {
           </BlockStack>
         </Layout.Section>
       </Layout>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponse = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponse ? `${error.status} Error` : "Something went wrong"}
+          </Text>
+          <Text as="p">
+            {isResponse
+              ? error.data?.message || error.statusText
+              : "An unexpected error occurred. Please try again."}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

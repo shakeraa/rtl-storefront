@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { applyRateLimit } from "../utils/security.server";
 import {
   createMENAPaymentOrchestrator,
   type MENAPaymentProvider,
@@ -61,6 +62,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
+  applyRateLimit(request, { maxRequests: 30 });
+
   const path = params["*"] ?? "";
 
   // Webhook handling — no auth required (verified by signature)

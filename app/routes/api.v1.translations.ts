@@ -7,6 +7,7 @@
 
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { applyRateLimit } from "../utils/security.server";
 import {
   type TranslatableResourceType,
   getAllTranslatableFields,
@@ -80,6 +81,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // ---------------------------------------------------------------------------
 
 export async function action({ request }: ActionFunctionArgs) {
+  applyRateLimit(request);
+
   const { admin, session } = await authenticate.admin(request);
 
   if (request.method !== "POST") {

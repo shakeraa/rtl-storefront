@@ -1,9 +1,8 @@
 /**
  * Exchange Rate Service
- * Manages real-time and cached exchange rates
+ * Fetches live exchange rates from open.er-api.com with in-memory caching.
+ * Falls back to hardcoded approximate rates when the API is unavailable.
  */
-
-import db from '../../db.server';
 
 export interface ExchangeRate {
   from: string;
@@ -19,339 +18,314 @@ export interface ExchangeRateHistory {
   rate: number;
 }
 
-// Cache duration in minutes
-const DEFAULT_CACHE_DURATION = 60;
+// ---------------------------------------------------------------------------
+// In-memory cache
+// ---------------------------------------------------------------------------
+
+interface CachedRates {
+  rates: Record<string, number>;
+  base: string;
+  fetchedAt: number;
+}
+
+let rateCache: CachedRates | null = null;
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 /**
- * Get current exchange rate
- * First checks cache, then fetches from API if needed
+ * Manual rate overrides keyed by "FROM->TO".
+ * These take priority over API / fallback rates.
+ */
+const manualOverrides = new Map<string, ExchangeRate>();
+
+// ---------------------------------------------------------------------------
+// Fallback rates (approximate, used when the API is unreachable)
+// All rates are expressed as 1 USD = X target.
+// ---------------------------------------------------------------------------
+
+const FALLBACK_RATES: Record<string, number> = {
+  USD: 1,
+  SAR: 3.75,
+  AED: 3.67,
+  KWD: 0.31,
+  BHD: 0.38,
+  QAR: 3.64,
+  OMR: 0.38,
+  EGP: 49.5,
+  JOD: 0.71,
+  ILS: 3.65,
+  TRY: 36.5,
+  EUR: 0.92,
+  GBP: 0.79,
+  JPY: 150.5,
+  CAD: 1.35,
+  AUD: 1.52,
+  CHF: 0.88,
+  CNY: 7.19,
+  INR: 83.1,
+};
+
+// ---------------------------------------------------------------------------
+// Core: fetch live rates from open.er-api.com (free, no key required)
+// ---------------------------------------------------------------------------
+
+async function fetchLiveRates(base: string = "USD"): Promise<{ rates: Record<string, number>; source: string }> {
+  // Return cache if still fresh
+  if (rateCache && rateCache.base === base && Date.now() - rateCache.fetchedAt < CACHE_TTL) {
+    return { rates: rateCache.rates, source: "open.er-api.com (cached)" };
+  }
+
+  try {
+    const response = await fetch(`https://open.er-api.com/v6/latest/${base}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) throw new Error(`API returned ${response.status}`);
+
+    const data = await response.json();
+    if (data.result === "success" && data.rates) {
+      rateCache = { rates: data.rates, base, fetchedAt: Date.now() };
+      return { rates: data.rates, source: "open.er-api.com" };
+    }
+    throw new Error("Invalid API response");
+  } catch (error) {
+    console.warn("Currency API unavailable, using fallback rates:", error);
+    return { rates: FALLBACK_RATES, source: "fallback" };
+  }
+}
+
+/**
+ * Compute a cross-rate between two currencies using a shared rate table.
+ * If the table is based on USD and we need EUR -> SAR, we do SAR/EUR.
+ */
+function computeCrossRate(
+  rates: Record<string, number>,
+  base: string,
+  from: string,
+  to: string,
+): number {
+  // If the rates table is already based on `from`, just read the target.
+  if (base === from) {
+    return rates[to] ?? 1;
+  }
+
+  // Otherwise compute a cross-rate via the table base.
+  const fromRate = rates[from];
+  const toRate = rates[to];
+  if (!fromRate || !toRate) return 1;
+  return toRate / fromRate;
+}
+
+// ---------------------------------------------------------------------------
+// Public API — same signatures as the original module
+// ---------------------------------------------------------------------------
+
+/**
+ * Get current exchange rate.
+ * Checks manual overrides first, then live API (with cache), then fallback.
  */
 export async function getExchangeRate(
   fromCurrency: string,
   toCurrency: string,
-  options: { skipCache?: boolean } = {}
+  options: { skipCache?: boolean } = {},
 ): Promise<ExchangeRate> {
-  const { skipCache = false } = options;
-  
-  // Same currency
+  // Same currency — trivial
   if (fromCurrency === toCurrency) {
     return {
       from: fromCurrency,
       to: toCurrency,
       rate: 1,
-      source: 'identity',
+      source: "identity",
       timestamp: new Date(),
-      expiresAt: new Date(Date.now() + DEFAULT_CACHE_DURATION * 60000),
+      expiresAt: new Date(Date.now() + CACHE_TTL),
     };
   }
-  
-  // Check cache first
-  if (!skipCache) {
-    const cached = await getCachedRate(fromCurrency, toCurrency);
-    if (cached && !isExpired(cached)) {
-      return cached;
-    }
+
+  // Check manual override
+  const overrideKey = `${fromCurrency}->${toCurrency}`;
+  const override = manualOverrides.get(overrideKey);
+  if (override && new Date() < override.expiresAt) {
+    return override;
   }
-  
-  // Fetch from API
-  const rate = await fetchExchangeRate(fromCurrency, toCurrency);
-  
-  // Cache the result
-  await cacheRate(rate);
-  
-  return rate;
+
+  // If skipCache requested, invalidate our in-memory cache
+  if (options.skipCache) {
+    rateCache = null;
+  }
+
+  // Fetch live (or cached) rates based on USD, then compute cross-rate
+  const { rates, source } = await fetchLiveRates("USD");
+  const rate = computeCrossRate(rates, "USD", fromCurrency, toCurrency);
+
+  return {
+    from: fromCurrency,
+    to: toCurrency,
+    rate: parseFloat(rate.toFixed(6)),
+    source,
+    timestamp: new Date(),
+    expiresAt: new Date(Date.now() + CACHE_TTL),
+  };
 }
 
 /**
- * Get multiple exchange rates at once
+ * Get multiple exchange rates at once.
  */
 export async function getExchangeRates(
   fromCurrency: string,
-  toCurrencies: string[]
+  toCurrencies: string[],
 ): Promise<Map<string, ExchangeRate>> {
   const rates = new Map<string, ExchangeRate>();
-  
-  await Promise.all(
-    toCurrencies.map(async (toCurrency) => {
-      const rate = await getExchangeRate(fromCurrency, toCurrency);
-      rates.set(toCurrency, rate);
-    })
-  );
-  
+
+  // Fetch once, then compute each target — avoids N API calls.
+  const { rates: rateTable, source } = await fetchLiveRates("USD");
+
+  for (const toCurrency of toCurrencies) {
+    if (fromCurrency === toCurrency) {
+      rates.set(toCurrency, {
+        from: fromCurrency,
+        to: toCurrency,
+        rate: 1,
+        source: "identity",
+        timestamp: new Date(),
+        expiresAt: new Date(Date.now() + CACHE_TTL),
+      });
+      continue;
+    }
+
+    // Check manual override first
+    const overrideKey = `${fromCurrency}->${toCurrency}`;
+    const override = manualOverrides.get(overrideKey);
+    if (override && new Date() < override.expiresAt) {
+      rates.set(toCurrency, override);
+      continue;
+    }
+
+    const rate = computeCrossRate(rateTable, "USD", fromCurrency, toCurrency);
+    rates.set(toCurrency, {
+      from: fromCurrency,
+      to: toCurrency,
+      rate: parseFloat(rate.toFixed(6)),
+      source,
+      timestamp: new Date(),
+      expiresAt: new Date(Date.now() + CACHE_TTL),
+    });
+  }
+
   return rates;
 }
 
 /**
- * Fetch exchange rate from external API
- */
-async function fetchExchangeRate(
-  fromCurrency: string,
-  toCurrency: string
-): Promise<ExchangeRate> {
-  // This would integrate with a real exchange rate API
-  // For now, using mock rates
-  const mockRates: Record<string, Record<string, number>> = {
-    USD: {
-      EUR: 0.92,
-      GBP: 0.79,
-      JPY: 150.5,
-      SAR: 3.75,
-      AED: 3.67,
-      QAR: 3.64,
-      KWD: 0.31,
-      BHD: 0.38,
-      OMR: 0.38,
-      EGP: 30.9,
-      CAD: 1.35,
-      AUD: 1.52,
-      CHF: 0.88,
-      CNY: 7.19,
-      INR: 83.1,
-      TRY: 30.5,
-    },
-    EUR: {
-      USD: 1.09,
-      GBP: 0.86,
-      SAR: 4.08,
-      AED: 4.0,
-    },
-    SAR: {
-      USD: 0.27,
-      EUR: 0.25,
-      AED: 0.98,
-      QAR: 0.97,
-    },
-    AED: {
-      USD: 0.27,
-      EUR: 0.25,
-      SAR: 1.02,
-    },
-  };
-  
-  const rate = mockRates[fromCurrency]?.[toCurrency] || 1;
-  
-  return {
-    from: fromCurrency,
-    to: toCurrency,
-    rate,
-    source: 'mock-api',
-    timestamp: new Date(),
-    expiresAt: new Date(Date.now() + DEFAULT_CACHE_DURATION * 60000),
-  };
-}
-
-/**
- * Get cached rate from database
- */
-async function getCachedRate(
-  fromCurrency: string,
-  toCurrency: string
-): Promise<ExchangeRate | null> {
-  try {
-    const cached = await db.exchangeRate.findUnique({
-      where: {
-        from_to: {
-          from: fromCurrency,
-          to: toCurrency,
-        },
-      },
-    });
-    
-    if (!cached) return null;
-    
-    return {
-      from: cached.from,
-      to: cached.to,
-      rate: cached.rate,
-      source: cached.source,
-      timestamp: cached.timestamp,
-      expiresAt: cached.expiresAt,
-    };
-  } catch (error) {
-    // Database might not have the table yet
-    return null;
-  }
-}
-
-/**
- * Cache rate in database
- */
-async function cacheRate(rate: ExchangeRate): Promise<void> {
-  try {
-    await db.exchangeRate.upsert({
-      where: {
-        from_to: {
-          from: rate.from,
-          to: rate.to,
-        },
-      },
-      update: {
-        rate: rate.rate,
-        source: rate.source,
-        timestamp: rate.timestamp,
-        expiresAt: rate.expiresAt,
-      },
-      create: {
-        from: rate.from,
-        to: rate.to,
-        rate: rate.rate,
-        source: rate.source,
-        timestamp: rate.timestamp,
-        expiresAt: rate.expiresAt,
-      },
-    });
-  } catch (error) {
-    // Database might not have the table yet
-    console.warn('Failed to cache exchange rate:', error);
-  }
-}
-
-/**
- * Check if cached rate is expired
- */
-function isExpired(rate: ExchangeRate): boolean {
-  return new Date() > rate.expiresAt;
-}
-
-/**
- * Get exchange rate history
+ * Get exchange rate history.
+ *
+ * NOTE: Real historical rates require a paid API such as Fixer.io or
+ * CurrencyLayer. This implementation generates simulated history using the
+ * current live rate as the baseline so the most-recent data point is accurate.
  */
 export async function getRateHistory(
   fromCurrency: string,
   toCurrency: string,
-  days: number = 30
+  days: number = 30,
 ): Promise<ExchangeRateHistory[]> {
+  // Get the real current rate to anchor the simulated history
+  const current = await getExchangeRate(fromCurrency, toCurrency);
+  const baseRate = current.rate;
+
   const history: ExchangeRateHistory[] = [];
   const today = new Date();
-  
-  // Generate mock historical data
-  const baseRate = 1.0; // This would come from actual historical data
-  
+
   for (let i = days; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    
-    // Add some random variation to simulate real market fluctuations
-    const variation = (Math.random() - 0.5) * 0.1; // ±5% variation
+
+    // Simulated variation (seeded loosely by day index for consistency)
+    const variation = i === 0 ? 0 : (Math.sin(i * 0.7) * 0.03 + (Math.cos(i * 1.3) * 0.02));
     const rate = baseRate * (1 + variation);
-    
+
     history.push({
       date,
       rate: parseFloat(rate.toFixed(6)),
     });
   }
-  
+
   return history;
 }
 
 /**
- * Get rate trend (increasing, decreasing, stable)
+ * Get rate trend (increasing, decreasing, stable).
  */
 export function getRateTrend(
-  history: ExchangeRateHistory[]
-): 'increasing' | 'decreasing' | 'stable' {
-  if (history.length < 2) return 'stable';
-  
+  history: ExchangeRateHistory[],
+): "increasing" | "decreasing" | "stable" {
+  if (history.length < 2) return "stable";
+
   const first = history[0].rate;
   const last = history[history.length - 1].rate;
   const change = ((last - first) / first) * 100;
-  
-  if (change > 2) return 'increasing';
-  if (change < -2) return 'decreasing';
-  return 'stable';
+
+  if (change > 2) return "increasing";
+  if (change < -2) return "decreasing";
+  return "stable";
 }
 
 /**
- * Set manual exchange rate override
+ * Set a manual exchange rate override (stored in memory).
  */
 export async function setManualRate(
   fromCurrency: string,
   toCurrency: string,
   rate: number,
-  expiresAt?: Date
+  expiresAt?: Date,
 ): Promise<ExchangeRate> {
   const exchangeRate: ExchangeRate = {
     from: fromCurrency,
     to: toCurrency,
     rate,
-    source: 'manual',
+    source: "manual",
     timestamp: new Date(),
-    expiresAt: expiresAt || new Date(Date.now() + 24 * 60 * 60000), // 24 hours default
+    expiresAt: expiresAt || new Date(Date.now() + 24 * 60 * 60_000), // 24 hours default
   };
-  
-  await cacheRate(exchangeRate);
-  
+
+  manualOverrides.set(`${fromCurrency}->${toCurrency}`, exchangeRate);
+
   return exchangeRate;
 }
 
 /**
- * Clear manual override and use API rates
+ * Clear a manual override so the service falls back to API rates.
  */
 export async function clearManualRate(
   fromCurrency: string,
-  toCurrency: string
+  toCurrency: string,
 ): Promise<void> {
-  await db.exchangeRate.delete({
-    where: {
-      from_to: {
-        from: fromCurrency,
-        to: toCurrency,
-      },
-    },
-  }).catch(() => {
-    // Ignore if not found
-  });
+  manualOverrides.delete(`${fromCurrency}->${toCurrency}`);
 }
 
 /**
- * Get all active rates
+ * Get all active rates (manual overrides that haven't expired).
  */
 export async function getAllActiveRates(): Promise<ExchangeRate[]> {
-  try {
-    const rates = await db.exchangeRate.findMany({
-      where: {
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
-    });
-    
-    return rates.map((r) => ({
-      from: r.from,
-      to: r.to,
-      rate: r.rate,
-      source: r.source,
-      timestamp: r.timestamp,
-      expiresAt: r.expiresAt,
-    }));
-  } catch (error) {
-    return [];
-  }
+  const now = new Date();
+  const active: ExchangeRate[] = [];
+
+  manualOverrides.forEach((rate) => {
+    if (rate.expiresAt > now) {
+      active.push(rate);
+    }
+  });
+
+  return active;
 }
 
 /**
- * Update rates for all configured currency pairs
+ * Update rates for all configured currency pairs.
+ * Forces a fresh fetch from the API.
  */
 export async function updateAllRates(
   baseCurrency: string,
-  targetCurrencies: string[]
+  targetCurrencies: string[],
 ): Promise<Map<string, ExchangeRate>> {
+  // Invalidate cache to force a fresh fetch
+  rateCache = null;
+
   const rates = await getExchangeRates(baseCurrency, targetCurrencies);
-  
-  // Also store inverse rates
-  for (const [toCurrency, rate] of rates.entries()) {
-    if (rate.rate !== 0) {
-      const inverseRate: ExchangeRate = {
-        from: toCurrency,
-        to: baseCurrency,
-        rate: 1 / rate.rate,
-        source: rate.source,
-        timestamp: rate.timestamp,
-        expiresAt: rate.expiresAt,
-      };
-      await cacheRate(inverseRate);
-    }
-  }
-  
   return rates;
 }

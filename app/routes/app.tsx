@@ -10,12 +10,17 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
 import { getBillingContext } from "../services/billing/index";
 import { getUnreadCount } from "../services/notifications/notifier.server";
+import { cleanupExpiredSessions } from "../utils/db-maintenance.server";
 import type { BillingContext } from "../services/billing/types";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
+
+  // Fire-and-forget session cleanup on each app load
+  void cleanupExpiredSessions().catch(() => {});
+
   const billing = await getBillingContext(session.shop);
 
   const url = new URL(request.url);

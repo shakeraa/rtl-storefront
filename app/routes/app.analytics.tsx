@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import {
   Page, Layout, Card, BlockStack, InlineStack, InlineGrid, Text,
   DataTable, Box, Badge, ProgressBar,
@@ -219,6 +219,28 @@ export default function AnalyticsPage() {
           </Layout.Section>
         </Layout>
       </BlockStack>
+    </Page>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponse = isRouteErrorResponse(error);
+
+  return (
+    <Page>
+      <Card>
+        <BlockStack gap="200">
+          <Text as="h2" variant="headingMd">
+            {isResponse ? `${error.status} Error` : "Something went wrong"}
+          </Text>
+          <Text as="p">
+            {isResponse
+              ? error.data?.message || error.statusText
+              : "An unexpected error occurred. Please try again."}
+          </Text>
+        </BlockStack>
+      </Card>
     </Page>
   );
 }

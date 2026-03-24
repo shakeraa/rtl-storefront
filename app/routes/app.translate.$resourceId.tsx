@@ -22,6 +22,7 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { createShopTranslationEngine } from "../services/translation/engine";
 import { getProviderStatus } from "../services/translation/get-provider-env.server";
+import { sanitizeHTML } from "../utils/security.server";
 
 // ---------------------------------------------------------------------------
 // Locale helpers
@@ -398,7 +399,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       .filter((t) => t.value && t.value.trim().length > 0)
       .map((t) => ({
         key: t.key,
-        value: t.value,
+        value: sanitizeHTML(t.value),
         locale: targetLocale,
         translatableContentDigest: t.digest,
       }));

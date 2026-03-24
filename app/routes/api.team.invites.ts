@@ -11,6 +11,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { applyRateLimit } from "../utils/security.server";
 import {
   createInvite,
   getInvites,
@@ -36,6 +37,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // ---------------------------------------------------------------------------
 
 export async function action({ request }: ActionFunctionArgs) {
+  applyRateLimit(request, { maxRequests: 20 });
+
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
   const userEmail = session.email || "owner";

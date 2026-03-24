@@ -8,6 +8,7 @@
 
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { applyRateLimit } from "../utils/security.server";
 import {
   getAllTerms,
   addTerm,
@@ -39,6 +40,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // ---------------------------------------------------------------------------
 
 export async function action({ request }: ActionFunctionArgs) {
+  applyRateLimit(request);
+
   const { session } = await authenticate.admin(request);
 
   const method = request.method.toUpperCase();
