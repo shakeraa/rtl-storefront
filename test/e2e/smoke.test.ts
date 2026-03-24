@@ -48,15 +48,6 @@ describe("Smoke Test - Service Imports", () => {
     expect(mod.BIDI_MARKS).toBeDefined();
   });
 
-  it("imports never-translate service", async () => {
-    const mod = await import("../../app/services/never-translate/index");
-    expect(mod.NeverTranslateProtector).toBeDefined();
-    expect(mod.createDefaultConfig).toBeDefined();
-    expect(mod.addBrandTerms).toBeDefined();
-    expect(mod.addSkuTerms).toBeDefined();
-    expect(mod.extractTerminologyCandidates).toBeDefined();
-  });
-
   it("imports billing service", async () => {
     const mod = await import("../../app/services/billing/index");
     expect(mod.formatPriceForShopify).toBeDefined();
@@ -91,11 +82,6 @@ describe("Smoke Test - Service Imports", () => {
 
   it("imports RTL component mapper", async () => {
     const mod = await import("../../app/services/rtl/component-mapper");
-    expect(mod).toBeDefined();
-  });
-
-  it("imports RTL transformer", async () => {
-    const mod = await import("../../app/services/rtl-transformer");
     expect(mod).toBeDefined();
   });
 
@@ -165,17 +151,6 @@ describe("Smoke Test - Key Functions Are Callable", () => {
     expect(result).toBe("9.99");
   });
 
-  it("createDefaultConfig returns a valid config", async () => {
-    const { createDefaultConfig } = await import(
-      "../../app/services/never-translate/index"
-    );
-    const config = createDefaultConfig();
-    expect(config).toHaveProperty("terms");
-    expect(config).toHaveProperty("preserveAllCaps");
-    expect(config).toHaveProperty("preserveEmails");
-    expect(config).toHaveProperty("preserveUrls");
-  });
-
   it("BiDiPreserver can be instantiated and called", async () => {
     const { BiDiPreserver } = await import("../../app/services/bidi/index");
     const preserver = new BiDiPreserver();
@@ -206,7 +181,6 @@ describe("Smoke Test - No Circular Dependencies", () => {
     const modules = await Promise.all([
       import("../../app/services/translation/engine"),
       import("../../app/services/bidi/index"),
-      import("../../app/services/never-translate/index"),
       import("../../app/services/billing/index"),
       import("../../app/services/coverage/index"),
       import("../../app/services/rtl/css-generator"),

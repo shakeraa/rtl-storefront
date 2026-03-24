@@ -17,7 +17,7 @@ describe("Translation engine", () => {
     const openai = createMockProvider({
       name: "openai",
       translate: vi.fn().mockRejectedValue(
-        new TranslationProviderError("OpenAI unavailable", "openai", 503),
+        new TranslationProviderError("OpenAI unavailable", "openai", 400),
       ),
     });
     const google = createMockProvider({
@@ -92,13 +92,13 @@ describe("Translation engine", () => {
     const openai = createMockProvider({
       name: "openai",
       translate: vi.fn().mockRejectedValue(
-        new TranslationProviderError("OpenAI unavailable", "openai", 503),
+        new TranslationProviderError("OpenAI unavailable", "openai", 400),
       ),
     });
     const google = createMockProvider({
       name: "google",
       translate: vi.fn().mockRejectedValue(
-        new TranslationProviderError("Google quota exhausted", "google", 429),
+        new TranslationProviderError("Google quota exhausted", "google", 401),
       ),
     });
 

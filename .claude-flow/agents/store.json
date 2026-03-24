@@ -1,0 +1,323 @@
+{
+  "agents": {
+    "architect": {
+      "agentId": "architect",
+      "agentType": "senior-architect",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "senior-architect",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "codebase architecture",
+          "service organization",
+          "dependency graph",
+          "module boundaries",
+          "dead code detection"
+        ],
+        "model": "opus"
+      },
+      "createdAt": "2026-03-23T23:47:52.016Z",
+      "domain": "architecture",
+      "model": "opus",
+      "modelRoutedBy": "explicit"
+    },
+    "frontend-reviewer": {
+      "agentId": "frontend-reviewer",
+      "agentType": "frontend-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "swarmId": "swarm-1774309500463-kvbutq",
+        "projectPath": "/Users/shaker/shopify-dev/rtl-storefront",
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:45:35.459Z",
+      "domain": "frontend",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "backend-reviewer": {
+      "agentId": "backend-reviewer",
+      "agentType": "backend-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "swarmId": "swarm-1774309500463-kvbutq",
+        "projectPath": "/Users/shaker/shopify-dev/rtl-storefront",
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:45:35.462Z",
+      "domain": "backend",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "security-auditor": {
+      "agentId": "security-auditor",
+      "agentType": "security-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "security-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "auth/OAuth",
+          "webhook HMAC",
+          "CSRF/XSS/CSP",
+          "rate limiting",
+          "GDPR",
+          "bot detection",
+          "secret handling",
+          "OWASP Top 10"
+        ],
+        "model": "opus"
+      },
+      "createdAt": "2026-03-23T23:48:07.324Z",
+      "domain": "security",
+      "model": "opus",
+      "modelRoutedBy": "explicit"
+    },
+    "test-reviewer": {
+      "agentId": "test-reviewer",
+      "agentType": "qa-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "swarmId": "swarm-1774309500463-kvbutq",
+        "projectPath": "/Users/shaker/shopify-dev/rtl-storefront",
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:45:35.468Z",
+      "domain": "testing",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "dx-reviewer": {
+      "agentId": "dx-reviewer",
+      "agentType": "devops-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "swarmId": "swarm-1774309500463-kvbutq",
+        "projectPath": "/Users/shaker/shopify-dev/rtl-storefront",
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:45:35.470Z",
+      "domain": "devops",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "route-reviewer": {
+      "agentId": "route-reviewer",
+      "agentType": "frontend-lead",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "frontend-lead",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "Remix route loaders",
+          "actions",
+          "meta functions",
+          "error boundaries",
+          "data flow patterns"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:47:54.268Z",
+      "domain": "routes",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "component-reviewer": {
+      "agentId": "component-reviewer",
+      "agentType": "ui-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "ui-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "Polaris v12 compliance",
+          "accessibility",
+          "RTL rendering",
+          "state management",
+          "component reusability"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:47:56.543Z",
+      "domain": "components",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "translation-engine": {
+      "agentId": "translation-engine",
+      "agentType": "platform-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "platform-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "7 AI translation providers",
+          "translation memory",
+          "glossary",
+          "formatting preservation",
+          "bulk processing",
+          "BiDi text handling"
+        ],
+        "model": "opus"
+      },
+      "createdAt": "2026-03-23T23:47:58.722Z",
+      "domain": "translation",
+      "model": "opus",
+      "modelRoutedBy": "explicit"
+    },
+    "payments-reviewer": {
+      "agentId": "payments-reviewer",
+      "agentType": "payments-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "payments-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "11 MENA payment gateways",
+          "billing/subscription",
+          "currency conversion",
+          "VAT handling"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:48:01.800Z",
+      "domain": "payments",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "content-services": {
+      "agentId": "content-services",
+      "agentType": "content-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "content-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "product/content/media translation",
+          "SEO schema.org",
+          "sitemap",
+          "meta-tags",
+          "hreflang",
+          "URL slugs",
+          "breadcrumbs",
+          "content field mapping"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:48:04.625Z",
+      "domain": "content",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "data-layer": {
+      "agentId": "data-layer",
+      "agentType": "data-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "data-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "Prisma schema 18 models",
+          "9 migrations",
+          "db.server.ts",
+          "N+1 detection",
+          "caching strategy",
+          "data sync"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:48:10.063Z",
+      "domain": "database",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "test-coverage": {
+      "agentId": "test-coverage",
+      "agentType": "qa-lead",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "qa-lead",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "109 unit tests",
+          "3 integration tests",
+          "1 e2e test",
+          "MSW mocks",
+          "test fixtures",
+          "coverage gaps",
+          "test reliability"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:48:12.628Z",
+      "domain": "testing",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    },
+    "regional-features": {
+      "agentId": "regional-features",
+      "agentType": "localization-engineer",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "role": "localization-engineer",
+        "swarmId": "swarm-1774309654378-vhkr9y",
+        "project": "/Users/shaker/shopify-dev/rtl-storefront",
+        "responsibilities": [
+          "cultural-ai",
+          "dialect detection",
+          "hijri calendar",
+          "prayer times",
+          "fashion-db",
+          "modest-fashion",
+          "seasonal banners",
+          "geolocation",
+          "language cookie",
+          "brand voice"
+        ],
+        "model": "sonnet"
+      },
+      "createdAt": "2026-03-23T23:48:15.214Z",
+      "domain": "localization",
+      "model": "sonnet",
+      "modelRoutedBy": "explicit"
+    }
+  },
+  "version": "3.0.0"
+}

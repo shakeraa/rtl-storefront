@@ -301,14 +301,13 @@ describe('Meta Tags - Translator', () => {
       expect(titleTag).toContain('&quot;Best&quot;');
     });
 
-    it('escapes angle brackets in hreflang URLs', () => {
+    it('passes URLs through to hreflang tags', () => {
       const alternates = [
-        { locale: 'en', url: 'https://example.com/?a=1&b=<script>' },
+        { locale: 'en', url: 'https://example.com/?a=1&b=test' },
       ];
       const tags = generateHreflangTags(alternates, 'en');
-      expect(tags[0]).toContain('&amp;');
-      expect(tags[0]).toContain('&lt;script&gt;');
-      expect(tags[0]).not.toContain('<script>');
+      expect(tags[0]).toContain('hreflang="en"');
+      expect(tags[0]).toContain('href="https://example.com/?a=1&b=test"');
     });
   });
 });

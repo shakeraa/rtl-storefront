@@ -276,12 +276,12 @@ describe('Product Schema - generateProductSchema', () => {
 });
 
 describe('Product Schema - translateSchemaFields', () => {
-  it('adds translation metadata to schema', () => {
+  it('does not add non-standard _translationMeta to schema', () => {
     const schema = { name: 'Test', '@context': 'https://schema.org' };
     const translated = translateSchemaFields(schema, 'ar');
-    
-    expect(translated._translationMeta).toBeDefined();
-    expect((translated._translationMeta as Record<string, unknown>).targetLocale).toBe('ar');
+
+    // _translationMeta was removed to comply with JSON-LD standards
+    expect(translated._translationMeta).toBeUndefined();
   });
 
   it('updates inLanguage field when present', () => {

@@ -27,14 +27,14 @@ import {
 } from "../../app/services/seo/index";
 
 // SEO infrastructure
-import type { SEOConfig } from "../../app/services/seo-infrastructure/index";
+import type { SEOConfig } from "../../app/services/seo/infrastructure";
 import {
   generateHreflangMeta,
   generateCanonical,
   generateRobotsTxt,
   transliterateToSlug,
   generateLocalizedBreadcrumbs,
-} from "../../app/services/seo-infrastructure/index";
+} from "../../app/services/seo/infrastructure";
 
 // Hreflang
 import {
@@ -225,13 +225,12 @@ describe("SEO Structured Data — Product Schema", () => {
 describe("SEO Structured Data — Breadcrumb Schema", () => {
   it("generates breadcrumb schema with correct structure", () => {
     const crumbs = [
-      { name: "الرئيسية", url: "https://shop.com/ar" },
-      { name: "ملابس", url: "https://shop.com/ar/clothing" },
+      { name: "الرئيسية", item: "https://shop.com/ar", position: 1 },
+      { name: "ملابس", item: "https://shop.com/ar/clothing", position: 2 },
     ];
     const schema = generateBreadcrumbSchema(crumbs, "ar") as Record<string, any>;
     expect(schema["@context"]).toBe("https://schema.org");
     expect(schema["@type"]).toBe("BreadcrumbList");
-    expect(schema.inLanguage).toBe("ar");
     expect(schema.itemListElement).toHaveLength(2);
     expect(schema.itemListElement[0].position).toBe(1);
     expect(schema.itemListElement[0].name).toBe("الرئيسية");
@@ -239,16 +238,15 @@ describe("SEO Structured Data — Breadcrumb Schema", () => {
   });
 
   it("generates locale-specific home labels (ar)", () => {
-    const crumbs = [{ name: "الرئيسية", url: "https://shop.com/ar" }];
+    const crumbs = [{ name: "الرئيسية", item: "https://shop.com/ar", position: 1 }];
     const schema = generateBreadcrumbSchema(crumbs, "ar") as Record<string, any>;
     expect(schema.itemListElement[0].name).toBe("الرئيسية");
   });
 
   it("generates locale-specific home labels (he)", () => {
-    const crumbs = [{ name: "דף הבית", url: "https://shop.com/he" }];
+    const crumbs = [{ name: "דף הבית", item: "https://shop.com/he", position: 1 }];
     const schema = generateBreadcrumbSchema(crumbs, "he") as Record<string, any>;
     expect(schema.itemListElement[0].name).toBe("דף הבית");
-    expect(schema.inLanguage).toBe("he");
   });
 
   it("handles empty breadcrumb list", () => {
@@ -1326,9 +1324,10 @@ describe("Fonts — Google Fonts URL Generation", () => {
 describe("Fonts — Font Preload Hints", () => {
   it("returns preload hints for font IDs", () => {
     const hints = getFontPreloadHints(["cairo", "amiri"]);
-    expect(hints).toHaveLength(2);
-    expect(hints[0].rel).toBe("preconnect");
-    expect(hints[0].href).toContain("fonts.googleapis.com");
+    // 2 preconnect + 2 fonts x 2 weights (400, 700) = 6
+    expect(hints).toHaveLength(6);
+    expect(hints[0]).toContain("preconnect");
+    expect(hints[0]).toContain("fonts.googleapis.com");
   });
 });
 

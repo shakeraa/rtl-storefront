@@ -17,11 +17,6 @@ import {
   TranslationEngineError,
   createTranslationEngine,
 } from "../../app/services/translation/engine";
-import {
-  NeverTranslateProtector,
-  createDefaultConfig,
-  addBrandTerms,
-} from "../../app/services/never-translate/index";
 import { BiDiPreserver } from "../../app/services/bidi/index";
 
 // ---------------------------------------------------------------------------
@@ -288,61 +283,4 @@ describe("Translation Flow - Integration", () => {
     });
   });
 
-  describe("NeverTranslateProtector round-trip", () => {
-    it("protects and restores brand terms correctly", () => {
-      const config = addBrandTerms(createDefaultConfig(), [
-        "Shopify",
-        "Nike",
-      ]);
-      const protector = new NeverTranslateProtector(config);
-
-      const original = "Buy Nike shoes on Shopify store";
-      const { protectedText, placeholders } = protector.protect(original);
-
-      // Placeholders should replace brand names
-      expect(protectedText).not.toContain("Shopify");
-      expect(protectedText).not.toContain("Nike");
-      expect(placeholders.size).toBeGreaterThanOrEqual(2);
-
-      // Restoring should bring back originals
-      const restored = protector.restore(protectedText, placeholders);
-      expect(restored).toBe(original);
-    });
-
-    it("protects emails and URLs", () => {
-      const config = createDefaultConfig();
-      const protector = new NeverTranslateProtector(config);
-
-      const original =
-        "Contact support@example.com or visit https://help.shopify.com";
-      const { protectedText, placeholders } = protector.protect(original);
-
-      expect(protectedText).not.toContain("support@example.com");
-      expect(protectedText).not.toContain("https://help.shopify.com");
-
-      const restored = protector.restore(protectedText, placeholders);
-      expect(restored).toBe(original);
-    });
-
-    it("protects ALL_CAPS terms when configured", () => {
-      const config = createDefaultConfig(); // preserveAllCaps defaults to true
-      const protector = new NeverTranslateProtector(config);
-
-      const original = "The SKU is ABC and the brand is XYZ";
-      const { protectedText, placeholders } = protector.protect(original);
-
-      expect(protectedText).not.toContain("ABC");
-      expect(protectedText).not.toContain("XYZ");
-
-      const restored = protector.restore(protectedText, placeholders);
-      expect(restored).toBe(original);
-    });
-
-    it("handles empty text gracefully", () => {
-      const protector = new NeverTranslateProtector(createDefaultConfig());
-      const { protectedText, placeholders } = protector.protect("");
-      expect(protectedText).toBe("");
-      expect(placeholders.size).toBe(0);
-    });
-  });
 });

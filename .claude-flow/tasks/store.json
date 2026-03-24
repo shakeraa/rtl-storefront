@@ -1,0 +1,421 @@
+{
+  "tasks": {
+    "task-1774309622091-zyxvzd": {
+      "taskId": "task-1774309622091-zyxvzd",
+      "type": "research",
+      "description": "ARCHITECTURE REVIEW — Read the codebase at /Users/shaker/shopify-dev/rtl-storefront. Focus on:\n- Are 87 service directories justified or over-engineered?\n- Are there services that should be consolidated?\n- Is the route structure clean or does it have unnecessary nesting?\n- Check for dead/unused services and circular dependencies\n- Review the Prisma schema for normalization issues\n- Check if the extensions/ dir matches what CLAUDE.md describes\nReport: list every issue with file path, severity (critical/high/medium/low), and a fix suggestion.",
+      "priority": "critical",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "architect"
+      ],
+      "tags": [
+        "architecture",
+        "code-review",
+        "debt"
+      ],
+      "createdAt": "2026-03-23T23:47:02.091Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309622096-rfcnrs": {
+      "taskId": "task-1774309622096-rfcnrs",
+      "type": "research",
+      "description": "FRONTEND REVIEW — Read all files in /Users/shaker/shopify-dev/rtl-storefront/app/routes/ and /app/components/. Focus on:\n- Do loaders and actions follow Remix best practices?\n- Are error boundaries properly set up on each route?\n- Is Polaris v12 used correctly (no deprecated components)?\n- Check for missing loading states, empty states, and error states\n- Verify each screen renders valid UI and handles edge cases\n- Check for hardcoded strings that should be translated\nReport: list every issue with file path and line number.",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "frontend-reviewer"
+      ],
+      "tags": [
+        "frontend",
+        "routes",
+        "components",
+        "polaris",
+        "accessibility"
+      ],
+      "createdAt": "2026-03-23T23:47:02.096Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309622100-5ildb8": {
+      "taskId": "task-1774309622100-5ildb8",
+      "type": "research",
+      "description": "BACKEND REVIEW — Read all files in /Users/shaker/shopify-dev/rtl-storefront/app/services/ and API routes. Focus on:\n- Are the 7 AI translation providers properly abstracted?\n- Check for N+1 queries in Prisma usage\n- Are webhook handlers idempotent?\n- Check billing/subscription logic for edge cases\n- Review bulk-translation for memory leaks or unbounded operations\n- Check all 11 MENA payment gateway integrations for completeness\nReport: list every issue with file path, severity, and fix.",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "backend-reviewer"
+      ],
+      "tags": [
+        "backend",
+        "services",
+        "prisma",
+        "api",
+        "payments"
+      ],
+      "createdAt": "2026-03-23T23:47:02.100Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309622105-veafmf": {
+      "taskId": "task-1774309622105-veafmf",
+      "type": "research",
+      "description": "SECURITY AUDIT — Read auth, security, payments, and webhook files at /Users/shaker/shopify-dev/rtl-storefront. Focus on:\n- Is the Shopify OAuth flow secure?\n- Are all webhooks properly validated with HMAC?\n- Check for SQL injection via Prisma raw queries\n- Review CSP headers and XSS prevention\n- Check GDPR data export/deletion completeness\n- Are API keys and secrets properly handled (not in client bundles)?\n- Review rate limiting implementation\nReport: list every vulnerability with severity and remediation.",
+      "priority": "critical",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "security-auditor"
+      ],
+      "tags": [
+        "security",
+        "auth",
+        "gdpr",
+        "payments",
+        "vulnerabilities"
+      ],
+      "createdAt": "2026-03-23T23:47:02.105Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309622107-h2ebl0": {
+      "taskId": "task-1774309622107-h2ebl0",
+      "type": "research",
+      "description": "TEST COVERAGE REVIEW — Read /Users/shaker/shopify-dev/rtl-storefront/test/ directory. Focus on:\n- What critical paths have ZERO test coverage?\n- Are billing and payment flows tested?\n- Do integration tests cover real Shopify API interactions?\n- Are mocks realistic or do they hide bugs?\n- Is the single e2e test sufficient?\nReport: list coverage gaps ranked by business risk.",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "test-reviewer"
+      ],
+      "tags": [
+        "testing",
+        "coverage",
+        "quality",
+        "e2e"
+      ],
+      "createdAt": "2026-03-23T23:47:02.108Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309622110-kd4xhm": {
+      "taskId": "task-1774309622110-kd4xhm",
+      "type": "research",
+      "description": "DX & BUILD REVIEW — Read config files, package.json, and build setup at /Users/shaker/shopify-dev/rtl-storefront. Focus on:\n- Are dependencies up to date? Any known vulnerabilities?\n- Is the TypeScript config strict enough?\n- Are there unused dependencies?\n- Review the 9 Prisma migrations for issues\n- Check if build/deploy scripts are reliable\nReport: list every issue with fix suggestion.",
+      "priority": "high",
+      "status": "pending",
+      "progress": 0,
+      "assignedTo": [
+        "dx-reviewer"
+      ],
+      "tags": [
+        "devops",
+        "dx",
+        "build",
+        "dependencies",
+        "typescript"
+      ],
+      "createdAt": "2026-03-23T23:47:02.110Z",
+      "startedAt": null,
+      "completedAt": null
+    },
+    "task-1774309729100-tyjmu0": {
+      "taskId": "task-1774309729100-tyjmu0",
+      "type": "research",
+      "description": "ARCHITECT: Full codebase structure audit for /Users/shaker/shopify-dev/rtl-storefront\n\nScan the entire codebase structure. Answer these questions:\n- Of the 87 service directories in app/services/, how many contain real logic vs stubs/placeholders? List every stub.\n- Which services have overlapping responsibilities and should be merged? (e.g. team/ vs team-management/, rtl/ vs rtl-features/ vs rtl-design/, content/ vs content-translation/ vs content-translator/ vs content-fields/)\n- Are there circular dependencies between services? Trace import chains.\n- Is there dead code — services imported nowhere? Check every service's import graph.\n- Does the route structure match the actual feature set or are there orphan routes?\n- CLAUDE.md mentions a language-switcher extension but only rtl-fashion-sections exists. Is this a gap?\n- Is 87 services appropriate for this app's complexity, or is it over-fragmented?\n\nOutput: JSON array of issues, each with {file, severity, category, description, suggestedFix}.",
+      "priority": "critical",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "architect"
+      ],
+      "tags": [
+        "architecture",
+        "audit",
+        "dead-code",
+        "dependencies",
+        "structure"
+      ],
+      "createdAt": "2026-03-23T23:48:49.100Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:32.226Z",
+      "result": {
+        "agent": "architect",
+        "issues": 23,
+        "critical": 3,
+        "high": 6,
+        "deadServices": 67,
+        "overlapGroups": 7
+      }
+    },
+    "task-1774309731769-tto9e6": {
+      "taskId": "task-1774309731769-tto9e6",
+      "type": "research",
+      "description": "ROUTE-REVIEWER: Full Remix routes audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead every file in app/routes/. For each route, verify:\n- Does the loader properly authenticate via Shopify session?\n- Does the action validate input and handle errors gracefully?\n- Is there an ErrorBoundary? If not, what happens on failure?\n- Are there loading/pending states in the UI?\n- Does the route handle empty states (no data yet)?\n- Are there any raw SQL or unvalidated params in loaders/actions?\n- Do translation routes (app.translate.*.tsx) handle missing resourceId?\n- Does app.billing.confirm.tsx handle failed/cancelled payments?\n- Does app.onboarding.tsx handle partial completion and resumption?\n- Are webhook routes (webhooks.*.tsx) idempotent?\n\nOutput: table with columns [route, issue, severity, fix].",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "route-reviewer"
+      ],
+      "tags": [
+        "routes",
+        "remix",
+        "loaders",
+        "actions",
+        "error-handling"
+      ],
+      "createdAt": "2026-03-23T23:48:51.769Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:32.229Z",
+      "result": {
+        "agent": "route-reviewer",
+        "routesAudited": 52,
+        "critical": 1,
+        "high": 3,
+        "missingErrorBoundary": 48
+      }
+    },
+    "task-1774309733992-limxml": {
+      "taskId": "task-1774309733992-limxml",
+      "type": "research",
+      "description": "COMPONENT-REVIEWER: Full React components audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead every file in app/components/. For each component, check:\n- Is it using Polaris v12 correctly? Any deprecated v11 components?\n- Does it handle RTL layout properly (no hardcoded left/right)?\n- Is it accessible (proper ARIA labels, keyboard navigation, focus management)?\n- Are there hardcoded English strings that should use translations?\n- Does it handle loading, error, and empty states?\n- Is state management appropriate (no prop drilling, proper use of context)?\n- Are there components that duplicate logic and should be consolidated?\n- Check AbayaCustomizer, ModestySelector, HijriDateDisplay for cultural accuracy.\n- Check TranslationEditor, SideBySide for usability with long Arabic text.\n\nOutput: table with columns [component, issue, severity, fix].",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "component-reviewer"
+      ],
+      "tags": [
+        "components",
+        "polaris",
+        "rtl",
+        "accessibility",
+        "ui"
+      ],
+      "createdAt": "2026-03-23T23:48:53.992Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:33.309Z",
+      "result": {
+        "agent": "component-reviewer",
+        "componentsAudited": 28,
+        "deprecatedStack": 7,
+        "deprecatedCardSection": 3,
+        "a11yIssues": 4
+      }
+    },
+    "task-1774309737115-1jjcmx": {
+      "taskId": "task-1774309737115-1jjcmx",
+      "type": "research",
+      "description": "TRANSLATION-ENGINE: Core translation pipeline audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in app/services/translation/, app/services/translation-memory/, app/services/translation-features/, app/services/translation-formatting/, app/services/bulk-processor/. Check:\n- Is the AI provider abstraction clean? Can you swap providers without touching callers?\n- Is there proper fallback logic when a provider fails or rate-limits?\n- Does bulk translation have memory bounds? What happens with 10,000 products?\n- Is translation memory actually used to avoid re-translating unchanged content?\n- Does the glossary enforce term consistency across providers?\n- Is formatting preserved (HTML tags, Liquid variables, markdown)?\n- Are API keys loaded securely (server-side only, not bundled to client)?\n- Is there retry logic with exponential backoff for provider API failures?\n- Are translation costs tracked accurately per provider in TranslationUsage?\n- Check for race conditions in concurrent translation requests.\n\nOutput: JSON array of issues with {file, line, severity, category, description, fix}.",
+      "priority": "critical",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "translation-engine"
+      ],
+      "tags": [
+        "translation",
+        "ai-providers",
+        "bulk-processing",
+        "translation-memory",
+        "formatting"
+      ],
+      "createdAt": "2026-03-23T23:48:57.115Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:35.185Z",
+      "result": {
+        "agent": "translation-engine",
+        "critical": 3,
+        "high": 5,
+        "tmDisconnected": true,
+        "glossaryNoop": true,
+        "formattingUnwired": true
+      }
+    },
+    "task-1774309740665-7i8fxt": {
+      "taskId": "task-1774309740665-7i8fxt",
+      "type": "research",
+      "description": "PAYMENTS-REVIEWER: MENA payments and billing audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in app/services/payments/mena/, app/services/billing/, app/services/currency/, app/services/vat/, app/routes/app.billing.tsx, app/routes/app.billing.confirm.tsx, app/routes/app.payments.tsx, app/routes/api.payments.mena.$.ts, app/routes/api.currency.rates.ts. Check:\n- Are all 11 payment gateways (Tamara, Tabby, Mada, HyperPay, Payfort, Sadad, STC Pay, Network International, Telr, COD) fully implemented or are some stubs?\n- Is the Shopify Billing API integration correct for subscription management?\n- Does billing.confirm handle edge cases: expired sessions, duplicate confirmations, webhook race conditions?\n- Is currency conversion using live rates or stale data?\n- Is VAT calculation correct for Saudi, UAE, Bahrain, Oman, Kuwait, Qatar?\n- Are payment webhook callbacks validated and idempotent?\n- Is there proper error handling for declined payments, timeouts, and partial failures?\n- Are payment secrets (API keys, merchant IDs) properly stored and rotated?\n\nOutput: table with [gateway/feature, status (implemented/stub/broken), issues, fix].",
+      "priority": "critical",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "payments-reviewer"
+      ],
+      "tags": [
+        "payments",
+        "mena",
+        "billing",
+        "currency",
+        "vat",
+        "gateways"
+      ],
+      "createdAt": "2026-03-23T23:49:00.665Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:36.865Z",
+      "result": {
+        "agent": "payments-reviewer",
+        "gatewaysImplemented": 11,
+        "timingAttackVuln": 9,
+        "hardcodedCurrency": 5,
+        "stubWebhook": true
+      }
+    },
+    "task-1774309744223-lmms2v": {
+      "taskId": "task-1774309744223-lmms2v",
+      "type": "research",
+      "description": "CONTENT-SERVICES: Content translation and SEO audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in app/services/product-translation/, app/services/content-translation/, app/services/content-translator/, app/services/content-fields/, app/services/content/, app/services/media-translation/, app/services/media-features/, app/services/schema-org/, app/services/sitemap/, app/services/meta-tags/, app/services/url-slugs/, app/services/url-structure/, app/services/breadcrumb/, app/services/description-generator/, app/services/search/. Check:\n- Are there 5 overlapping content services (content/, content-translation/, content-translator/, content-fields/, product-translation/)? Which are actually used?\n- Does the SEO schema.org output validate against Google's structured data requirements?\n- Does the sitemap include translated URLs with hreflang annotations?\n- Are URL slugs properly transliterated for Arabic (not just URL-encoded)?\n- Does the description generator produce quality output or generic text?\n- Is media translation handling image alt-text and video captions?\n- Are meta tags properly set for RTL pages (dir=\"rtl\", lang=\"ar\")?\n\nOutput: JSON array of issues with {file, severity, description, fix}.",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "content-services"
+      ],
+      "tags": [
+        "content",
+        "seo",
+        "schema-org",
+        "sitemap",
+        "hreflang",
+        "url-slugs",
+        "meta-tags"
+      ],
+      "createdAt": "2026-03-23T23:49:04.223Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:38.648Z",
+      "result": {
+        "agent": "content-services",
+        "critical": 1,
+        "high": 3,
+        "overlappingServices": 5,
+        "duplicateGenerators": 3
+      }
+    },
+    "task-1774309747462-pqw6ad": {
+      "taskId": "task-1774309747462-pqw6ad",
+      "type": "research",
+      "description": "SECURITY-AUDITOR: Full security and GDPR audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in app/services/security/, app/services/auth/, app/services/gdpr/, app/services/privacy/, app/services/bot-detection/, app/routes/auth.*, app/routes/webhooks.*, app/shopify.server.ts. Check:\n- Is the Shopify OAuth flow following current best practices (no implicit grants)?\n- Are ALL webhook routes validating HMAC signatures before processing?\n- Is there any use of prisma.$queryRaw or prisma.$executeRaw without parameterization?\n- Are CSP headers set correctly? Is there an unsafe-inline or unsafe-eval?\n- Is there XSS risk in translation output rendering (user-supplied translations displayed as HTML)?\n- Are API routes (api.v1.*) properly authenticated and rate-limited?\n- Does GDPR data export include ALL user data from all 18 tables?\n- Does GDPR deletion cascade properly across related records?\n- Are secrets (AI API keys, payment keys) only in environment variables, never in code?\n- Is there any sensitive data in client-side bundles (check for .server.ts convention)?\n- Are team invites properly scoped and expired?\n\nOutput: vulnerability report with [id, severity (critical/high/medium/low), location, description, remediation, cwe].",
+      "priority": "critical",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "security-auditor"
+      ],
+      "tags": [
+        "security",
+        "oauth",
+        "gdpr",
+        "xss",
+        "csp",
+        "hmac",
+        "secrets",
+        "owasp"
+      ],
+      "createdAt": "2026-03-23T23:49:07.462Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:39.966Z",
+      "result": {
+        "agent": "security-auditor",
+        "high": 3,
+        "medium": 7,
+        "plaintextKeys": true,
+        "gdprCrossTenant": true
+      }
+    },
+    "task-1774309750886-z9dz2e": {
+      "taskId": "task-1774309750886-z9dz2e",
+      "type": "research",
+      "description": "DATA-LAYER: Database schema, migrations, and caching audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead app/db.server.ts, prisma/schema.prisma, all files in prisma/migrations/, app/services/cache/, app/services/sync/, app/services/translation-memory/. Check:\n- Are all 18 Prisma models properly indexed for their query patterns?\n- Is there missing cascade delete that could create orphan records?\n- Are the 9 migrations clean and reversible?\n- Is TranslationCache properly invalidated when source content changes?\n- Is TranslationMemory deduplicated (same source text, same target locale)?\n- Are there missing unique constraints that could cause duplicate entries?\n- Is the Session model properly cleaned up (expired sessions deleted)?\n- Are there queries that fetch entire tables instead of paginating?\n- Is SQLite appropriate for production or should this migrate to PostgreSQL?\n- Check for missing database indexes on foreign keys and frequently filtered columns.\n- Is ShopSettings storing API keys in plaintext in the database?\n\nOutput: table with [model/migration, issue, severity, fix, sql_if_applicable].",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "data-layer"
+      ],
+      "tags": [
+        "database",
+        "prisma",
+        "migrations",
+        "indexing",
+        "cache",
+        "sqlite"
+      ],
+      "createdAt": "2026-03-23T23:49:10.886Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:41.300Z",
+      "result": {
+        "agent": "data-layer",
+        "models": 18,
+        "critical": 4,
+        "high": 8,
+        "hardcodedDevSqlite": true,
+        "noWAL": true
+      }
+    },
+    "task-1774309754441-2lqvi8": {
+      "taskId": "task-1774309754441-2lqvi8",
+      "type": "research",
+      "description": "TEST-COVERAGE: Test coverage gap analysis for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in test/. Cross-reference with app/routes/ and app/services/. Check:\n- Which of the 26 routes have ZERO test coverage? List them all.\n- Are the 11 payment gateways tested? Which ones have no tests?\n- Is the billing flow (subscribe, confirm, cancel, upgrade, downgrade) tested end-to-end?\n- Are the 7 AI translation providers tested with realistic mocks?\n- Do the MSW mocks in test/mocks/ match the actual Shopify API responses?\n- Is the single e2e test (test/e2e/) actually testing a meaningful user flow?\n- Are webhook handlers tested for idempotency (duplicate delivery)?\n- Are error paths tested (API failures, network timeouts, invalid data)?\n- What is the estimated real code coverage percentage?\n- Which untested areas carry the highest business risk?\n\nOutput: coverage gap report with [area, test_count, risk_level, recommended_tests].",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "test-coverage"
+      ],
+      "tags": [
+        "testing",
+        "coverage",
+        "unit-tests",
+        "integration",
+        "e2e",
+        "mocks"
+      ],
+      "createdAt": "2026-03-23T23:49:14.441Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:43.084Z",
+      "result": {
+        "agent": "test-coverage",
+        "totalTests": 4489,
+        "untestedRoutes": 32,
+        "estimatedCoverage": "45-55%",
+        "zeroE2E": true
+      }
+    },
+    "task-1774309759108-n64e4b": {
+      "taskId": "task-1774309759108-n64e4b",
+      "type": "research",
+      "description": "REGIONAL-FEATURES: MENA/Arabic localization services audit for /Users/shaker/shopify-dev/rtl-storefront\n\nRead all files in app/services/cultural-ai/, app/services/dialects/, app/services/arabic-features/, app/services/cultural-features/, app/services/mena-regional/, app/services/mena-campaigns/, app/services/mena-design/, app/services/hijri/, app/services/prayer-times/, app/services/fashion-db/, app/services/modest-fashion/, app/services/seasonal-banners/, app/services/white-friday/, app/services/weekend/, app/services/geolocation/, app/services/language-cookie/, app/services/brand-voice/, app/services/size-guide/, app/services/trust-badges/, app/services/fonts/. Check:\n- How many of these 20+ services are real implementations vs empty stubs?\n- Is the dialect detector accurate for Gulf Arabic vs Egyptian vs Levantine vs Maghrebi?\n- Does the Hijri calendar correctly handle all edge cases (leap years, month boundaries)?\n- Are prayer times calculated or fetched from an API? Is the source reliable?\n- Is the fashion-db/modest-fashion content culturally appropriate and accurate?\n- Do seasonal features (white-friday, seasonal-banners) have proper date triggers?\n- Does geolocation correctly map IP to MENA countries for auto-locale?\n- Are fonts (Noto Sans Arabic, Heebo, VazirMatn) loaded efficiently (subset, preload)?\n- Is brand-voice actually enforcing tone consistency in AI-generated translations?\n- Are there services here that duplicate logic already in the translation engine?\n\nOutput: audit table with [service, status (real/stub/partial), issues, recommendation].",
+      "priority": "high",
+      "status": "completed",
+      "progress": 100,
+      "assignedTo": [
+        "regional-features"
+      ],
+      "tags": [
+        "mena",
+        "localization",
+        "arabic",
+        "cultural-ai",
+        "hijri",
+        "dialect",
+        "regional"
+      ],
+      "createdAt": "2026-03-23T23:49:19.108Z",
+      "startedAt": null,
+      "completedAt": "2026-03-24T00:13:44.521Z",
+      "result": {
+        "agent": "regional-features",
+        "real": 14,
+        "partial": 1,
+        "stubs": 5,
+        "duplicateDialect": 3
+      }
+    }
+  },
+  "version": "3.0.0"
+}
