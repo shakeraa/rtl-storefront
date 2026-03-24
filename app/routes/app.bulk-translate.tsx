@@ -20,7 +20,7 @@ import {
   useIndexResourceState,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { createShopTranslationEngine } from "../services/translation/engine";
 import { getProviderStatus } from "../services/translation/get-provider-env.server";
 
@@ -56,7 +56,7 @@ const RESOURCE_TYPE_TO_GQL: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   const url = new URL(request.url);
   const resourceType = url.searchParams.get("resourceType") || "products";
@@ -120,7 +120,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     },
   );
 
-  const providerStatus = await getProviderStatus(session.shop);
+  const providerStatus = await getProviderStatus(shop);
 
   return json({
     resources,
@@ -135,7 +135,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 
@@ -151,7 +151,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   // Check provider configuration before attempting translation
-  const providerStatus = await getProviderStatus(session.shop);
+  const providerStatus = await getProviderStatus(shop);
   if (!providerStatus.anyConfigured) {
     return json({
       success: false,
@@ -165,7 +165,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   } catch {
     return json({ error: "Invalid data format" }, { status: 400 });
   }
-  const engine = await createShopTranslationEngine(session.shop);
+  const engine = await createShopTranslationEngine(shop);
 
   let totalTranslated = 0;
   let totalErrors = 0;

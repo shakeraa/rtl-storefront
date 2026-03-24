@@ -13,7 +13,7 @@
  */
 
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getExchangeRates,
   type ExchangeRate,
@@ -42,7 +42,7 @@ interface RateEntry {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Authenticate with Shopify Admin
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   const url = new URL(request.url);
 

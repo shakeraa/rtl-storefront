@@ -7,25 +7,25 @@ import {
   TextField, Checkbox, Button, DataTable, Banner,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { getAllPlans, upsertPlan, isAdmin } from "../services/billing/index";
 import type { FeatureKey } from "../services/billing/types";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
-  if (!isAdmin(session.shop)) {
+  if (!isAdmin(shop)) {
     throw new Response("Not Found", { status: 404 });
   }
 
   const plans = await getAllPlans();
-  return json({ plans, shop: session.shop });
+  return json({ plans, shop });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
-  if (!isAdmin(session.shop)) {
+  if (!isAdmin(shop)) {
     throw new Response("Not Found", { status: 404 });
   }
 

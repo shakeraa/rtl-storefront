@@ -7,7 +7,7 @@
  */
 
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { applyRateLimit } from "../utils/security.server";
 import {
   getAllTerms,
@@ -20,15 +20,15 @@ import {
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   const url = new URL(request.url);
   const locale = url.searchParams.get("locale") ?? undefined;
 
-  const terms = await getAllTerms(session.shop, locale);
+  const terms = await getAllTerms(shop, locale);
 
   return json({
-    shop: session.shop,
+    shop: shop,
     locale: locale ?? null,
     terms,
     count: terms.length,
@@ -42,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   applyRateLimit(request);
 
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   const method = request.method.toUpperCase();
 
@@ -98,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    const created = await addTerm(session.shop, {
+    const created = await addTerm(shop, {
       sourceLocale: term.sourceLocale,
       targetLocale: term.targetLocale,
       sourceTerm: term.sourceTerm,

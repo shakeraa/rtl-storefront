@@ -12,6 +12,7 @@ import {
 import { TranslationField } from "./TranslationField";
 
 import { isRtlLocale } from "../../utils/rtl";
+import { t } from "../../utils/i18n";
 
 interface Field {
   key: string;
@@ -26,6 +27,7 @@ interface SideBySideProps {
   onFieldChange: (key: string, value: string) => void;
   onSave: () => void;
   saveStatus?: "idle" | "saving" | "saved" | "error";
+  locale?: string;
 }
 
 export function SideBySide({
@@ -35,6 +37,7 @@ export function SideBySide({
   onFieldChange,
   onSave,
   saveStatus = "idle",
+  locale = 'en',
 }: SideBySideProps) {
   const sourceIsRtl = isRtlLocale(sourceLocale);
   const targetIsRtl = isRtlLocale(targetLocale);
@@ -49,11 +52,11 @@ export function SideBySide({
   const statusBadge = () => {
     switch (saveStatus) {
       case "saving":
-        return <Badge tone="info">Saving...</Badge>;
+        return <Badge tone="info">{t('saving', locale)}</Badge>;
       case "saved":
-        return <Badge tone="success">Saved</Badge>;
+        return <Badge tone="success">{t('saved', locale)}</Badge>;
       case "error":
-        return <Badge tone="critical">Error</Badge>;
+        return <Badge tone="critical">{t('error', locale)}</Badge>;
       default:
         return null;
     }
@@ -64,12 +67,12 @@ export function SideBySide({
       <InlineStack align="space-between" blockAlign="center">
         <InlineStack gap="300">
           <Text as="h2" variant="headingLg">
-            Translation Editor
+            {t('translation_editor', locale)}
           </Text>
           {statusBadge()}
         </InlineStack>
         <Button variant="primary" onClick={onSave} loading={saveStatus === "saving"}>
-          Save All
+          {t('save_all', locale)}
         </Button>
       </InlineStack>
 
@@ -79,7 +82,7 @@ export function SideBySide({
             <BlockStack gap="300">
               <InlineStack gap="200" blockAlign="center">
                 <Text as="h3" variant="headingMd">
-                  Source ({sourceLocale.toUpperCase()})
+                  {t('source', locale)} ({sourceLocale.toUpperCase()})
                 </Text>
                 {sourceIsRtl && <Badge tone="info">RTL</Badge>}
               </InlineStack>
@@ -107,7 +110,7 @@ export function SideBySide({
             <BlockStack gap="300">
               <InlineStack gap="200" blockAlign="center">
                 <Text as="h3" variant="headingMd">
-                  Translation ({targetLocale.toUpperCase()})
+                  {t('translation', locale)} ({targetLocale.toUpperCase()})
                 </Text>
                 {targetIsRtl && <Badge tone="info">RTL</Badge>}
               </InlineStack>

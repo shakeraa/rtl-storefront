@@ -4,16 +4,16 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Page, Layout, Card, BlockStack, InlineStack, Text, Button, Select, DataTable, Badge, ButtonGroup } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   let translationData: string[][] = [];
   try {
     const entries = await db.translationMemory.findMany({
-      where: { shop: session.shop },
+      where: { shop },
       take: 1000,
       orderBy: { updatedAt: "desc" },
       select: {
@@ -59,7 +59,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  return json({ shop: session.shop, translationData });
+  return json({ shop, translationData });
 };
 
 export default function ExportPage() {

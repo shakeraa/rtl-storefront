@@ -19,7 +19,7 @@ import {
   Divider,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { createTranslationEngine } from "../services/translation/engine";
 
 // ---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ const GID_PREFIX = "gid://shopify/OnlineStorePage/";
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
   const resourceId = params.resourceId;
 
   if (!resourceId) {
@@ -139,7 +139,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
   const targetLocale = formData.get("locale") as string;

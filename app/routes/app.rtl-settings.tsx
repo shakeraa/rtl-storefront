@@ -7,12 +7,12 @@ import {
   TextField, Select, Checkbox, Badge, Button,
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import { SUPPORTED_LANGUAGES } from "../services/language-switcher/options";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   // Build language options from the language-switcher service
   const availableLanguages = Object.entries(SUPPORTED_LANGUAGES).map(
@@ -25,7 +25,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   );
 
   return json({
-    shop: session.shop,
+    shop,
     availableLanguages,
     providers: {
       openai: { configured: Boolean(process.env.OPENAI_API_KEY), name: "OpenAI" },
@@ -36,7 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
 
   const settingsData = {
@@ -69,9 +69,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   await db.shopSettings.upsert({
-    where: { shop: session.shop },
+    where: { shop: shop },
     update: { ...settingsData, ...apiKeyUpdates },
-    create: { shop: session.shop, ...settingsData, ...apiKeyUpdates },
+    create: { shop: shop, ...settingsData, ...apiKeyUpdates },
   });
 
   return json({ success: true });

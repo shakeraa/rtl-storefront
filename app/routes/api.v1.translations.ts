@@ -6,7 +6,7 @@
  */
 
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { applyRateLimit } from "../utils/security.server";
 import {
   type TranslatableResourceType,
@@ -18,7 +18,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   const url = new URL(request.url);
   const resourceType = url.searchParams.get("resourceType") as TranslatableResourceType | null;
@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       variables: {
         resourceId: `gid://shopify/${capitalize(resourceType)}/${resourceId}`,
-        locale: locale ?? session.shop.split(".")[0] ?? "en",
+        locale: locale ?? shop.split(".")[0] ?? "en",
       },
     },
   );
@@ -66,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const data = await response.json();
 
   return json({
-    shop: session.shop,
+    shop: shop,
     resourceType,
     resourceId,
     locale,
@@ -83,7 +83,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   applyRateLimit(request);
 
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   if (request.method !== "POST") {
     return json({ error: "Method not allowed" }, { status: 405 });
@@ -149,7 +149,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return json({
     success: true,
-    shop: session.shop,
+    shop: shop,
     resourceId: shopifyResourceId,
     locale,
     translations: result?.translations ?? [],

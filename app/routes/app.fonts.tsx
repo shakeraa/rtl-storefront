@@ -14,7 +14,7 @@ import {
   Box,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   ARABIC_FONTS,
   FONT_PAIRINGS,
@@ -29,7 +29,7 @@ import {
 import type { HebrewFont, HebrewFontPairingKey } from "../services/fonts/hebrew";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   return json({
     arabicFonts: ARABIC_FONTS,

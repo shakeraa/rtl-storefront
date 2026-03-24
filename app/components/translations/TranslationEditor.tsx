@@ -12,6 +12,7 @@ import {
 } from "@shopify/polaris";
 
 import { isRtlLocale } from "../../utils/rtl";
+import { t } from "../../utils/i18n";
 
 export interface TranslationField {
   key: string;
@@ -33,6 +34,7 @@ interface TranslationEditorProps {
   onTargetLocaleChange?: (locale: string) => void;
   onSave: () => void;
   onAutoTranslate?: () => void;
+  locale?: string;
 }
 
 export function TranslationEditor({
@@ -46,6 +48,7 @@ export function TranslationEditor({
   onTargetLocaleChange,
   onSave,
   onAutoTranslate,
+  locale = 'en',
 }: TranslationEditorProps) {
   const sourceIsRtl = isRtlLocale(sourceLocale);
   const targetIsRtl = isRtlLocale(targetLocale);
@@ -60,13 +63,13 @@ export function TranslationEditor({
   const statusBadge = () => {
     switch (saveStatus) {
       case "unsaved":
-        return <Badge tone="attention">Unsaved changes</Badge>;
+        return <Badge tone="attention">{t('unsaved_changes', locale)}</Badge>;
       case "saving":
-        return <Badge tone="info">Saving...</Badge>;
+        return <Badge tone="info">{t('saving', locale)}</Badge>;
       case "saved":
-        return <Badge tone="success">Saved</Badge>;
+        return <Badge tone="success">{t('saved', locale)}</Badge>;
       case "error":
-        return <Badge tone="critical">Save failed</Badge>;
+        return <Badge tone="critical">{t('save_error', locale)}</Badge>;
       default:
         return null;
     }
@@ -84,7 +87,7 @@ export function TranslationEditor({
         <InlineStack gap="300">
           {onAutoTranslate && (
             <Button onClick={onAutoTranslate} variant="secondary">
-              Auto-translate
+              {t('auto_translate', locale)}
             </Button>
           )}
           <Button
@@ -93,7 +96,7 @@ export function TranslationEditor({
             loading={saveStatus === "saving"}
             disabled={saveStatus === "saved"}
           >
-            Save
+            {t('save', locale)}
           </Button>
         </InlineStack>
       </InlineStack>
@@ -101,7 +104,7 @@ export function TranslationEditor({
       {targetLocaleOptions && onTargetLocaleChange && (
         <Card>
           <Select
-            label="Target language"
+            label={t('target_language', locale)}
             options={targetLocaleOptions}
             value={targetLocale}
             onChange={onTargetLocaleChange}
@@ -122,7 +125,7 @@ export function TranslationEditor({
           <BlockStack gap="300">
             <InlineStack gap="200" blockAlign="center">
               <Text as="h3" variant="headingMd">
-                Source ({sourceLocale.toUpperCase()})
+                {t('source', locale)} ({sourceLocale.toUpperCase()})
               </Text>
               {sourceIsRtl && <Badge tone="info">RTL</Badge>}
             </InlineStack>
@@ -149,7 +152,7 @@ export function TranslationEditor({
           <BlockStack gap="300">
             <InlineStack gap="200" blockAlign="center">
               <Text as="h3" variant="headingMd">
-                Translation ({targetLocale.toUpperCase()})
+                {t('translation', locale)} ({targetLocale.toUpperCase()})
               </Text>
               {targetIsRtl && <Badge tone="info">RTL</Badge>}
             </InlineStack>

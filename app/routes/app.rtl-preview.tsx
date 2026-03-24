@@ -4,11 +4,10 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Page, Layout, Card, BlockStack, InlineStack, InlineGrid, Text, Select, Checkbox, TextField, Badge, Button, Banner, Link } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { shop } = await authenticateWithTenant(request);
   const storeUrl = `https://${shop}`;
   return json({ shop, storeUrl });
 };

@@ -18,7 +18,7 @@ import {
   ProgressBar,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import {
   parseCSV,
@@ -29,12 +29,12 @@ import {
 import type { CSVValidationResult, TranslationEntry } from "../services/import-export/csv";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
   return json({});
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const fileContent = formData.get("fileContent") as string;
   const fileNameVal = formData.get("fileName") as string;
@@ -83,7 +83,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         await db.translationMemory.upsert({
           where: {
             shop_sourceLocale_targetLocale_sourceText: {
-              shop: session.shop,
+              shop: shop,
               sourceLocale,
               targetLocale,
               sourceText,
@@ -91,7 +91,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           },
           update: { translatedText: targetText },
           create: {
-            shop: session.shop,
+            shop: shop,
             sourceLocale,
             targetLocale,
             sourceText,

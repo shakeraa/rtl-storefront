@@ -6,7 +6,7 @@ import {
   Text, ProgressBar, DataTable, Badge, Button,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import { calculateCoverage, getCoverageLevel, getCoverageColor } from "../services/coverage";
 
@@ -31,7 +31,7 @@ function getTimeAgo(date: Date): string {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session, admin } = await authenticate.admin(request);
+  const { session, admin, shop } = await authenticateWithTenant(request);
 
   // Query DB for translation counts per target locale
   let translatedCounts: Record<string, number> = {};
@@ -65,7 +65,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const now = new Date();
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const usage = await db.shopUsage.findFirst({
-      where: { shop: session.shop, periodStart: { gte: periodStart } },
+      where: { shop, periodStart: { gte: periodStart } },
       orderBy: { periodStart: "desc" },
     });
     if (usage) {
@@ -80,7 +80,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   let recentActivity: string[][] = [];
   try {
     const logs = await db.dataAccessLog.findMany({
-      where: { shop: session.shop },
+      where: { shop },
       orderBy: { createdAt: "desc" },
       take: 5,
     });
@@ -117,7 +117,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   );
 
   return json({
-    shop: session.shop,
+    shop,
     languages: locales.length,
     overallPercent,
     contentItems: totalContent,

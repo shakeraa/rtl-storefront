@@ -26,6 +26,7 @@ import {
   Scrollable,
   Divider,
 } from "@shopify/polaris";
+import { t } from "../../utils/i18n";
 
 // =============================================================================
 // T0351 - Dark Mode Toggle
@@ -34,9 +35,11 @@ import {
 export function DarkModeToggle({
   enabled,
   onChange,
+  locale = 'en',
 }: {
   enabled: boolean;
   onChange: (v: boolean) => void;
+  locale?: string;
 }) {
   const handleChange = useCallback(
     (newChecked: boolean) => {
@@ -57,7 +60,7 @@ export function DarkModeToggle({
   }, [enabled]);
 
   return (
-    <Checkbox label="Dark mode" checked={enabled} onChange={handleChange} />
+    <Checkbox label={t('dark_mode', locale)} checked={enabled} onChange={handleChange} />
   );
 }
 
@@ -89,12 +92,12 @@ function formatShortcut(shortcut: ShortcutConfig): string {
   return parts.join(" + ");
 }
 
-export function KeyboardShortcutsHelp() {
+export function KeyboardShortcutsHelp({ locale = 'en' }: { locale?: string } = {}) {
   const [open, setOpen] = useState(false);
 
   const activator = (
     <Button onClick={() => setOpen(true)} variant="plain">
-      Keyboard shortcuts
+      {t('keyboard_shortcuts', locale)}
     </Button>
   );
 
@@ -104,7 +107,7 @@ export function KeyboardShortcutsHelp() {
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title="Keyboard Shortcuts"
+        title={t('keyboard_shortcuts', locale)}
       >
         <Modal.Section>
           <BlockStack gap="300">
@@ -135,10 +138,12 @@ export function BulkActionBar({
   selectedCount,
   actions,
   onAction,
+  locale = 'en',
 }: {
   selectedCount: number;
   actions: Array<{ id: string; label: string; destructive?: boolean }>;
   onAction: (id: string) => void;
+  locale?: string;
 }) {
   if (selectedCount === 0) return null;
 
@@ -157,7 +162,7 @@ export function BulkActionBar({
     >
       <InlineStack align="space-between" blockAlign="center">
         <Text as="span" variant="bodyMd" fontWeight="semibold">
-          {selectedCount} selected
+          {selectedCount} {t('selected', locale)}
         </Text>
         <ButtonGroup>
           {actions.map((action) => (
@@ -295,10 +300,12 @@ export function AdvancedFilters({
   filters,
   values,
   onChange,
+  locale = 'en',
 }: {
   filters: FilterConfig[];
   values: Record<string, string>;
   onChange: (values: Record<string, string>) => void;
+  locale?: string;
 }) {
   const handleFilterChange = useCallback(
     (field: string, value: string) => {
@@ -325,15 +332,15 @@ export function AdvancedFilters({
         <InlineStack align="space-between" blockAlign="center">
           <InlineStack gap="200" blockAlign="center">
             <Text as="h3" variant="headingSm">
-              Filters
+              {t('filters', locale)}
             </Text>
             {activeFilterCount > 0 && (
-              <Badge tone="info">{`${activeFilterCount} active`}</Badge>
+              <Badge tone="info">{`${activeFilterCount} ${t('active', locale)}`}</Badge>
             )}
           </InlineStack>
           {activeFilterCount > 0 && (
             <Button onClick={handleClearAll} variant="plain">
-              Clear all
+              {t('clear_all', locale)}
             </Button>
           )}
         </InlineStack>
@@ -416,10 +423,12 @@ export function ColumnSelector({
   available,
   selected,
   onChange,
+  locale = 'en',
 }: {
   available: Array<{ id: string; label: string }>;
   selected: string[];
   onChange: (cols: string[]) => void;
+  locale?: string;
 }) {
   const [popoverActive, setPopoverActive] = useState(false);
 
@@ -441,7 +450,7 @@ export function ColumnSelector({
 
   const activator = (
     <Button onClick={togglePopover} disclosure>
-      Columns
+      {t('columns', locale)}
     </Button>
   );
 
@@ -873,6 +882,7 @@ export function ActivityFeed({
 export function NotificationsCenter({
   notifications,
   onDismiss,
+  locale = 'en',
 }: {
   notifications: Array<{
     id: string;
@@ -881,6 +891,7 @@ export function NotificationsCenter({
     read: boolean;
   }>;
   onDismiss: (id: string) => void;
+  locale?: string;
 }) {
   const [popoverActive, setPopoverActive] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -888,7 +899,7 @@ export function NotificationsCenter({
   const activator = (
     <div style={{ position: "relative", display: "inline-block" }}>
       <Button onClick={() => setPopoverActive((prev) => !prev)}>
-        Notifications
+        {t('notifications', locale)}
       </Button>
       {unreadCount > 0 && (
         <div
@@ -923,13 +934,13 @@ export function NotificationsCenter({
     >
       <Popover.Section>
         <Text as="span" variant="headingSm">
-          Notifications
+          {t('notifications', locale)}
         </Text>
       </Popover.Section>
       <Popover.Section>
         {notifications.length === 0 ? (
           <Text as="p" variant="bodySm" tone="subdued">
-            No notifications
+            {t('no_notifications', locale)}
           </Text>
         ) : (
           <Scrollable style={{ maxHeight: 300 }}>
@@ -961,7 +972,7 @@ export function NotificationsCenter({
                       onClick={() => onDismiss(notif.id)}
                       size="slim"
                     >
-                      Dismiss
+                      {t('dismiss', locale)}
                     </Button>
                   </InlineStack>
                 </Box>
@@ -978,7 +989,7 @@ export function NotificationsCenter({
 // T0364 - Mobile Warning Banner
 // =============================================================================
 
-export function MobileWarningBanner() {
+export function MobileWarningBanner({ locale = 'en' }: { locale?: string } = {}) {
   const [dismissed, setDismissed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -993,7 +1004,7 @@ export function MobileWarningBanner() {
 
   return (
     <Banner
-      title="Best viewed on desktop"
+      title={t('best_on_desktop', locale)}
       tone="warning"
       onDismiss={() => setDismissed(true)}
     >
@@ -1064,7 +1075,7 @@ export function ResponsiveContainer({
 // T0366 - Offline Indicator
 // =============================================================================
 
-export function OfflineIndicator({ isOnline }: { isOnline: boolean }) {
+export function OfflineIndicator({ isOnline, locale = 'en' }: { isOnline: boolean; locale?: string }) {
   if (isOnline) return null;
 
   return (
@@ -1079,7 +1090,7 @@ export function OfflineIndicator({ isOnline }: { isOnline: boolean }) {
     >
       <Banner tone="critical">
         <Text as="span" variant="bodyMd" fontWeight="semibold">
-          You are currently offline. Some features may be unavailable.
+          {t('offline_message', locale)}
         </Text>
       </Banner>
     </div>

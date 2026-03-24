@@ -15,7 +15,7 @@ import {
 } from "@shopify/polaris";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   generateProductSchema,
   validateProductSchema,
@@ -54,7 +54,7 @@ const LOCALES: { code: SupportedSchemaLocale; name: string; nativeName: string }
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   const schemas = LOCALES.map(({ code }) => {
     const generated = generateProductSchema(SAMPLE_PRODUCT, code);

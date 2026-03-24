@@ -14,6 +14,7 @@ import {
   ProgressBar,
   DataTable,
 } from "@shopify/polaris";
+import { t } from "../../utils/i18n";
 
 // ---------------------------------------------------------------------------
 // T0381 - Health Check
@@ -26,20 +27,22 @@ export interface HealthStatus {
   lastCheck: string;
 }
 
-function healthBadge(status: HealthStatus["status"]) {
-  const config: Record<HealthStatus["status"], { tone: "success" | "warning" | "critical"; label: string }> = {
-    healthy: { tone: "success", label: "Healthy" },
-    degraded: { tone: "warning", label: "Degraded" },
-    down: { tone: "critical", label: "Down" },
+function healthBadge(status: HealthStatus["status"], locale: string = 'en') {
+  const config: Record<HealthStatus["status"], { tone: "success" | "warning" | "critical"; key: string }> = {
+    healthy: { tone: "success", key: "healthy" },
+    degraded: { tone: "warning", key: "degraded" },
+    down: { tone: "critical", key: "down" },
   };
-  const { tone, label } = config[status];
-  return <Badge tone={tone}>{label}</Badge>;
+  const { tone, key } = config[status];
+  return <Badge tone={tone}>{t(key, locale)}</Badge>;
 }
 
 export function HealthCheckDashboard({
   services,
+  locale = 'en',
 }: {
   services: HealthStatus[];
+  locale?: string;
 }) {
   const healthyCount = services.filter((s) => s.status === "healthy").length;
   const overallTone: "success" | "warning" | "critical" =
@@ -54,10 +57,10 @@ export function HealthCheckDashboard({
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingLg">
-            System Health
+            {t('system_health', locale)}
           </Text>
           <Badge tone={overallTone}>
-            {`${healthyCount}/${services.length} Healthy`}
+            {`${healthyCount}/${services.length} ${t('healthy', locale)}`}
           </Badge>
         </InlineStack>
 
@@ -76,15 +79,15 @@ export function HealthCheckDashboard({
                     <Text as="h3" variant="headingSm">
                       {service.service}
                     </Text>
-                    {healthBadge(service.status)}
+                    {healthBadge(service.status, locale)}
                   </InlineStack>
                   <InlineStack gap="300">
                     <Text as="p" variant="bodySm" tone="subdued">
-                      Latency: {service.latencyMs}ms
+                      {t('latency', locale)}: {service.latencyMs}ms
                     </Text>
                   </InlineStack>
                   <Text as="p" variant="bodySm" tone="subdued">
-                    Last checked: {service.lastCheck}
+                    {t('last_checked', locale)}: {service.lastCheck}
                   </Text>
                   {service.latencyMs > 0 && (
                     <ProgressBar
@@ -127,9 +130,11 @@ function incidentBadge(status: Incident["status"]) {
 export function StatusPage({
   services,
   incidents,
+  locale = 'en',
 }: {
   services: HealthStatus[];
   incidents: Incident[];
+  locale?: string;
 }) {
   const allHealthy = services.every((s) => s.status === "healthy");
   const anyDown = services.some((s) => s.status === "down");
@@ -142,10 +147,10 @@ export function StatusPage({
             tone={allHealthy ? "success" : anyDown ? "critical" : "warning"}
             title={
               allHealthy
-                ? "All Systems Operational"
+                ? t('all_systems_operational', locale)
                 : anyDown
-                  ? "Service Disruption Detected"
-                  : "Partial Service Degradation"
+                  ? t('service_disruption', locale)
+                  : t('partial_degradation', locale)
             }
           />
 
@@ -165,7 +170,7 @@ export function StatusPage({
                     <Text as="p" variant="bodySm" tone="subdued">
                       {service.latencyMs}ms
                     </Text>
-                    {healthBadge(service.status)}
+                    {healthBadge(service.status, locale)}
                   </InlineStack>
                 </InlineStack>
               </Box>
@@ -229,10 +234,12 @@ export function BackupManager({
   backups,
   onCreateBackup,
   onRestore,
+  locale = 'en',
 }: {
   backups: Backup[];
   onCreateBackup: () => void;
   onRestore: (id: string) => void;
+  locale?: string;
 }) {
   const [confirmRestoreId, setConfirmRestoreId] = useState<string | null>(null);
 
@@ -253,10 +260,10 @@ export function BackupManager({
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingLg">
-            Backups
+            {t('backups', locale)}
           </Text>
           <Button variant="primary" onClick={onCreateBackup}>
-            Create Backup
+            {t('create_backup', locale)}
           </Button>
         </InlineStack>
 
@@ -292,7 +299,7 @@ export function BackupManager({
                     tone={confirmRestoreId === backup.id ? "critical" : undefined}
                     variant={confirmRestoreId === backup.id ? "primary" : "secondary"}
                   >
-                    {confirmRestoreId === backup.id ? "Confirm Restore" : "Restore"}
+                    {confirmRestoreId === backup.id ? `${t('confirm', locale)} ${t('restore', locale)}` : t('restore', locale)}
                   </Button>
                 </InlineStack>
               </Box>
@@ -318,9 +325,11 @@ interface DRConfig {
 export function DisasterRecoveryConfig({
   config,
   onChange,
+  locale = 'en',
 }: {
   config: DRConfig;
   onChange: (config: DRConfig) => void;
+  locale?: string;
 }) {
   const [localConfig, setLocalConfig] = useState<DRConfig>(config);
   const [saved, setSaved] = useState(true);
@@ -346,9 +355,9 @@ export function DisasterRecoveryConfig({
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingLg">
-            Disaster Recovery
+            {t('disaster_recovery', locale)}
           </Text>
-          {!saved && <Badge tone="attention">Unsaved changes</Badge>}
+          {!saved && <Badge tone="attention">{t('unsaved_changes', locale)}</Badge>}
         </InlineStack>
 
         <Checkbox

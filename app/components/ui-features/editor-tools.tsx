@@ -15,6 +15,7 @@ import {
   DataTable,
   ProgressBar,
 } from "@shopify/polaris";
+import { t } from "../../utils/i18n";
 
 // ---------------------------------------------------------------------------
 // T0368 - Saved Searches
@@ -31,11 +32,13 @@ export function SavedSearches({
   onSelect,
   onSave,
   onDelete,
+  locale = 'en',
 }: {
   searches: SavedSearch[];
   onSelect: (query: string) => void;
   onSave: (name: string, query: string) => void;
   onDelete: (id: string) => void;
+  locale?: string;
 }) {
   const [popoverActive, setPopoverActive] = useState(false);
   const [newName, setNewName] = useState("");
@@ -58,7 +61,7 @@ export function SavedSearches({
 
   const activator = (
     <Button onClick={togglePopover} disclosure>
-      Saved Searches
+      {t('saved_searches', locale)}
     </Button>
   );
 
@@ -68,7 +71,7 @@ export function SavedSearches({
         <BlockStack gap="300">
           {searches.length === 0 && (
             <Text as="p" variant="bodySm" tone="subdued">
-              No saved searches yet.
+              {t('no_saved_searches', locale)}
             </Text>
           )}
           {searches.map((search) => (
@@ -77,7 +80,7 @@ export function SavedSearches({
                 {search.name}
               </Button>
               <Button variant="plain" tone="critical" onClick={() => onDelete(search.id)}>
-                Delete
+                {t('delete', locale)}
               </Button>
             </InlineStack>
           ))}
@@ -87,8 +90,8 @@ export function SavedSearches({
               <TextField label="Name" value={newName} onChange={setNewName} autoComplete="off" />
               <TextField label="Query" value={newQuery} onChange={setNewQuery} autoComplete="off" />
               <InlineStack gap="200">
-                <Button variant="primary" onClick={handleSave}>Save</Button>
-                <Button onClick={() => setShowForm(false)}>Cancel</Button>
+                <Button variant="primary" onClick={handleSave}>{t('save', locale)}</Button>
+                <Button onClick={() => setShowForm(false)}>{t('cancel', locale)}</Button>
               </InlineStack>
             </BlockStack>
           ) : (
@@ -108,10 +111,12 @@ export function ExportPreview({
   data,
   format,
   onExport,
+  locale = 'en',
 }: {
   data: Array<Record<string, string>>;
   format: "csv" | "json" | "xliff";
   onExport: () => void;
+  locale?: string;
 }) {
   const previewRows = data.slice(0, 5);
   const columns = previewRows.length > 0 ? Object.keys(previewRows[0]) : [];
@@ -123,7 +128,7 @@ export function ExportPreview({
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h3" variant="headingMd">
-            Export Preview
+            {t('export_preview', locale)}
           </Text>
           <Badge>{formatLabel}</Badge>
         </InlineStack>
@@ -136,7 +141,7 @@ export function ExportPreview({
           />
         ) : (
           <Text as="p" variant="bodySm" tone="subdued">
-            No data to export.
+            {t('no_data_to_export', locale)}
           </Text>
         )}
 
@@ -145,7 +150,7 @@ export function ExportPreview({
             {data.length} total {data.length === 1 ? "row" : "rows"}
           </Text>
           <Button variant="primary" onClick={onExport}>
-            Export {formatLabel}
+            {t('export', locale)} {formatLabel}
           </Button>
         </InlineStack>
       </BlockStack>
@@ -162,11 +167,13 @@ export function ImportPreview({
   errors,
   onConfirm,
   onCancel,
+  locale = 'en',
 }: {
   data: Array<Record<string, string>>;
   errors: Array<{ row: number; error: string }>;
   onConfirm: () => void;
   onCancel: () => void;
+  locale?: string;
 }) {
   const previewRows = data.slice(0, 10);
   const columns = previewRows.length > 0 ? Object.keys(previewRows[0]) : [];
@@ -175,7 +182,7 @@ export function ImportPreview({
     <Card>
       <BlockStack gap="400">
         <Text as="h3" variant="headingMd">
-          Import Preview
+          {t('import_preview', locale)}
         </Text>
 
         {errors.length > 0 && (
@@ -208,7 +215,7 @@ export function ImportPreview({
             {data.length} {data.length === 1 ? "row" : "rows"} to import
           </Text>
           <InlineStack gap="200">
-            <Button onClick={onCancel}>Cancel</Button>
+            <Button onClick={onCancel}>{t('cancel', locale)}</Button>
             <Button variant="primary" onClick={onConfirm} disabled={errors.length > 0}>
               Confirm Import
             </Button>
@@ -226,9 +233,11 @@ export function ImportPreview({
 export function ConflictResolver({
   conflicts,
   onResolve,
+  locale = 'en',
 }: {
   conflicts: Array<{ field: string; current: string; incoming: string }>;
   onResolve: (field: string, choice: "current" | "incoming") => void;
+  locale?: string;
 }) {
   const [resolved, setResolved] = useState<Record<string, "current" | "incoming">>({});
 
@@ -245,10 +254,10 @@ export function ConflictResolver({
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h3" variant="headingMd">
-            Resolve Conflicts
+            {t('resolve_conflicts', locale)}
           </Text>
           <Badge tone="attention">
-            {`${conflicts.length - Object.keys(resolved).length} remaining`}
+            {`${conflicts.length - Object.keys(resolved).length} ${t('remaining', locale)}`}
           </Badge>
         </InlineStack>
 
@@ -269,7 +278,7 @@ export function ConflictResolver({
                   >
                     <BlockStack gap="200">
                       <Badge tone={choice === "current" ? "success" : undefined}>
-                        Current
+                        {t('current', locale)}
                       </Badge>
                       <Text as="p" variant="bodySm">
                         {conflict.current}
@@ -279,7 +288,7 @@ export function ConflictResolver({
                         variant={choice === "current" ? "primary" : "secondary"}
                         onClick={() => handleResolve(conflict.field, "current")}
                       >
-                        Keep Current
+                        {t('keep_current', locale)}
                       </Button>
                     </BlockStack>
                   </Box>
@@ -291,7 +300,7 @@ export function ConflictResolver({
                   >
                     <BlockStack gap="200">
                       <Badge tone={choice === "incoming" ? "success" : undefined}>
-                        Incoming
+                        {t('incoming', locale)}
                       </Badge>
                       <Text as="p" variant="bodySm">
                         {conflict.incoming}
@@ -301,7 +310,7 @@ export function ConflictResolver({
                         variant={choice === "incoming" ? "primary" : "secondary"}
                         onClick={() => handleResolve(conflict.field, "incoming")}
                       >
-                        Accept Incoming
+                        {t('accept_incoming', locale)}
                       </Button>
                     </BlockStack>
                   </Box>
@@ -321,17 +330,19 @@ export function ConflictResolver({
 
 export function AutoSaveIndicator({
   status,
+  locale = 'en',
 }: {
   status: "saved" | "saving" | "unsaved" | "error";
+  locale?: string;
 }) {
-  const config: Record<typeof status, { tone: "success" | "info" | "attention" | "critical"; label: string }> = {
-    saved: { tone: "success", label: "Saved" },
-    saving: { tone: "info", label: "Saving..." },
-    unsaved: { tone: "attention", label: "Unsaved" },
-    error: { tone: "critical", label: "Save Error" },
+  const config: Record<typeof status, { tone: "success" | "info" | "attention" | "critical"; key: string }> = {
+    saved: { tone: "success", key: "saved" },
+    saving: { tone: "info", key: "saving" },
+    unsaved: { tone: "attention", key: "unsaved" },
+    error: { tone: "critical", key: "save_error" },
   };
 
-  const { tone, label } = config[status];
+  const { tone, key } = config[status];
 
   return (
     <InlineStack gap="200" blockAlign="center">
@@ -351,7 +362,7 @@ export function AutoSaveIndicator({
           display: "inline-block",
         }}
       />
-      <Badge tone={tone}>{label}</Badge>
+      <Badge tone={tone}>{t(key, locale)}</Badge>
     </InlineStack>
   );
 }
@@ -429,10 +440,12 @@ export function FindReplace({
   onFind,
   onReplace,
   onReplaceAll,
+  locale = 'en',
 }: {
   onFind: (query: string) => void;
   onReplace: (query: string, replacement: string) => void;
   onReplaceAll: (query: string, replacement: string) => void;
+  locale?: string;
 }) {
   const [query, setQuery] = useState("");
   const [replacement, setReplacement] = useState("");
@@ -453,10 +466,10 @@ export function FindReplace({
     <Card>
       <BlockStack gap="300">
         <Text as="h3" variant="headingMd">
-          Find & Replace
+          {t('find_replace', locale)}
         </Text>
         <TextField
-          label="Find"
+          label={t('find', locale)}
           value={query}
           onChange={setQuery}
           autoComplete="off"
@@ -471,13 +484,13 @@ export function FindReplace({
         />
         <InlineStack gap="200">
           <Button onClick={handleFind} disabled={!query.trim()}>
-            Find
+            {t('find', locale)}
           </Button>
           <Button onClick={handleReplace} disabled={!query.trim()}>
-            Replace
+            {t('replace', locale)}
           </Button>
           <Button variant="primary" onClick={handleReplaceAll} disabled={!query.trim()}>
-            Replace All
+            {t('replace_all', locale)}
           </Button>
         </InlineStack>
       </BlockStack>
@@ -492,16 +505,18 @@ export function FindReplace({
 export function SpellCheckIndicator({
   errors,
   onFix,
+  locale = 'en',
 }: {
   errors: Array<{ word: string; suggestions: string[] }>;
   onFix: (word: string, replacement: string) => void;
+  locale?: string;
 }) {
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
 
   if (errors.length === 0) {
     return (
       <InlineStack gap="200" blockAlign="center">
-        <Badge tone="success">No spelling errors</Badge>
+        <Badge tone="success">{t('no_spelling_errors', locale)}</Badge>
       </InlineStack>
     );
   }
@@ -511,7 +526,7 @@ export function SpellCheckIndicator({
       <BlockStack gap="300">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h3" variant="headingMd">
-            Spelling Issues
+            {t('spelling_issues', locale)}
           </Text>
           <Badge tone="warning">{`${errors.length}`}</Badge>
         </InlineStack>
@@ -536,7 +551,7 @@ export function SpellCheckIndicator({
                     setExpandedWord(expandedWord === error.word ? null : error.word)
                   }
                 >
-                  {expandedWord === error.word ? "Hide" : "Suggestions"}
+                  {expandedWord === error.word ? "Hide" : t('suggestions', locale)}
                 </Button>
               </InlineStack>
 
@@ -612,7 +627,7 @@ const getWpm = (locale?: string) => {
 export function ReadingTime({
   text,
   wordsPerMinute,
-  locale,
+  locale = 'en',
 }: {
   text: string;
   wordsPerMinute?: number;
@@ -625,7 +640,7 @@ export function ReadingTime({
 
   return (
     <Text as="p" variant="bodySm" tone="subdued">
-      {minutes} min read
+      {minutes} {t('min_read', locale)}
     </Text>
   );
 }
@@ -638,10 +653,12 @@ export function SEOPreview({
   title,
   description,
   url,
+  locale = 'en',
 }: {
   title: string;
   description: string;
   url: string;
+  locale?: string;
 }) {
   const truncatedTitle = title.length > 60 ? title.slice(0, 60) + "..." : title;
   const truncatedDesc = description.length > 160 ? description.slice(0, 160) + "..." : description;
@@ -650,13 +667,13 @@ export function SEOPreview({
     <Card>
       <BlockStack gap="300">
         <Text as="h3" variant="headingMd">
-          SEO Preview
+          {t('seo_preview', locale)}
         </Text>
         <Box padding="400" background="bg-surface-secondary" borderRadius="200">
           <BlockStack gap="100">
             <Text as="p" variant="bodyMd">
               <span style={{ color: "#1a0dab", fontSize: "18px", cursor: "pointer" }}>
-                {truncatedTitle || "Page Title"}
+                {truncatedTitle || t('page_title', locale)}
               </span>
             </Text>
             <Text as="p" variant="bodySm">
@@ -693,11 +710,13 @@ export function SocialPreview({
   description,
   image,
   platform,
+  locale = 'en',
 }: {
   title: string;
   description: string;
   image?: string;
   platform: "facebook" | "twitter";
+  locale?: string;
 }) {
   const isFacebook = platform === "facebook";
   const cardBg = isFacebook ? "#f0f2f5" : "#15202b";
@@ -764,7 +783,7 @@ export function SocialPreview({
                   lineHeight: "20px",
                 }}
               >
-                {truncatedTitle || "Page Title"}
+                {truncatedTitle || t('page_title', locale)}
               </p>
               <p
                 style={{

@@ -15,7 +15,7 @@ import {
 } from "@shopify/polaris";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { validateSEOSetup, getMultilingualSEOConfig } from "../services/seo";
 import { generateSitemapXml } from "../services/sitemap/generator";
 import type { SitemapGeneratorInput } from "../services/sitemap/types";
@@ -58,7 +58,7 @@ const PRIORITY_BY_TYPE: Record<string, number> = {
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   const seoConfig = getMultilingualSEOConfig(SHOP, LOCALES, {
     defaultLocale: DEFAULT_LOCALE,

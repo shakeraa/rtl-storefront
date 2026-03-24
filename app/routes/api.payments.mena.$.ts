@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { applyRateLimit } from "../utils/security.server";
 import {
   createMENAPaymentOrchestrator,
@@ -45,7 +45,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return json({ ok: true });
   }
 
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
   const orchestrator = createMENAPaymentOrchestrator();
 
   if (path === "providers") {
@@ -141,7 +141,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     return json({ received: true, status: "processed", shopifyStatus, webhookId });
   }
 
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
   const orchestrator = createMENAPaymentOrchestrator();
   const formData = await request.formData();
 

@@ -17,7 +17,7 @@ import {
 } from "@shopify/polaris";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   getInlineSwitcherConfig,
   getDisplayOptions,
@@ -35,7 +35,7 @@ import {
 } from "../services/language-switcher/options";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   const config = getInlineSwitcherConfig("en");
   const labels = getDropdownLabels("en");

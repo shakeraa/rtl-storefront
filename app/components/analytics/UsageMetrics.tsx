@@ -4,6 +4,7 @@
  */
 
 import { Card, BlockStack, InlineGrid, InlineStack, Text, Badge } from "@shopify/polaris";
+import { t } from "../../utils/i18n";
 
 export interface UsageMetricsData {
   totalTranslations: number;
@@ -18,6 +19,7 @@ export interface UsageMetricsData {
 interface UsageMetricsProps {
   data: UsageMetricsData;
   title?: string;
+  locale?: string;
 }
 
 const formatCurrency = (amount: number, currency: string = 'USD') => {
@@ -36,7 +38,8 @@ function MetricCard({ label, value, sub }: { label: string; value: string; sub?:
   );
 }
 
-export function UsageMetrics({ data, title = "Usage Summary" }: UsageMetricsProps) {
+export function UsageMetrics({ data, title, locale = 'en' }: UsageMetricsProps) {
+  const resolvedTitle = title ?? t('usage_summary', locale);
   const wordCountFormatted =
     data.totalWords >= 1_000_000
       ? `${(data.totalWords / 1_000_000).toFixed(1)}M`
@@ -63,25 +66,25 @@ export function UsageMetrics({ data, title = "Usage Summary" }: UsageMetricsProp
 
   return (
     <BlockStack gap="400">
-      <Text as="h2" variant="headingMd">{title}</Text>
+      <Text as="h2" variant="headingMd">{resolvedTitle}</Text>
       <InlineGrid columns={4} gap="400">
         <MetricCard
-          label="Total Translations"
+          label={t('total_translations', locale)}
           value={data.totalTranslations.toLocaleString()}
         />
         <MetricCard
-          label="Words Translated"
+          label={t('words_translated', locale)}
           value={wordCountFormatted}
-          sub={`${charCountFormatted} characters`}
+          sub={`${charCountFormatted} ${t('characters', locale)}`}
         />
         <MetricCard
-          label="API Requests"
+          label={t('api_requests', locale)}
           value={data.totalRequests.toLocaleString()}
           sub={avgProcessingSec}
         />
         {avgConfidencePct && (
           <MetricCard
-            label="AI Confidence"
+            label={t('ai_confidence', locale)}
             value={avgConfidencePct}
           />
         )}
@@ -90,7 +93,7 @@ export function UsageMetrics({ data, title = "Usage Summary" }: UsageMetricsProp
       {data.providers && data.providers.length > 0 && (
         <Card>
           <BlockStack gap="300">
-            <Text as="h3" variant="headingSm">By Provider</Text>
+            <Text as="h3" variant="headingSm">{t('by_provider', locale)}</Text>
             <BlockStack gap="200">
               {data.providers.map((provider) => (
                 <InlineStack key={provider.name} align="space-between" blockAlign="center">

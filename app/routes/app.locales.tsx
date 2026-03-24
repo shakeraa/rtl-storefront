@@ -21,7 +21,7 @@ import {
   ProgressBar,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { SUPPORTED_LANGUAGES } from "../services/language-switcher/options";
 import { calculateCoverage, getCoverageLevel } from "../services/coverage";
 
@@ -30,7 +30,7 @@ import { calculateCoverage, getCoverageLevel } from "../services/coverage";
 // ---------------------------------------------------------------------------
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
 
   // Fetch shop locales from Shopify
   const response = await admin.graphql(
@@ -89,7 +89,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // ---------------------------------------------------------------------------
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 

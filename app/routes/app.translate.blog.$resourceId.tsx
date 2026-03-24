@@ -4,11 +4,11 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Page, Layout, Card, BlockStack, InlineStack, Text, TextField, Button, Badge, Select, Banner, Spinner } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { createTranslationEngine } from "../services/translation/engine";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
   const resourceId = params.resourceId!;
   const url = new URL(request.url);
   const targetLocale = url.searchParams.get("locale") || "ar";
@@ -35,11 +35,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     status: translationMap[f.key] ? "translated" : "untranslated",
   }));
 
-  return json({ resourceId, targetLocale, fields, shop: session.shop });
+  return json({ resourceId, targetLocale, fields, shop });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
   const resourceId = params.resourceId!;
   const formData = await request.formData();
   const intent = formData.get("intent");

@@ -22,7 +22,7 @@ import {
   Box,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 
 // Rich product templates for MENA/RTL market
 const richProducts = [
@@ -745,7 +745,7 @@ const PUBLISHABLE_PUBLISH_MUTATION = `
 `;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
   return json({ 
     productCount: richProducts.length,
     products: richProducts.map(p => ({
@@ -757,7 +757,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 

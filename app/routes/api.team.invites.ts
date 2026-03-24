@@ -10,7 +10,7 @@
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { applyRateLimit } from "../utils/security.server";
 import {
   createInvite,
@@ -24,8 +24,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { shop } = await authenticateWithTenant(request);
 
   const invites = await getInvites(shop);
 
@@ -39,8 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   applyRateLimit(request, { maxRequests: 20 });
 
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
+  const { shop, session } = await authenticateWithTenant(request);
   const userEmail = session.email || "owner";
 
   const url = new URL(request.url);

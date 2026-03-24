@@ -39,6 +39,7 @@ export async function getProviderEnv(shop: string): Promise<TranslationServiceEn
     DEEPL_MONTHLY_CHARACTER_QUOTA: process.env.DEEPL_MONTHLY_CHARACTER_QUOTA,
 
     GOOGLE_TRANSLATE_ACCESS_TOKEN: decrypt(settings?.googleAccessToken ?? "") || process.env.GOOGLE_TRANSLATE_ACCESS_TOKEN,
+    GOOGLE_SERVICE_ACCOUNT_KEY: process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
     GOOGLE_CLOUD_PROJECT_ID: decrypt(settings?.googleProjectId ?? "") || process.env.GOOGLE_CLOUD_PROJECT_ID,
     GOOGLE_TRANSLATE_LOCATION: process.env.GOOGLE_TRANSLATE_LOCATION,
     GOOGLE_MONTHLY_REQUEST_QUOTA: process.env.GOOGLE_MONTHLY_REQUEST_QUOTA,
@@ -80,7 +81,10 @@ export async function getProviderStatus(shop: string) {
     anthropic: { configured: Boolean(env.ANTHROPIC_API_KEY), name: "Anthropic Claude" },
     deepl: { configured: Boolean(env.DEEPL_API_KEY), name: "DeepL" },
     google: {
-      configured: Boolean(env.GOOGLE_TRANSLATE_ACCESS_TOKEN && env.GOOGLE_CLOUD_PROJECT_ID),
+      configured: Boolean(
+        (env.GOOGLE_TRANSLATE_ACCESS_TOKEN || env.GOOGLE_SERVICE_ACCOUNT_KEY) &&
+          env.GOOGLE_CLOUD_PROJECT_ID,
+      ),
       name: "Google Translate",
     },
     azure: { configured: Boolean(env.AZURE_TRANSLATOR_KEY), name: "Azure Translator" },

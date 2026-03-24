@@ -19,7 +19,7 @@ import {
   TextField,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import {
   createMENAPaymentOrchestrator,
@@ -28,7 +28,7 @@ import {
 } from "../services/payments/mena";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  await authenticateWithTenant(request);
 
   // Initialize the MENA payment orchestrator from env vars
   const orchestrator = createMENAPaymentOrchestrator();
@@ -47,12 +47,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "save") {
-    const shop = session.shop;
     const providerId = formData.get("providerId") as string;
     const apiKey = formData.get("apiKey") as string;
     const merchantId = formData.get("merchantId") as string;

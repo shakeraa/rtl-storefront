@@ -20,7 +20,7 @@ import {
   Banner,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import { TranslationList } from "../components/translations/TranslationList";
 
@@ -45,7 +45,7 @@ function getTimeAgo(date: Date): string {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   // Query translation cache for language stats
   let languageStats: Record<string, { name: string; nativeName: string; translated: number; total: number; coverage: number }> = {};
@@ -129,7 +129,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const partialCount = items.filter((i) => i.status === "Partial").length;
 
   return json({
-    shop: session.shop,
+    shop,
     items,
     languageStats,
     untranslatedCount,

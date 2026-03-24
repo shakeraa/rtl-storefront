@@ -6,7 +6,7 @@
 
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 
 const richProducts = [
   {
@@ -653,7 +653,7 @@ const richProducts = [
 ];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   const results = {
     success: [] as string[],
@@ -745,7 +745,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   return json({
-    shop: session.shop,
+    shop,
     success: results.success.length,
     failed: results.failed.length,
     createdProducts: results.success,

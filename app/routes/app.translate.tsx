@@ -21,7 +21,7 @@ import {
   useIndexResourceState,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import db from "../db.server";
 import { getStats as getTMStats } from "../services/translation-memory/store";
 import { getProviderStatus } from "../services/translation/get-provider-env.server";
@@ -48,7 +48,7 @@ const RESOURCE_TYPE_QUERY = `
 `;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session, admin } = await authenticate.admin(request);
+  const { shop, admin } = await authenticateWithTenant(request);
 
   // Fetch translation memory stats from the TM store service
   let tmStats: { totalEntries: number; languagePairs: Array<{ sourceLocale: string; targetLocale: string; count: number }> } = {
@@ -56,7 +56,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     languagePairs: [],
   };
   try {
-    tmStats = await getTMStats(session.shop);
+    tmStats = await getTMStats(shop);
   } catch {
     // TM stats unavailable — fall back to defaults
   }
@@ -162,7 +162,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!languageStats.hebrew) languageStats.hebrew = { translated: 0, total: 0, coverage: 0 };
   if (!languageStats.farsi) languageStats.farsi = { translated: 0, total: 0, coverage: 0 };
 
-  const providerStatus = await getProviderStatus(session.shop);
+  const providerStatus = await getProviderStatus(shop);
 
   return json({
     items,

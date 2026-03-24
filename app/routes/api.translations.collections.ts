@@ -10,7 +10,7 @@
  */
 
 import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import { contentTranslator } from "../services/content-translator/index";
 import { getCollectionTranslatableFields } from "../services/content-translation";
 
@@ -19,7 +19,7 @@ import { getCollectionTranslatableFields } from "../services/content-translation
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   const url = new URL(request.url);
   const collectionId = url.searchParams.get("collectionId");
@@ -77,7 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const fields = getCollectionTranslatableFields();
 
   return json({
-    shop: session.shop,
+    shop,
     collectionId: gid,
     locale,
     fields,
@@ -91,7 +91,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 // ---------------------------------------------------------------------------
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin, shop } = await authenticateWithTenant(request);
 
   if (request.method !== "POST") {
     return json({ error: "Method not allowed" }, { status: 405 });
@@ -183,7 +183,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (translationInputs.length === 0) {
     return json({
       success: true,
-      shop: session.shop,
+      shop,
       collectionId: gid,
       locale,
       translations: [],
@@ -242,7 +242,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return json({
     success: true,
-    shop: session.shop,
+    shop,
     collectionId: gid,
     locale,
     translations: result?.translations ?? [],

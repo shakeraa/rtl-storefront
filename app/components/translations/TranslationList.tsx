@@ -8,6 +8,7 @@ import {
   InlineStack,
 } from "@shopify/polaris";
 import { TranslationStatus } from "./TranslationStatus";
+import { t } from "../../utils/i18n";
 
 export interface TranslationItem {
   id: string;
@@ -22,12 +23,14 @@ interface TranslationListProps {
   items: TranslationItem[];
   onTranslate?: (id: string) => void;
   onBulkTranslate?: (ids: string[]) => void;
+  locale?: string;
 }
 
 export function TranslationList({
   items,
   onTranslate,
   onBulkTranslate,
+  locale = 'en',
 }: TranslationListProps) {
   const resourceName = { singular: "content item", plural: "content items" };
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
@@ -40,7 +43,7 @@ export function TranslationList({
   const promotedBulkActions = onBulkTranslate
     ? [
         {
-          content: `Translate ${selectedResources.length} selected`,
+          content: `${t('translate', locale)} ${selectedResources.length} ${t('selected', locale)}`,
           onAction: handleBulkTranslate,
         },
       ]
@@ -77,7 +80,7 @@ export function TranslationList({
       <IndexTable.Cell>
         <InlineStack gap="200">
           <Button size="slim" onClick={() => onTranslate?.(item.id)}>
-            Translate
+            {t('translate', locale)}
           </Button>
         </InlineStack>
       </IndexTable.Cell>
@@ -92,12 +95,12 @@ export function TranslationList({
       onSelectionChange={handleSelectionChange}
       promotedBulkActions={promotedBulkActions}
       headings={[
-        { title: "Content" },
-        { title: "Type" },
-        { title: "Source Language" },
-        { title: "Status" },
-        { title: "Last Updated" },
-        { title: "Actions" },
+        { title: t('content', locale) },
+        { title: t('type', locale) },
+        { title: t('source_language', locale) },
+        { title: t('status', locale) },
+        { title: t('last_updated', locale) },
+        { title: t('actions', locale) },
       ]}
     >
       {rowMarkup}

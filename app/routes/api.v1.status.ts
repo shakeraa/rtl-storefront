@@ -7,7 +7,7 @@
  */
 
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticateWithTenant } from "../utils/auth.server";
 import {
   calculateCoverage,
   getCoverageLevel,
@@ -20,7 +20,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const { shop } = await authenticateWithTenant(request);
 
   const url = new URL(request.url);
   const locale = url.searchParams.get("locale") ?? undefined;
@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const healthCheck = {
     status: "ok" as const,
     timestamp: new Date().toISOString(),
-    shop: session.shop,
+    shop,
   };
 
   // Coverage stats — in a real implementation these would come from the

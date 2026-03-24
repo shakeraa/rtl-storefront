@@ -4,6 +4,7 @@
  */
 
 import { Card, BlockStack, InlineStack, Box, Text, Badge, DataTable } from "@shopify/polaris";
+import { t } from "../../utils/i18n";
 
 export interface ConversionChartData {
   language: string;
@@ -17,6 +18,7 @@ interface ConversionChartProps {
   data: ConversionChartData[];
   title?: string;
   conversionRate?: number;
+  locale?: string;
 }
 
 const formatCurrency = (amount: number, currency: string = 'USD') => {
@@ -25,15 +27,17 @@ const formatCurrency = (amount: number, currency: string = 'USD') => {
 
 export function ConversionChart({
   data,
-  title = "Conversions by Language",
+  title,
   conversionRate,
+  locale = 'en',
 }: ConversionChartProps) {
+  const resolvedTitle = title ?? t('conversions_by_language', locale);
   if (data.length === 0) {
     return (
       <Card>
         <BlockStack gap="300">
-          <Text as="h2" variant="headingMd">{title}</Text>
-          <Text as="p" variant="bodyMd" tone="subdued">No conversion data available.</Text>
+          <Text as="h2" variant="headingMd">{resolvedTitle}</Text>
+          <Text as="p" variant="bodyMd" tone="subdued">{t('no_data', locale)}</Text>
         </BlockStack>
       </Card>
     );
@@ -52,7 +56,7 @@ export function ConversionChart({
     <Card>
       <BlockStack gap="400">
         <InlineStack align="space-between" blockAlign="center">
-          <Text as="h2" variant="headingMd">{title}</Text>
+          <Text as="h2" variant="headingMd">{resolvedTitle}</Text>
           {conversionRate !== undefined && (
             <Badge tone="success">{conversionRate.toFixed(1)}% rate</Badge>
           )}
