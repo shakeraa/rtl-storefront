@@ -68,4 +68,7 @@ temp/
 *.tsbuildinfo
 
 # Internal docs
-docs-internal/
+docs-internal/# Playwright
+playwright-report/
+test-results/
+tests/e2e-browser/screenshots/
